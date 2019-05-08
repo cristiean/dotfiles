@@ -1,15 +1,20 @@
-# name@computer_name:current_path$ 
+# Set Prompt Script to: name@computer_name:current_path$ 
 export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$ "
 
-# current_path$ 
+# Set Prompt Script to: current_path$ 
 #export PS1="\[\033[33;1m\]\w\[\033[m\]\$ "
 
+# Colorise the terminal
 export CLICOLOR=1
-export LSCOLORS=ExFxBxDxCxegedabagacad
+export LSCOLORS=ExFxBxDxCxegedabagacar
+
+# Not sure what I need this for
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# -G Enables colorised output, -F Displays different symbols with ls, -h Reduces the number of digits for sizes
-alias ls='ls -GFh'
+# Improve 'ls'
+# -G Enables colorised output
+# -F Displays different symbols for the different files/directories
+alias ls='ls -GF'
 
-# easier to open documents with MacVim
+# Open files with MacVim faster
 alias vimm='open -a MacVim $1'
