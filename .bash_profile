@@ -9,7 +9,7 @@ export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacar
 
 # Not sure what I need this for
-export PATH="$HOME/.cargo/bin:$PATH"
+#export PATH="$HOME/.cargo/bin:$PATH"
 
 # Improve 'ls'
 # -G Enables colorised output
