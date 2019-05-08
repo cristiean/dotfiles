@@ -9,5 +9,5 @@ set expandtab		            " Expand TABs to spaces.
 set shiftwidth=4	            " Indents will have a width of 4.
 " ---------------------------------------------------------------------------------------
 
-set filetype plugin indent on   " Turns on filetype detection, plugin and indent.  
+filetype plugin indent on   " Turns on filetype detection, plugin and indent.  
 
