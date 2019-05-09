@@ -6,7 +6,7 @@ export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$
 
 # Colorise the terminal
 export CLICOLOR=1
-export LSCOLORS=ExFxBxDxCxegedabagacar
+export LSCOLORS=ExFxBxDxCxegedabagaca
 
 # Not sure what I need this for
 #export PATH="$HOME/.cargo/bin:$PATH"
@@ -14,7 +14,20 @@ export LSCOLORS=ExFxBxDxCxegedabagacar
 # Improve 'ls'
 # -G Enables colorised output
 # -F Displays different symbols for the different files/directories
-alias ls='ls -GF'
+alias ls="ls -GF"
 
 # Open files with MacVim faster
-alias vimm='open -a MacVim $1'
+alias vimm="open -a MacVim $1"
+
+# Weather
+alias weather="curl http://wttr.in"
+
+# Git
+# `$ clone /username/repo`
+clone(){
+    git clone https://github.com/"$1"
+}
+alias status="git status"
+alias commit="git commit"
+alias push="git push"
+alias add="git add"
