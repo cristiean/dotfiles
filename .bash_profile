@@ -1,8 +1,8 @@
-# Set Prompt Script to: name@computer_name:current_path$ 
+# Set Prompt Script to: name@computer_name:current_path$
 export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$ "
 
-# Set Prompt Script to: current_path$ 
-#export PS1="\[\033[33;1m\]\w\[\033[m\]\$ "
+# Set Prompt Script to: current_path$
+# export PS1="\[\033[33;1m\]\w\[\033[m\]\$ "
 
 # Colorise the terminal
 export CLICOLOR=1
@@ -23,11 +23,14 @@ alias vimm="open -a MacVim $1"
 alias weather="curl http://wttr.in"
 
 # Git
-# `$ clone /username/repo`
 clone(){
-    git clone https://github.com/"$1"
+    git clone https://github.com/"$1"   #`$ clone username/repo`
 }
 alias status="git status"
 alias commit="git commit"
 alias push="git push"
 alias add="git add"
+
+# Change Directory - places I go often
+alias desktop="cd ~/Desktop"
+alias root="cd ~/"

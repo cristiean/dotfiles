@@ -19,3 +19,7 @@ set clipboard+=unnamed
 set incsearch                   "Set incremental search
 set hlsearch                    "Highlight search results
 set smartcase                   "Ignore case if search pattern is all lowercase, case-sensitive otherwise
+
+"Set relative line numbering
+"set number                     "set nu, set nonu
+set relativenumber              "set renu, set norenu
