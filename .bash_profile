@@ -1,28 +1,35 @@
-# Set Prompt Script to: name@computer_name:current_path$
+### Set Prompt Script to: name@computer_name:current_path$ #######################
 export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$ "
+##################################################################################
 
-# Set Prompt Script to: current_path$
+### Set Prompt Script to: current_path$ ##########################################
 # export PS1="\[\033[33;1m\]\w\[\033[m\]\$ "
+##################################################################################
 
-# Colorise the terminal
+### Colorise the terminal ########################################################
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagaca
+##################################################################################
 
-# Not sure what I need this for
+### Not sure what I need this for ################################################
 #export PATH="$HOME/.cargo/bin:$PATH"
+##################################################################################
 
-# Improve 'ls'
+### Improve 'ls' #################################################################
 # -G Enables colorised output
 # -F Displays different symbols for the different files/directories
 alias ls="ls -GF"
+##################################################################################
 
-# Open files with MacVim faster
+### Open files with MacVim #######################################################
 alias vimm="open -a MacVim $1"
+##################################################################################
 
-# Weather
+### Weather ######################################################################
 alias weather="curl http://wttr.in"
+##################################################################################
 
-# Git
+### Git ##########################################################################
 clone(){
     git clone https://github.com/"$1"   #`$ clone username/repo`
 }
@@ -30,7 +37,9 @@ alias status="git status"
 alias commit="git commit"
 alias push="git push"
 alias add="git add"
+##################################################################################
 
-# Change Directory - places I go often
+### Change Directory - places I go often #########################################
 alias desktop="cd ~/Desktop"
 alias root="cd ~/"
+##################################################################################
