@@ -31,7 +31,7 @@ alias weather="curl http://wttr.in"
 
 ### Git ##########################################################################
 clone(){
-    git clone https://github.com/"$1"   #`$ clone username/repo`
+    git clone https://github.com/"$1"               # Use: $ clone username/repo
 }
 alias status="git status"
 alias commit="git commit"
