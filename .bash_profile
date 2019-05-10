@@ -36,6 +36,7 @@ clone(){
 }
 alias status="git status"
 alias commit="git commit"
+alias pull="git pull"
 alias push="git push"
 alias add="git add"
 ##################################################################################
