@@ -28,7 +28,7 @@ alias vimm="open -a MacVim $1"
 
 ### Weather ######################################################################
 weather(){
-    curl http://wttr.in/"$1"          # Use: $ weather City
+    curl http://wttr.in/"$1"                        # Use: $ weather City
 }    
 ##################################################################################
 
