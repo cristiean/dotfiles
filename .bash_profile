@@ -11,11 +11,6 @@ export CLICOLOR=1
 export LSCOLORS=GxFxCxDxBxegedabagaced
 ##################################################################################
 
-
-### Not sure what I need this for ################################################
-#export PATH="$HOME/.cargo/bin:$PATH"
-##################################################################################
-
 ### Improve 'ls' #################################################################
 # -G Enables colorised output
 # -F Displays different symbols for the different files/directories
