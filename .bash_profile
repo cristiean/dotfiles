@@ -31,7 +31,9 @@ weather(){
 clone(){
     git clone https://github.com/"$1"               # Use: $ clone username/repo
 }
+alias checkout='git checkout'
 alias status="git status"
+alias branch="git branch"
 alias commit="git commit"
 alias pull="git pull"
 alias push="git push"
