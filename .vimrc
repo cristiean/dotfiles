@@ -1,5 +1,5 @@
 "--- Set line numbering ------------------------------------------------------------------------
-"set number                     "Set line numbering. set nu, set nonu
+set number                      "Set line numbering. set nu, set nonu
 set relativenumber              "Set relative line numbering. set renu, set norenu
 "-----------------------------------------------------------------------------------------------
 
