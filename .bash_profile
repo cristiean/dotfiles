@@ -17,20 +17,20 @@ export LSCOLORS=GxFxCxDxBxegedabagaced
 alias ls="ls -GF"
 ##################################################################################
 
-### Open files with MacVim #######################################################
-alias vimm="open -a MacVim $1"
+### Open with MacVim #############################################################
+alias vimm="open -a MacVim $1"                        # Use $ vimm .bash_profile
+##################################################################################
+
+### Open with Visual Studio Code #################################################
+alias code="open -a 'Visual Studio Code' $1"          # Use $ code ~/Documents
 ##################################################################################
 
 ### Weather ######################################################################
-weather(){
-    curl http://wttr.in/"$1"                        # Use: $ weather City
-}    
+alias weather="curl http://wttr.in/$1".               # Use: $ weather Brighton
 ##################################################################################
 
 ### Git ##########################################################################
-clone(){
-    git clone https://github.com/"$1"               # Use: $ clone username/repo
-}
+alias clone="git clone https://github.com/$1".        # Use: $ clone username/repo
 alias checkout='git checkout'
 alias status="git status"
 alias branch="git branch"
@@ -43,18 +43,5 @@ alias add="git add"
 ### Change Directory shortcuts ###################################################
 alias desktop="cd ~/Desktop"
 alias root="cd ~/"
-##################################################################################
-
-### Experimental #################################################################
-cdfind(){
-    cd $(find "$1" -name "$2")                      # Use: cdfind /Documents notes
-}
-##################################################################################
-
 alias ..="cd .."
-
-### Open Visual Studio Code at dir ###############################################
-code(){
-    open $1 -a "Visual Studio Code"
-}
 ##################################################################################
