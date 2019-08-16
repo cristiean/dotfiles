@@ -18,11 +18,11 @@ alias ls="ls -GF"
 ##################################################################################
 
 ### Open with MacVim #############################################################
-alias vimm="open -a MacVim $1"                        # Use $ vimm .bash_profile
+alias vimm="open -a MacVim $1"                        # Use: $ vimm .bash_profile
 ##################################################################################
 
 ### Open with Visual Studio Code #################################################
-alias code="open -a 'Visual Studio Code' $1"          # Use $ code ~/Documents
+alias code="open -a 'Visual Studio Code' $1"          # Use: $ code ~/Documents
 ##################################################################################
 
 ### Weather ######################################################################
