@@ -19,7 +19,7 @@ alias root="cd ~/"
 alias ..="cd .."                                                                   
 
 ### Git ###########################################################################
-clone(){ git clone https://github.com/$1 }            # Use: $ clone username/repo 
+clone(){ git clone https://github.com/$1; }           # Use: $ clone username/repo 
 alias checkout='git checkout'                                                      
 alias status="git status"                                                          
 alias branch="git branch"                                                          
@@ -35,4 +35,4 @@ alias vimm="open -a MacVim"                           # Use $ vimm .bash_profil
 alias code="open -a 'Visual Studio Code'"             # Use $ code ~/Documents     
 
 ### Weather #######################################################################
-weather(){ curl http://wttr.in/$1 }                   # Use: $ weather Brighton    
+weather(){ curl http://wttr.in/$1; }                  # Use: $ weather Brighton    
