@@ -36,7 +36,7 @@ alias code="open -a 'Visual Studio Code'"             # Use $ code ~/Documents
 
 ### Weather #######################################################################
 function weather {
-    set ARGS; for arg in $@; do ARGS="$ARGS$arg "; done
-    curl "http://wttr.in/$ARGS"                       # Use: $ weather Palo Alto
-    unset ARGS
+    ARGS=; for arg in $@; do ARGS="$ARGS$arg "; done
+    curl http://wttr.in/"$ARGS";                      # Use: $ weather Palo Alto
+    unset ARGS;
 }
