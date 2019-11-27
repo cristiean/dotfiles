@@ -4,7 +4,9 @@ COMPLETION_WAITING_DOTS="true"
 ENABLE_CORRECTION="true"
 HYPHEN_INSENSITIVE="true"
 
-ZSH_THEME="bira"
+autoload -U colors
+colors
+export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 
 export ZSH="/Users/alexandrucristiean/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
@@ -14,6 +16,7 @@ source $ZSH/oh-my-zsh.sh
 alias desktop="cd ~/Desktop"
 alias root="cd ~/"
 alias ..="cd .."
+alias vagrant="cd /volumes/vagrant/"
 
 ### Git ########################################################################
 alias add="git add"
