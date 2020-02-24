@@ -17,6 +17,7 @@ alias desktop="cd ~/Desktop"
 alias root="cd ~/"
 alias ..="cd .."
 alias vagrant="cd /volumes/vagrant/"
+alias term="/Users/alexandrucristiean/Documents/studies/sussex/csai/2_t2"
 
 ### Git ########################################################################
 alias add="git add"
@@ -41,3 +42,6 @@ function weather {
     unset ARGS;
 }
 ################################################################################
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
