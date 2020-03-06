@@ -4,8 +4,7 @@ COMPLETION_WAITING_DOTS="true"
 ENABLE_CORRECTION="true"
 HYPHEN_INSENSITIVE="true"
 
-autoload -U colors
-colors
+autoload -U colors;colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 
 export ZSH="/Users/alexandrucristiean/.oh-my-zsh"
@@ -24,6 +23,8 @@ alias add="git add"
 alias branch="git branch"
 alias checkout='git checkout'
 alias commit="git commit"
+alias fetch="git fetch"
+alias merge="git merge"
 alias pull="git pull"
 alias push="git push"
 alias status="git status"
