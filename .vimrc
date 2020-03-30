@@ -22,6 +22,6 @@ set smartcase                   "Ignore case if search pattern is lowercase, els
 syntax on                       "Syntax highlighting
 set guifont=Menlo:h15           "Set fontface:size
 filetype plugin indent on       "Turns on filetype detection, plugin and indent.  
-set clipboard+=unnamed.         "Uses system clipboard for yanking, only works with vim 7.3+
+set clipboard=unnamed           "Uses system clipboard for yanking, only works with vim 7.3+
 "set textwidth=80                "Wraps text after the 80 character limit. Helps readability.
 "-----------------------------------------------------------------------------------------------
