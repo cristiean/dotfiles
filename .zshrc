@@ -11,12 +11,14 @@ export ZSH="/Users/alexandrucristiean/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 
 ######## ALEXANDRU's STUFF #####################################################
+### Taste ######################################################################
+alias ls="ls -1"                                      # Displays one-entry lines
+
 ### Change Directory shortcuts #################################################
 alias desktop="cd ~/Desktop"
+alias downloads="cd ~/Downloads"
 alias root="cd ~/"
 alias ..="cd .."
-alias vagrant="cd /volumes/vagrant/"
-alias term="/Users/alexandrucristiean/Documents/studies/sussex/csai/2_t2"
 
 ### Git ########################################################################
 alias add="git add"
