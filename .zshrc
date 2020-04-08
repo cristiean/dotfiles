@@ -12,7 +12,7 @@ source $ZSH/oh-my-zsh.sh
 
 ######## ALEXANDRU's STUFF #####################################################
 ### Taste ######################################################################
-alias ls="ls -1"                                      # Displays one-entry lines
+alias ls="ls -1F"                                     # One column, symbols
 
 ### Change Directory shortcuts #################################################
 alias desktop="cd ~/Desktop"
