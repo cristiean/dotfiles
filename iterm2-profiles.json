@@ -2,13 +2,7 @@
 "Profiles": [
 {
   "Badge Text" : "",
-  "Ansi 5 Color" : {
-    "Red Component" : 0.78096956014633179,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.53848373889923096,
-    "Alpha Component" : 1,
-    "Green Component" : 0.43883562088012695
-  },
+  "Thin Strokes" : 3,
   "Working Directory" : "\/Users\/alexandrucristiean",
   "Prompt Before Closing 2" : false,
   "Selected Text Color" : {
@@ -425,15 +419,15 @@
     "Green Component" : 0.18880486488342285
   },
   "Name" : "Alexandru Gruvbox",
-  "Blinking Cursor" : false,
   "Guid" : "031CE68A-AB57-483C-9DE4-C0F733E84333",
+  "Blinking Cursor" : false,
   "Badge Max Width" : 0.5,
   "Ansi 8 Color" : {
-    "Red Component" : 0.49889594316482544,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.37962067127227783,
+    "Red Component" : 0.5725490196078431,
+    "Color Space" : "sRGB",
+    "Blue Component" : 0.45098039215686275,
     "Alpha Component" : 1,
-    "Green Component" : 0.43934443593025208
+    "Green Component" : 0.51372549019607838
   },
   "Ansi 10 Color" : {
     "Red Component" : 0.52591603994369507,
@@ -532,26 +526,26 @@
   "Unicode Normalization" : 0,
   "Visual Bell" : true,
   "Custom Directory" : "Recycle",
-  "Thin Strokes" : 3,
-  "ASCII Ligatures" : true
-},
-{
-  "Badge Text" : "",
+  "ASCII Ligatures" : true,
   "Ansi 5 Color" : {
     "Red Component" : 0.78096956014633179,
     "Color Space" : "Calibrated",
     "Blue Component" : 0.53848373889923096,
     "Alpha Component" : 1,
     "Green Component" : 0.43883562088012695
-  },
+  }
+},
+{
+  "Badge Text" : "",
+  "Thin Strokes" : 3,
   "Working Directory" : "\/Users\/alexandrucristiean",
   "Prompt Before Closing 2" : false,
   "Selected Text Color" : {
     "Red Component" : 1,
     "Color Space" : "sRGB",
-    "Blue Component" : 0.78571421462966695,
+    "Blue Component" : 0.78431372549019607,
     "Alpha Component" : 1,
-    "Green Component" : 0.91071438426341633
+    "Green Component" : 0.90980392156862744
   },
   "Rows" : 25,
   "Ansi 11 Color" : {
@@ -563,11 +557,11 @@
   },
   "Use Italic Font" : true,
   "Foreground Color" : {
-    "Red Component" : 0.90061241388320923,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.63873869180679321,
+    "Red Component" : 0.92156862745098034,
+    "Color Space" : "sRGB",
+    "Blue Component" : 0.69803921568627447,
     "Alpha Component" : 1,
-    "Green Component" : 0.82989895343780518
+    "Green Component" : 0.85882352941176465
   },
   "Use Custom Window Title" : false,
   "Right Option Key Sends" : 0,
@@ -725,11 +719,11 @@
   "Shortcut" : "",
   "Background Image Location" : "",
   "Bold Color" : {
-    "Red Component" : 0.5926094651222229,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.44320183992385864,
+    "Red Component" : 1,
+    "Color Space" : "sRGB",
+    "Blue Component" : 0.7797619104385376,
     "Alpha Component" : 1,
-    "Green Component" : 0.5310559868812561
+    "Green Component" : 0.91071426868438721
   },
   "Use Cursor Guide" : true,
   "Unlimited Scrollback" : true,
@@ -960,15 +954,15 @@
     "Green Component" : 0.18880486488342285
   },
   "Name" : "Alexandru Gruvbox Vim",
-  "Blinking Cursor" : false,
   "Guid" : "A3A68D0B-7841-47C3-9752-A5F2C6ABBD5F",
+  "Blinking Cursor" : false,
   "Badge Max Width" : 0.5,
   "Ansi 8 Color" : {
-    "Red Component" : 0.49889594316482544,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.37962067127227783,
+    "Red Component" : 0.5725490196078431,
+    "Color Space" : "sRGB",
+    "Blue Component" : 0.45098039215686275,
     "Alpha Component" : 1,
-    "Green Component" : 0.43934443593025208
+    "Green Component" : 0.51372549019607838
   },
   "Ansi 10 Color" : {
     "Red Component" : 0.52591603994369507,
@@ -1008,11 +1002,11 @@
   "Vertical Spacing" : 1.25,
   "Use Underline Color" : false,
   "Ansi 7 Color" : {
-    "Red Component" : 0.97939503192901611,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.73338055610656738,
+    "Red Component" : 0.98431372549019602,
+    "Color Space" : "sRGB",
+    "Blue Component" : 0.7803921568627451,
     "Alpha Component" : 1,
-    "Green Component" : 0.93639552593231201
+    "Green Component" : 0.94509803921568625
   },
   "Space" : 0,
   "Command" : "",
@@ -1024,11 +1018,11 @@
   "Minimum Contrast" : 0,
   "Only The Default BG Color Uses Transparency" : true,
   "Ansi 15 Color" : {
-    "Red Component" : 0.90061241388320923,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.63873869180679321,
+    "Red Component" : 0.92156862745098034,
+    "Color Space" : "sRGB",
+    "Blue Component" : 0.69803921568627447,
     "Alpha Component" : 1,
-    "Green Component" : 0.82989895343780518
+    "Green Component" : 0.85882352941176465
   },
   "Open Toolbelt" : false,
   "Unicode Version" : 8,
@@ -1067,8 +1061,14 @@
   "Unicode Normalization" : 0,
   "Visual Bell" : true,
   "Custom Directory" : "Recycle",
-  "Thin Strokes" : 3,
-  "ASCII Ligatures" : true
+  "ASCII Ligatures" : true,
+  "Ansi 5 Color" : {
+    "Red Component" : 0.78096956014633179,
+    "Color Space" : "Calibrated",
+    "Blue Component" : 0.53848373889923096,
+    "Alpha Component" : 1,
+    "Green Component" : 0.43883562088012695
+  }
 },
 {
   "Badge Text" : "",
