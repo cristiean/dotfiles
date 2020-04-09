@@ -1,24 +1,18 @@
-######## Settings left from the default OMZSH config file ######################
-# Path to your oh-my-zsh installation.
-COMPLETION_WAITING_DOTS="true"
-ENABLE_CORRECTION="true"
-HYPHEN_INSENSITIVE="true"
+######## Oh My ZSH! config #####################################################
+export ZSH="/Users/alexandrucristiean/.oh-my-zsh";source $ZSH/oh-my-zsh.sh
+autoload -U colors
 
-autoload -U colors;colors
+### Personal taste #############################################################
+HYPHEN_INSENSITIVE="true"                             # part of OMZH
+COMPLETION_WAITING_DOTS="true"                        # part of OMZH
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
-
-export ZSH="/Users/alexandrucristiean/.oh-my-zsh"
-source $ZSH/oh-my-zsh.sh
-
-######## ALEXANDRU's STUFF #####################################################
-### Taste ######################################################################
+setopt globdots                                       # Autocomplete dot files http://zsh.sourceforge.net/Intro/intro_16.html
 alias ls="ls -1F"                                     # One column, symbols
 
 ### Change Directory shortcuts #################################################
 alias desktop="cd ~/Desktop"
 alias downloads="cd ~/Downloads"
 alias root="cd ~/"
-alias ..="cd .."
 
 ### Git ########################################################################
 alias add="git add"
