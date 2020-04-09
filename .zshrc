@@ -3,7 +3,7 @@
 COMPLETION_WAITING_DOTS="true"
 ENABLE_CORRECTION="true"
 HYPHEN_INSENSITIVE="true"
- 
+
 autoload -U colors;colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 
@@ -31,7 +31,11 @@ alias pull="git pull"
 alias push="git push"
 alias status="git status"
 function clone { git clone https://github.com/$1; }   # Use: $ clone user/repo
-
+function camp {                                       # commit all message push
+    ARGS=; for arg in $@; do ARGS="$ARGS$arg "; done
+    commit -am "$ARGS"; push                          # Use: $ camp Fix spelling
+    unset ARGS;
+}
 ### Open with MacVim ###########################################################
 alias vimm="open -a MacVim"                           # Use: $ vimm .zshrc
 
