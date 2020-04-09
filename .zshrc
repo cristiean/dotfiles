@@ -12,7 +12,6 @@ alias ls="ls -1F"                                     # One column, symbols
 ### Change Directory shortcuts #################################################
 alias desktop="cd ~/Desktop"
 alias downloads="cd ~/Downloads"
-alias root="cd ~/"
 
 ### Git ########################################################################
 alias add="git add"
