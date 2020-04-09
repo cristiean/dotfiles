@@ -13,30 +13,23 @@ alias desktop="cd ~/Desktop"
 alias downloads="cd ~/Downloads"
 
 ### Open stuff with apps ######################################################
-alias vimm="open -a MacVim"                           # Use: $ vimm .zshrc
 alias code="open -a 'Visual Studio Code'"             # Use: $ code ~/Documents
+alias vimm="open -a MacVim"                           # Use: $ vimm .zshrc
 
 ### Git ########################################################################
-alias add="git add"
-alias branch="git branch"
-alias checkout='git checkout'
-alias commit="git commit"
-alias fetch="git fetch"
-alias merge="git merge"
-alias pull="git pull"
-alias push="git push"
-alias status="git status"
-function clone { git clone https://github.com/$1; }   # Use: $ clone user/repo
-function camp {                                       # commit all message push
-    ARGS=; for arg in $@; do ARGS="$ARGS$arg "; done
-    commit -am "$ARGS"; push                          # Use: $ camp Fix spelling
-    unset ARGS }
+#alias add="git add"
+#alias branch="git branch"
+function camp { commit -am "$*";push }                # Use: $ camp fix bug
+#alias checkout='git checkout'
+function clone { git clone https://github.com/$1 }    # Use: $ clone user/repo
+#alias commit="git commit"
+#alias fetch="git fetch"
+#alias merge="git merge"
+#alias pull="git pull"
+#alias push="git push"
 
 ### Weather ####################################################################
-function weather {
-    ARGS=; for arg in $@; do ARGS="$ARGS$arg "; done
-    curl http://wttr.in/"$ARGS";                      # Use: $ weather Palo Alto
-    unset ARGS }
+function weather { curl http://wttr.in/"$*" }         # Use: $ weather Palo Alto
 
-### Shell integration https://www.iterm2.com/documentation-shell-integration.html
+### Shell integration # https://iterm2.com/documentation-shell-integration.html #
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
