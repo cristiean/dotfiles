@@ -3,7 +3,7 @@
 COMPLETION_WAITING_DOTS="true"
 ENABLE_CORRECTION="true"
 HYPHEN_INSENSITIVE="true"
-
+ 
 autoload -U colors;colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 
