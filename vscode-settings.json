@@ -41,6 +41,6 @@
     "fontshortcuts.defaultTerminalFontSize": 18,
     "editor.lineHeight": 0,
     "editor.fontSize": 18,
-    "window.zoomLevel": 0,
-    "workbench.colorTheme": "Gruvbox Dark (Hard)"
+    "workbench.colorTheme": "Gruvbox Dark (Hard)",
+    "window.zoomLevel": 0
 }
