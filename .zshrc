@@ -4,7 +4,7 @@ export ZSH="/Users/alexandrucristiean/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 
 ### Personal taste #############################################################
-autoload -U colors
+#autoload -U colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 setopt globdots                                       # Autocomplete dot files
 
@@ -15,18 +15,12 @@ alias downloads="cd ~/Downloads"
 ### Open stuff with apps ######################################################
 alias code="open -a 'Visual Studio Code'"             # Use: $ code ~/Documents
 alias vimm="open -a MacVim"                           # Use: $ vimm .zshrc
+alias colab="open https://colab.research.google.com"
+alias latex-symbols="open https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
 
 ### Git ########################################################################
-#alias add="git add"
-#alias branch="git branch"
-function camp { commit -am "$*";push }                # Use: $ camp fix bug
-#alias checkout='git checkout'
+function camp { git commit -am "$*"; git push }       # Use: $ camp fix bug
 function clone { git clone https://github.com/$1 }    # Use: $ clone user/repo
-#alias commit="git commit"
-#alias fetch="git fetch"
-#alias merge="git merge"
-#alias pull="git pull"
-#alias push="git push"
 
 ### Weather ####################################################################
 function weather { curl http://wttr.in/"$*" }         # Use: $ weather Palo Alto
