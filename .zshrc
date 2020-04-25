@@ -17,6 +17,10 @@ alias code="open -a 'Visual Studio Code'"             # Use: $ code ~/Documents
 alias vimm="open -a MacVim"                           # Use: $ vimm .zshrc
 alias colab="open https://colab.research.google.com"
 alias latex-symbols="open https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
+alias jupyter-colab="jupyter notebook --no-browser --port=8888 \
+                    --NotebookApp.port_retries=0 \
+                    --NotebookApp.notebook_dir='~/colab/local/' \
+                    --NotebookApp.allow_origin='https://colab.research.google.com'"
 
 ### Git ########################################################################
 function camp { git commit -am "$*"; git push }       # Use: $ camp fix bug
