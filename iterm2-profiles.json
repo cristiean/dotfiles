@@ -1,6 +1,12 @@
 {
   "Badge Text" : "",
-  "Thin Strokes" : 3,
+  "Ansi 5 Color" : {
+    "Red Component" : 0.78096956014633179,
+    "Color Space" : "Calibrated",
+    "Blue Component" : 0.53848373889923096,
+    "Alpha Component" : 1,
+    "Green Component" : 0.43883562088012695
+  },
   "Working Directory" : "\/Users\/alexandrucristiean",
   "Prompt Before Closing 2" : false,
   "Selected Text Color" : {
@@ -445,13 +451,13 @@
   "Automatically Log" : false,
   "Smart Cursor Color" : true,
   "Semantic History" : {
-    "action" : "best editor",
     "text" : "",
+    "action" : "best editor",
     "editor" : "com.github.atom"
   },
   "Ambiguous Double Width" : false,
   "Blur Radius" : 14.729846129441624,
-  "Badge Max Height" : 0.20000000000000001,
+  "Badge Max Height" : 0.5,
   "Background Image Mode" : 0,
   "Ansi 0 Color" : {
     "Red Component" : 0.087016984820365906,
@@ -524,13 +530,7 @@
   "Use Tab Color" : false,
   "Unicode Normalization" : 0,
   "Visual Bell" : true,
-  "ASCII Ligatures" : true,
   "Custom Directory" : "Recycle",
-  "Ansi 5 Color" : {
-    "Red Component" : 0.78096956014633179,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.53848373889923096,
-    "Alpha Component" : 1,
-    "Green Component" : 0.43883562088012695
-  }
+  "Thin Strokes" : 3,
+  "ASCII Ligatures" : true
 }
