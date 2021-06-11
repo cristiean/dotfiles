@@ -2,6 +2,10 @@
 autoload -U colors && colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 setopt globdots                                       # Autocomplete dot files
+setopt autocd                                         # cd without "cd"
+setopt correct                                        # Correct cmds
+setopt correctall                                     # Correct cmds
+setopt noclobber                                      # Prevent overwrite file
 alias ls="ls -FG"
 
 ### Change Directory shortcuts #################################################
