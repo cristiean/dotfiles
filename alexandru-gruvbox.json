@@ -1,12 +1,6 @@
 {
   "Badge Text" : "",
-  "Ansi 5 Color" : {
-    "Red Component" : 0.78096956014633179,
-    "Color Space" : "Calibrated",
-    "Blue Component" : 0.53848373889923096,
-    "Alpha Component" : 1,
-    "Green Component" : 0.43883562088012695
-  },
+  "Custom Directory" : "Recycle",
   "Working Directory" : "\/Users\/alexandrucristiean",
   "Prompt Before Closing 2" : false,
   "Selected Text Color" : {
@@ -422,9 +416,9 @@
     "Alpha Component" : 1,
     "Green Component" : 0.18880486488342285
   },
-  "Name" : "Alexandru Gruvbox",
-  "Blinking Cursor" : false,
+  "Name" : "alexandru-gruvbox",
   "Guid" : "A3A68D0B-7841-47C3-9752-A5F2C6ABBD5F",
+  "Blinking Cursor" : false,
   "Badge Max Width" : 0.5,
   "Ansi 8 Color" : {
     "Red Component" : 0.5725490196078431,
@@ -451,8 +445,8 @@
   "Automatically Log" : false,
   "Smart Cursor Color" : true,
   "Semantic History" : {
-    "text" : "",
     "action" : "best editor",
+    "text" : "",
     "editor" : "com.github.atom"
   },
   "Ambiguous Double Width" : false,
@@ -530,7 +524,13 @@
   "Use Tab Color" : false,
   "Unicode Normalization" : 0,
   "Visual Bell" : true,
-  "Custom Directory" : "Recycle",
-  "Thin Strokes" : 3,
-  "ASCII Ligatures" : true
+  "ASCII Ligatures" : true,
+  "Ansi 5 Color" : {
+    "Red Component" : 0.78096956014633179,
+    "Color Space" : "Calibrated",
+    "Blue Component" : 0.53848373889923096,
+    "Alpha Component" : 1,
+    "Green Component" : 0.43883562088012695
+  },
+  "Thin Strokes" : 3
 }
