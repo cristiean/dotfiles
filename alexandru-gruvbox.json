@@ -2,7 +2,7 @@
   "Badge Text" : "",
   "Custom Directory" : "Recycle",
   "Working Directory" : "\/Users\/alexandrucristiean",
-  "Prompt Before Closing 2" : false,
+  "Prompt Before Closing 2" : 2,
   "Selected Text Color" : {
     "Red Component" : 1,
     "Color Space" : "sRGB",
@@ -10,7 +10,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.90980392156862744
   },
-  "Rows" : 25,
+  "Rows" : 20,
   "Ansi 11 Color" : {
     "Red Component" : 0.80126690864562988,
     "Color Space" : "Calibrated",
@@ -142,6 +142,7 @@
       }
     ],
     "advanced configuration" : {
+      "remove empty components" : false,
       "background color" : {
         "Red Component" : 0.19215686619281769,
         "Color Space" : "sRGB",
@@ -150,10 +151,12 @@
         "Green Component" : 0.19215686619281769
       },
       "font" : ".AppleSystemUIFont 12",
-      "algorithm" : 1
+      "algorithm" : 1,
+      "auto-rainbow style" : 0
     }
   },
   "Hide After Opening" : false,
+  "Prevent Opening in a Tab" : false,
   "Flashing Bell" : false,
   "Cursor Guide Color" : {
     "Red Component" : 0.58477783203125,
@@ -479,8 +482,8 @@
   "Reduce Flicker" : true,
   "Option Key Sends" : 2,
   "Blink Allowed" : true,
-  "Minimum Contrast" : 0,
-  "Only The Default BG Color Uses Transparency" : true,
+  "Minimum Contrast" : 0.11319022647218208,
+  "Only The Default BG Color Uses Transparency" : false,
   "Ansi 15 Color" : {
     "Red Component" : 0.92156862745098034,
     "Color Space" : "sRGB",
@@ -497,7 +500,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.71257460117340088
   },
-  "Transparency" : 0.10289895304568535,
+  "Transparency" : 0,
   "Badge Top Margin" : 10,
   "Background Color" : {
     "Red Component" : 0.11759927868843079,
@@ -510,7 +513,7 @@
   "Screen" : -2,
   "Initial Use Transparency" : true,
   "Bound Hosts" : [
-    "&vim"
+
   ],
   "Non Ascii Font" : "Monaco 12",
   "Ansi 13 Color" : {
