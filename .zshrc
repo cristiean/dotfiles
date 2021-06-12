@@ -30,6 +30,7 @@ function weather { curl http://wttr.in/"$*" }     # Use: $ weather Palo Alto
 
 ### Auto completions #######################################################
 # In trial. Installed using $ brew install zsh-completions
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 autoload -Uz compinit && compinit -d ~/dumps/.zcompdump
 
 ### Auto suggestions #######################################################
