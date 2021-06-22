@@ -6,6 +6,8 @@
 	<false/>
 	<key>AllowTabbarInTitlebarAccessoryBigSur</key>
 	<false/>
+	<key>AlternateMouseScroll</key>
+	<true/>
 	<key>AnimateGraphStatusBarComponents</key>
 	<true/>
 	<key>Default Bookmark Guid</key>
@@ -72,13 +74,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.69999999999999996</real>
+				<real>1</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.69999999999999996</real>
+				<real>1</real>
 				<key>Red Component</key>
-				<real>0.69999999999999996</real>
+				<real>1</real>
 			</dict>
 			<key>Ansi 1 Color</key>
 			<dict>
@@ -1396,6 +1398,8 @@
 	<integer>4</integer>
 	<key>TerminalVMargin</key>
 	<integer>0</integer>
+	<key>TimeBetweenTips</key>
+	<real>604800</real>
 	<key>UseBorder</key>
 	<false/>
 	<key>UseLionStyleFullscreen</key>
@@ -1406,6 +1410,8 @@
 	<false/>
 	<key>WindowNumber</key>
 	<false/>
+	<key>findMode_iTerm</key>
+	<integer>0</integer>
 	<key>kCPKSelectionViewPreferredModeKey</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
