@@ -33,11 +33,19 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' list-separator '#'
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=* m:{a-zA-Z}={A-Za-z}'
+#zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=* m:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' matcher-list '' \
+  'm:{a-z\-}={A-Z\_}' \
+  'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+  'r:|?=** m:{a-z\-}={A-Z\_}'
 
 zstyle ':completion:*' format $fg[blue]%B%U%d%u%b
 zstyle ':completion:*:warnings' format "$fg[red]No matches found"
-zstyle ':completion*:default' menu 'select=0'
+zstyle ':completion*:default' menu yes select
+
+zmodload -i zsh/complist
+bindkey -M menuselect '^M' .accept-line
+bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
 
