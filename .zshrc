@@ -3,6 +3,7 @@ autoload -U colors && colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 setopt autocd                                   # cd without "cd"
 setopt noclobber                                # Prevent file overwriting
+setopt globdots                                 # Match w/o explicit "."
 alias ls="ls -GFh"                              # Other aliases inherit options
 alias l="ls -1"
 alias la="ls -A"
