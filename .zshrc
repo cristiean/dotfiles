@@ -57,3 +57,6 @@ source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 ### pip completion #############################################################
 eval "$(pip completion --zsh)"
+
+### Activate z ################################################################# 
+. /usr/local/etc/profile.d/z.sh
