@@ -21,6 +21,9 @@ alias jupyter-colab="jupyter notebook --no-browser --port=8888 \
                     --NotebookApp.notebook_dir='~/colab/local/' \
                     --NotebookApp.allow_origin='https://colab.research.google.com'"
 
+### Python #####################################################################
+alias activate="source ./venv/bin/activate"
+
 ### Git ########################################################################
 function camp { git commit -am "$*"; git push } # Use: $ camp fix bug
 function clone { git clone git@github.com:$1 }  # Use: $ clone user/repo
