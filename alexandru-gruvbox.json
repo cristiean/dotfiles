@@ -2,7 +2,7 @@
   "Triggers" : [
 
   ],
-  "Use Cursor Guide" : false,
+  "Use Cursor Guide" : true,
   "Bold Color" : {
     "Red Component" : 1,
     "Color Space" : "sRGB",
@@ -485,7 +485,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.18880486488342285
   },
-  "Name" : "modified-gruvbox",
+  "Name" : "alexandru-gruvbox",
   "Transparency" : 0,
   "Horizontal Spacing" : 1,
   "Thin Strokes" : 3,
@@ -538,8 +538,8 @@
   "Unicode Version" : 8,
   "Title Components" : 2,
   "Semantic History" : {
-    "action" : "best editor",
     "text" : "vim \\1",
+    "action" : "best editor",
     "editor" : "com.github.atom"
   },
   "Working Directory" : "\/Users\/alexandrucristiean",
@@ -600,9 +600,9 @@
               "Alpha Component" : 1,
               "Green Component" : 0.19215686619281769
             },
-            "auto-rainbow style" : 0,
+            "font" : ".AppleSystemUIFont 12",
             "algorithm" : 1,
-            "font" : ".AppleSystemUIFont 12"
+            "auto-rainbow style" : 0
           }
         }
       },
@@ -624,9 +624,9 @@
               "Alpha Component" : 1,
               "Green Component" : 0.19215686619281769
             },
-            "auto-rainbow style" : 0,
+            "font" : ".AppleSystemUIFont 12",
             "algorithm" : 1,
-            "font" : ".AppleSystemUIFont 12"
+            "auto-rainbow style" : 0
           }
         }
       },
@@ -649,9 +649,9 @@
               "Alpha Component" : 1,
               "Green Component" : 0.19215686619281769
             },
-            "auto-rainbow style" : 0,
+            "font" : ".AppleSystemUIFont 12",
             "algorithm" : 1,
-            "font" : ".AppleSystemUIFont 12"
+            "auto-rainbow style" : 0
           }
         }
       }
@@ -665,9 +665,9 @@
         "Alpha Component" : 1,
         "Green Component" : 0.19215686619281769
       },
-      "auto-rainbow style" : 0,
+      "font" : ".AppleSystemUIFont 12",
       "algorithm" : 1,
-      "font" : ".AppleSystemUIFont 12"
+      "auto-rainbow style" : 0
     }
   },
   "Blur" : true,
