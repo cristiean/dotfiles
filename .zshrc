@@ -53,13 +53,13 @@ bindkey '^[[Z' reverse-menu-complete
 autoload -Uz compinit && compinit
 
 ### Auto suggestions ### IN TRIALS #############################################
-source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 ### Syntax highlighting ### IN TRIALS ##########################################
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 ### pip completion #############################################################
-eval "$(pip completion --zsh)"
+# eval "$(pip completion --zsh)"
 
 ### Activate z ################################################################# 
-. /usr/local/etc/profile.d/z.sh
+# . /usr/local/etc/profile.d/z.sh

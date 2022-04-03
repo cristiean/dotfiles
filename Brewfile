@@ -4,7 +4,7 @@ tap "homebrew/cask"
 tap "homebrew/cask-drivers"
 tap "homebrew/core"
 tap "homebrew/services"
-brew "python@3.9"
+brew "python@3.10"
 brew "awscli"
 brew "postgresql", restart_service: true
 brew "pstree"
