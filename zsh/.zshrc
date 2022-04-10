@@ -16,10 +16,10 @@ alias zshrc="vim ~/.zshrc"
 alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
 alias colab="open https://colab.research.google.com"
 alias latex-symbols="open https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
-alias jupyter-colab="jupyter notebook --no-browser --port=8888 \
-                    --NotebookApp.port_retries=0 \
-                    --NotebookApp.notebook_dir='~/colab/local/' \
-                    --NotebookApp.allow_origin='https://colab.research.google.com'"
+#alias jupyter-colab="jupyter notebook --no-browser --port=8888 \
+#                    --NotebookApp.port_retries=0 \
+#                    --NotebookApp.notebook_dir='~/colab/local/' \
+#                    --NotebookApp.allow_origin='https://colab.research.google.com'"
 
 ### Python #####################################################################
 alias activate="source ./venv/bin/activate"
@@ -36,7 +36,7 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' list-separator '#'
 zstyle ':completion:*' auto-description 'specify: %d'
-#zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=* m:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=* m:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' matcher-list '' \
   'm:{a-z\-}={A-Z\_}' \
   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
@@ -51,12 +51,6 @@ bindkey -M menuselect '^M' .accept-line
 bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
-
-### Auto suggestions ### IN TRIALS #############################################
-# source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-### Syntax highlighting ### IN TRIALS ##########################################
-# source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 ### pip completion #############################################################
 # eval "$(pip completion --zsh)"
