@@ -3,14 +3,15 @@ autoload -U colors && colors
 export PS1="%B%{$fg[yellow]%}%~%{$reset_color%}%b $ "
 setopt autocd                                   # cd without "cd"
 setopt noclobber                                # Prevent file overwriting
+setopt correct                                  # Spelling correction for cmds
 setopt globdots                                 # Match w/o explicit "."
+setopt interactivecomments                      # Inline # comments
 alias ls="ls -GFh"                              # Other aliases inherit options
 alias l="ls -1"
 alias la="ls -A"
 alias lS="ls -oS"
 alias ll="ls -oa"
 alias ld="ls -d .*"
-alias zshrc="vim ~/.zshrc"
 
 ### Open with app ##############################################################
 alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
