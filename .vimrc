@@ -27,3 +27,10 @@ set ruler                       "Shows line, col, % progress
 set mouse=a                     "Enables mouse for Normal, Visual, Insert, Command-line modes
 "set textwidth=80                "Wraps text after the 80 character limit. Helps readability.
 "-----------------------------------------------------------------------------------------------
+
+"--- No swapfiles / backups / trash ------------------------------------------------------------
+set viminfo=""
+set nobackup
+set nowritebackup
+set noswapfile
+"-----------------------------------------------------------------------------------------------
