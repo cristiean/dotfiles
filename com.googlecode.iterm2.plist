@@ -1101,6 +1101,19 @@
 						<key>Red Component</key>
 						<real>0.19215686619281769</real>
 					</dict>
+					<key>default text color</key>
+					<dict>
+						<key>Alpha Component</key>
+						<real>1</real>
+						<key>Blue Component</key>
+						<real>0.60000002384185791</real>
+						<key>Color Space</key>
+						<string>sRGB</string>
+						<key>Green Component</key>
+						<real>0.60000002384185791</real>
+						<key>Red Component</key>
+						<real>0.60000002384185791</real>
+					</dict>
 					<key>font</key>
 					<string>.AppleSystemUIFont 12</string>
 					<key>remove empty components</key>
@@ -1123,18 +1136,22 @@
 								<string>EEEE d MMMM HH:mm</string>
 								<key>localize</key>
 								<integer>1</integer>
+								<key>maxwidth</key>
+								<real>+infinity</real>
+								<key>minwidth</key>
+								<string>0</string>
 								<key>shared text color</key>
 								<dict>
 									<key>Alpha Component</key>
-									<integer>1</integer>
+									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.40313720703125</real>
+									<real>0.40000000000000002</real>
 									<key>Color Space</key>
 									<string>sRGB</string>
 									<key>Green Component</key>
-									<real>0.40313720703125</real>
+									<real>0.40000000000000002</real>
 									<key>Red Component</key>
-									<real>0.40313720703125</real>
+									<real>0.40000000000000002</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1156,6 +1173,19 @@
 									<key>Red Component</key>
 									<real>0.19215686619281769</real>
 								</dict>
+								<key>default text color</key>
+								<dict>
+									<key>Alpha Component</key>
+									<real>1</real>
+									<key>Blue Component</key>
+									<real>0.60000002384185791</real>
+									<key>Color Space</key>
+									<string>sRGB</string>
+									<key>Green Component</key>
+									<real>0.60000002384185791</real>
+									<key>Red Component</key>
+									<real>0.60000002384185791</real>
+								</dict>
 								<key>font</key>
 								<string>.AppleSystemUIFont 12</string>
 								<key>remove empty components</key>
@@ -1170,12 +1200,6 @@
 						<dict>
 							<key>knobs</key>
 							<dict>
-								<key>base: compression resistance</key>
-								<integer>1</integer>
-								<key>base: priority</key>
-								<integer>5</integer>
-								<key>iTermStatusBarSpringComponentSizeMultipleKey</key>
-								<integer>1</integer>
 								<key>iTermStatusBarSpringComponentSpringConstantKey</key>
 								<real>0.01</real>
 							</dict>
@@ -1198,6 +1222,19 @@
 									<key>Red Component</key>
 									<real>0.19215686619281769</real>
 								</dict>
+								<key>default text color</key>
+								<dict>
+									<key>Alpha Component</key>
+									<real>1</real>
+									<key>Blue Component</key>
+									<real>0.60000002384185791</real>
+									<key>Color Space</key>
+									<string>sRGB</string>
+									<key>Green Component</key>
+									<real>0.60000002384185791</real>
+									<key>Red Component</key>
+									<real>0.60000002384185791</real>
+								</dict>
 								<key>font</key>
 								<string>.AppleSystemUIFont 12</string>
 								<key>remove empty components</key>
@@ -1217,11 +1254,24 @@
 								<key>base: priority</key>
 								<integer>5</integer>
 								<key>iTermStatusBarGitComponentPollingIntervalKey</key>
-								<integer>2</integer>
+								<real>2</real>
 								<key>maxwidth</key>
 								<real>1.7976931348623157e+308</real>
 								<key>minwidth</key>
 								<integer>0</integer>
+								<key>shared text color</key>
+								<dict>
+									<key>Alpha Component</key>
+									<real>1</real>
+									<key>Blue Component</key>
+									<real>0.59999999999999998</real>
+									<key>Color Space</key>
+									<string>sRGB</string>
+									<key>Green Component</key>
+									<real>0.59999999999999998</real>
+									<key>Red Component</key>
+									<real>0.59999999999999998</real>
+								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
 							<dict>
@@ -1241,6 +1291,19 @@
 									<real>0.19215686619281769</real>
 									<key>Red Component</key>
 									<real>0.19215686619281769</real>
+								</dict>
+								<key>default text color</key>
+								<dict>
+									<key>Alpha Component</key>
+									<real>1</real>
+									<key>Blue Component</key>
+									<real>0.60000002384185791</real>
+									<key>Color Space</key>
+									<string>sRGB</string>
+									<key>Green Component</key>
+									<real>0.60000002384185791</real>
+									<key>Red Component</key>
+									<real>0.60000002384185791</real>
 								</dict>
 								<key>font</key>
 								<string>.AppleSystemUIFont 12</string>
@@ -1942,6 +2005,10 @@
 	<key>UseBorder</key>
 	<false/>
 	<key>VisualIndicatorForEsc</key>
+	<false/>
+	<key>kCPKSelectionViewPreferredModeKey</key>
+	<integer>0</integer>
+	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<false/>
 </dict>
 </plist>

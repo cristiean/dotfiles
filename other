@@ -1,2 +1,0 @@
-brew install tree  # Useful command-line application that prints the tree directory
-https://community.atlassian.com/t5/Sourcetree-questions/Sourcetree-for-Mac-GitHub-account-permissions/qaq-p/961120 # Fix SourceTree issue on Mac: SourceTree could not "find" private repos 
