@@ -1,2 +1,5 @@
 # Create symbolic link
 ln -s target source
+
+# Enable Debug menu item on Safari
+defaults write com.apple.Safari IncludeInternalDebugMenu 1
