@@ -1,5 +1,0 @@
-/opt/homebrew/bin/brew ; exit;
-python
-python3
-brew ls
-brew list
