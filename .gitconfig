@@ -1,0 +1,88 @@
+[user]
+    name = Alexandru Cristiean
+    email = alexandru.cristiean@gmail.com
+# [alias]
+    # co = checkout
+    # ci = commit
+    # st = status
+    # br = branch -v
+    # rt = reset --hard
+    # df = diff
+    # dc = diff --cached
+    # unstage = reset HEAD
+    # uncommit = reset --soft HEAD^
+    # l = log --graph --decorate --pretty=oneline --abbrev-commit
+    # la = log --graph --decorate --pretty=oneline --abbrev-commit --all
+    # lg = log --graph --decorate --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --all
+    # lp = log -p
+    # ls = ls-files
+    # amend = commit --amend
+    # who = shortlog -n -s --no-merges
+    # g = grep -n --color -E
+    # cp = cherry-pick -x
+    # nb = checkout -b
+    # addall = !sh -c 'git add . && git add -u'
+    # # Upstream merge:
+    # upsmerge = !sh -c 'git fetch origin -v && git fetch upstream -v && git merge upstream/master'
+    # # Show files ignored by git:
+    # ign = ls-files -o -i --exclude-standard
+    # # git change-commits GIT_COMMITTER_NAME "old name" "new name"
+    # # git change-commits GIT_COMMITTER_EMAIL "old@email.com" "new@email.com"
+    # change-commits = "!f() { VAR=$1; OLD=$2; NEW=$3; shift 3; git filter-branch --env-filter \"if [[ \\\"$`echo $VAR`\\\" = '$OLD' ]]; then export $VAR='$NEW'; fi\" $@; }; f"
+    # # Deal with "There is no tracking information for the current branch."
+    # # See: https://zarino.co.uk/post/git-set-upstream/
+    # poh = push origin HEAD
+    # pulloh = pull origin HEAD
+    # set-upstream = !git branch --set-upstream-to=origin/`git symbolic-ref --short HEAD`
+# [apply]
+    # whitespace = nowarn
+# [commit]
+    # template = ~/.stCommitMsg
+# [color]
+    # diff = auto
+    # status = auto
+    # branch = auto
+[color "status"]
+    added = green bold
+    changed = red bold
+    untracked = magenta bold
+    branch = blue bold ul
+# [core]
+    # excludesfile = ~/.gitignore_global
+    # editor = vim
+    # autocrlf = input
+    # ignorecase = false
+# [fetch]
+#     prune = true
+# [format]
+    # pretty = %C(yellow)%H%Creset %s %C(red)(%an, %cr)%Creset
+#[http]
+#    proxy = http://127.0.0.1:1081
+#[https]
+#    proxy = http://127.0.0.1:1081
+# [includeIf "gitdir:~/work/"]
+#    path = ~/.gitinc/work/config
+# [includeIf "gitdir:~/play/"]
+#    path = ~/.gitinc/play/config
+# [init]
+    # defaultBranch = main
+# [i18n]
+    # filesEncoding = utf-8
+    # logoutputencoding = utf-8
+# [push]
+    # default = current
+# [pull]
+    # rebase = false
+# [filter "lfs"]
+    # clean = git-lfs clean -- %f
+    # smudge = git-lfs smudge -- %f
+    # process = git-lfs filter-process
+    # required = true
+# [difftool "sourcetree"]
+    # cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+    # path =
+# [mergetool "sourcetree"]
+    # cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+    # trustExitCode = true
+[github]
+    name = A C
