@@ -1,0 +1,185 @@
+cd Development
+compression_tool
+cristiean.com
+git status
+code .
+git status
+~
+ll
+.config
+ll
+ls zsh
+ll
+ll zsh
+ll
+git status
+git commit -m 'add .gitconfig'
+git add iterm2/com.googlecode.iterm2.plist
+code useful-commands
+git add useful-commands
+git fetch
+git pull
+git status
+git push
+git status
+git commit -m 'update config'
+git push
+git status
+cp ../.gitconfig .
+git status
+git add .gitconfig
+git commit -m 'update gitconfig'; git push
+ll
+..
+ll
+rm .gitconfig
+cd .config
+ll
+cat Brewfile
+git status
+ll
+cd zsh
+ll
+rm .zsh_history
+rm .zcompdump
+ls .zsh_sessions
+ll
+rm -rf .zsh_sessions
+ll
+cat .zprofile
+cat .zshenv
+cat .zshrc
+ll
+..
+ll
+git status
+git add zsh/*
+git status
+git add .
+git status
+git git reset qBittorrent/*
+git reset qBittorrent/qBittorrent-data.ini
+git reset qBittorrent/qBittorrent.ini
+git status
+git status
+git commit -m 'remove fluff'
+git push
+ll
+..
+ll
+cat .zshenv
+vim .zshenv
+ll
+.config
+ll
+ls zsh
+ll zsh
+cat zsh/.zshenv
+rm zsh/.zshenv
+ll
+cp ../.zshenv .
+git status
+git add .zshenv
+git add zsh/.zshenv
+git status
+git commit -m 'zhenv fix'
+git push
+cp .gitconfig ..
+git status
+ll
+kk
+ll
+..
+ll
+cd .config
+ll
+..
+ll
+git status
+.config
+ll
+git status
+~/Development/cristiean.com
+git status
+ll
+rm README.md
+git commit -m 'last test';git push
+git add ;
+git add .
+git commit -m 'last test';git push
+git status
+ll
+cd .config
+ll
+..
+cat .zshenv
+cd .config
+cp .zshenv ..
+ll
+cd zsh
+ll
+cat .zshenv
+vim .zshenv
+..
+ll
+git status
+git add .zshenv
+git add zsh/.zshenv
+git status
+git commit -m 'really fix zshenv'; git push
+..
+l
+ll
+cd .config
+ll
+cp ../.zshenv .
+git status 
+git add .zshenv
+git commit -m 'add zshenv to dotfiles'; git push
+..
+ll
+touch .python-gist
+rm .python-gist
+cat .lesshst
+rm .lesshst
+ll
+git status
+ll
+ll
+cat zsh
+ls zsh
+ll zsh
+ll
+..
+ll
+cd .config
+ll
+ll zsh
+mv .zshenv zsh
+..
+ll
+cat .zshenv
+vim
+ll
+cd Development/vimmmmmm
+ll
+ll
+lll
+ll
+ll
+ll
+cat v
+vim v
+vimtutor
+vimtutor
+brew search lapce
+	brew install lapce
+brew update
+brew outdated
+brew upgrade
+ls
+ll -la
+ls -la 
+ls
+ll
+brew update

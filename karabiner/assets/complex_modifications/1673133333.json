@@ -1,0 +1,1 @@
+{"title":"[MacOS] \"Left Option + Spacebar\" to \"Spacebar\" (Normal Space character)","rules":[{"description":"[MacOS] \"Left Option + Spacebar\" to \"Spacebar\" (Normal Space character)","manipulators":[{"type":"basic","from":{"key_code":"spacebar","modifiers":{"mandatory":["left_alt"]}},"to":[{"key_code":"spacebar"}]}]}]}
