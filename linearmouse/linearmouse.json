@@ -1,57 +1,86 @@
 {
-  "$schema" : "https:\/\/schema.linearmouse.app\/0.9.1",
   "schemes" : [
     {
       "buttons" : {
         "universalBackForward" : false,
         "mappings" : [
           {
-            "action" : "showDesktop",
             "option" : false,
-            "shift" : false,
             "button" : 3,
             "command" : false,
-            "control" : false
+            "shift" : false,
+            "control" : false,
+            "action" : "showDesktop"
           },
           {
-            "action" : "missionControl",
-            "option" : false,
-            "shift" : false,
-            "button" : 4,
             "command" : false,
-            "control" : false
+            "button" : 4,
+            "shift" : false,
+            "option" : false,
+            "control" : false,
+            "action" : "missionControl"
           }
         ]
       },
-      "if" : {
-        "device" : {
-          "productName" : "USB Receiver",
-          "productID" : "0xc547",
-          "category" : "mouse",
-          "vendorID" : "0x46d"
-        }
-      },
       "pointer" : {
-        "acceleration" : 2,
         "speed" : 0.0689655172413792768,
+        "acceleration" : 1,
         "disableAcceleration" : true
       },
       "scrolling" : {
-        "speed" : 0,
         "acceleration" : 1,
+        "distance" : "auto",
+        "speed" : 0,
         "modifiers" : {
           "vertical" : {
             "shift" : {
-              "type" : "changeSpeed",
-              "scale" : 0.1
+              "scale" : 0.1,
+              "type" : "changeSpeed"
             }
           }
         },
         "reverse" : {
           "vertical" : true
+        }
+      },
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productName" : "USB Receiver",
+          "productID" : "0xc547",
+          "vendorID" : "0x46d"
+        }
+      }
+    },
+    {
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        }
+      },
+      "if" : {
+        "device" : {
+          "productName" : "USB Receiver",
+          "category" : "mouse",
+          "productID" : "0xc547",
+          "vendorID" : "0x46d"
         },
-        "distance" : "auto"
+        "app" : "com.apple.Safari"
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "productName" : "Apple Internal Keyboard \/ Trackpad",
+          "productID" : "0x0",
+          "category" : "trackpad",
+          "vendorID" : "0x0"
+        }
+      },
+      "pointer" : {
+        "disableAcceleration" : false
       }
     }
-  ]
+  ],
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.9.5"
 }

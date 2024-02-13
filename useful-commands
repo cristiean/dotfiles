@@ -3,3 +3,12 @@ ln -s target source
 
 # Enable Debug menu item on Safari
 defaults write com.apple.Safari IncludeInternalDebugMenu 1
+
+# Adjust menu bar padding (from https://flaky.build/built-in-workaround-for-applications-hiding-under-the-macbook-pro-notch)
+# NOTE: After running these commands, you need to log out and log back in
+# Change the whitespace settings value
+defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 6
+defaults -currentHost write -globalDomain NSStatusItemSpacing -int 6
+# Revert to the original values
+defaults -currentHost delete -globalDomain NSStatusItemSelectionPadding
+defaults -currentHost delete -globalDomain NSStatusItemSpacing
