@@ -1,27 +1,6 @@
 {
   "schemes" : [
     {
-      "buttons" : {
-        "universalBackForward" : false,
-        "mappings" : [
-          {
-            "option" : false,
-            "button" : 3,
-            "command" : false,
-            "shift" : false,
-            "control" : false,
-            "action" : "showDesktop"
-          },
-          {
-            "command" : false,
-            "button" : 4,
-            "shift" : false,
-            "option" : false,
-            "control" : false,
-            "action" : "missionControl"
-          }
-        ]
-      },
       "pointer" : {
         "speed" : 0.0689655172413792768,
         "acceleration" : 1,
@@ -29,8 +8,6 @@
       },
       "scrolling" : {
         "acceleration" : 1,
-        "distance" : "auto",
-        "speed" : 0,
         "modifiers" : {
           "vertical" : {
             "shift" : {
@@ -41,40 +18,68 @@
         },
         "reverse" : {
           "vertical" : true
-        }
+        },
+        "distance" : "auto",
+        "speed" : 0
+      },
+      "buttons" : {
+        "universalBackForward" : false,
+        "mappings" : [
+          {
+            "option" : false,
+            "control" : false,
+            "button" : 3,
+            "action" : "showDesktop",
+            "shift" : false,
+            "command" : false
+          },
+          {
+            "command" : false,
+            "control" : false,
+            "action" : "missionControl",
+            "option" : false,
+            "button" : 4,
+            "shift" : false
+          }
+        ]
       },
       "if" : {
         "device" : {
-          "category" : "mouse",
-          "productName" : "USB Receiver",
           "productID" : "0xc547",
-          "vendorID" : "0x46d"
+          "productName" : "USB Receiver",
+          "vendorID" : "0x46d",
+          "category" : "mouse"
         }
       }
     },
     {
+      "if" : {
+        "app" : "com.apple.Safari",
+        "device" : {
+          "vendorID" : "0x46d",
+          "productName" : "USB Receiver",
+          "category" : "mouse",
+          "productID" : "0xc547"
+        }
+      },
       "scrolling" : {
         "acceleration" : {
           "vertical" : 1
         }
-      },
-      "if" : {
-        "device" : {
-          "productName" : "USB Receiver",
-          "category" : "mouse",
-          "productID" : "0xc547",
-          "vendorID" : "0x46d"
-        },
-        "app" : "com.apple.Safari"
       }
     },
     {
       "if" : {
         "device" : {
-          "productName" : "Apple Internal Keyboard \/ Trackpad",
-          "productID" : "0x0",
           "category" : "trackpad",
-          "vendorID" : "0x0"
+          "productID" : "0x0",
+          "vendorID" : "0x0",
+          "productName" : "Apple Internal Keyboard \/ Trackpad"
+        }
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
         }
       },
       "pointer" : {
