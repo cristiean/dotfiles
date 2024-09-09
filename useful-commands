@@ -12,3 +12,13 @@ defaults -currentHost write -globalDomain NSStatusItemSpacing -int 6
 # Revert to the original values
 defaults -currentHost delete -globalDomain NSStatusItemSelectionPadding
 defaults -currentHost delete -globalDomain NSStatusItemSpacing
+
+# brew bundle is a command used with Homebrew to manage multiple packages using a Brewfile
+# 1. Create a Brewfile (list of installed packages):
+# $ brew bundle dump
+#
+# 2. Install from a Brewfile:
+# $ brew bundle 
+#
+# 3. Cleanup unused packages:
+# $ brew bundle cleanup
