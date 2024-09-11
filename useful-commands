@@ -1,3 +1,6 @@
+# Allow apps to be opened
+xattr -r -d com.apple.quarantine /Applications/DBeaver.app;
+
 # Create symbolic link
 ln -s target source
 
