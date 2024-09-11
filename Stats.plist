@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Battery_battery_additional</key>
+	<string>innerPercentage</string>
+	<key>Battery_battery_color</key>
+	<true/>
+	<key>Battery_battery_xlSize</key>
+	<true/>
+	<key>Battery_color</key>
+	<true/>
+	<key>Battery_notifications_low</key>
+	<string></string>
+	<key>Battery_state</key>
+	<true/>
+	<key>Bluetooth_label_position</key>
+	<integer>1</integer>
+	<key>Bluetooth_sensors_mode</key>
+	<string>automatic</string>
+	<key>Bluetooth_sensors_monospacedFont</key>
+	<true/>
+	<key>Bluetooth_sensors_size</key>
+	<false/>
+	<key>Bluetooth_stack_position</key>
+	<integer>0</integer>
+	<key>Bluetooth_state</key>
+	<true/>
+	<key>Bluetooth_widget</key>
+	<string>sensors</string>
+	<key>CPU_barChart_position</key>
+	<integer>3</integer>
+	<key>CPU_label_position</key>
+	<integer>1</integer>
+	<key>CPU_lineChart_position</key>
+	<integer>0</integer>
+	<key>CPU_line_chart_box</key>
+	<false/>
+	<key>CPU_line_chart_frame</key>
+	<false/>
+	<key>CPU_line_chart_historyCount</key>
+	<integer>30</integer>
+	<key>CPU_line_chart_label</key>
+	<false/>
+	<key>CPU_line_chart_scale</key>
+	<string>logarithmic</string>
+	<key>CPU_line_chart_value</key>
+	<false/>
+	<key>CPU_line_chart_valueColor</key>
+	<false/>
+	<key>CPU_mini_position</key>
+	<integer>2</integer>
+	<key>CPU_pieChart_position</key>
+	<integer>4</integer>
+	<key>CPU_state</key>
+	<false/>
+	<key>CPU_tachometer_position</key>
+	<integer>5</integer>
+	<key>CPU_updateInterval</key>
+	<integer>1</integer>
+	<key>CPU_widget</key>
+	<string>line_chart</string>
+	<key>Clock_state</key>
+	<false/>
+	<key>CombinedModules</key>
+	<false/>
+	<key>CombinedModules_popup</key>
+	<false/>
+	<key>CombinedModules_spacing</key>
+	<string>8</string>
+	<key>Disk_state</key>
+	<false/>
+	<key>GPU_state</key>
+	<false/>
+	<key>LaunchAtLoginNext</key>
+	<true/>
+	<key>NSNavPanelExpandedStateForSaveMode</key>
+	<true/>
+	<key>NSStatusItem Preferred Position Battery_battery</key>
+	<real>216</real>
+	<key>NSStatusItem Preferred Position Bluetooth_sensors</key>
+	<real>252</real>
+	<key>NSStatusItem Preferred Position Network_speed</key>
+	<real>468</real>
+	<key>NSStatusItem Preferred Position Network_state</key>
+	<real>529</real>
+	<key>NSStatusItem Preferred Position Sensors</key>
+	<real>215</real>
+	<key>NSStatusItem Preferred Position Sensors_mini</key>
+	<real>314</real>
+	<key>NSStatusItem Restore Position Network</key>
+	<integer>257</integer>
+	<key>NSToolbar Configuration eu.exelban.Stats.Settings.Toolbar</key>
+	<dict>
+		<key>TB Display Mode</key>
+		<integer>1</integer>
+		<key>TB Icon Size Mode</key>
+		<integer>1</integer>
+		<key>TB Is Shown</key>
+		<true/>
+		<key>TB Size Mode</key>
+		<integer>1</integer>
+	</dict>
+	<key>NSWindow Frame NSNavPanelAutosaveName</key>
+	<string>813 841 430 163 0 0 2056 1285 </string>
+	<key>Network_label_position</key>
+	<integer>2</integer>
+	<key>Network_networkChart_position</key>
+	<integer>3</integer>
+	<key>Network_oneView</key>
+	<false/>
+	<key>Network_processes</key>
+	<integer>8</integer>
+	<key>Network_reader</key>
+	<string>interface</string>
+	<key>Network_speed_downloadColor</key>
+	<string>secondBlue</string>
+	<key>Network_speed_icon</key>
+	<string>arrows</string>
+	<key>Network_speed_iconAlignment</key>
+	<string>left</string>
+	<key>Network_speed_mode</key>
+	<string>twoRows</string>
+	<key>Network_speed_monochrome</key>
+	<false/>
+	<key>Network_speed_position</key>
+	<integer>0</integer>
+	<key>Network_speed_reverseOrder</key>
+	<false/>
+	<key>Network_speed_units</key>
+	<true/>
+	<key>Network_speed_valueColor</key>
+	<string>default</string>
+	<key>Network_state_position</key>
+	<integer>1</integer>
+	<key>Network_widget</key>
+	<string>speed,state</string>
+	<key>RAM_state</key>
+	<false/>
+	<key>Sensor_mini_alignment</key>
+	<string>center</string>
+	<key>Sensor_mini_color</key>
+	<string>monochrome</string>
+	<key>Sensor_mini_label</key>
+	<false/>
+	<key>Sensors_barChart_position</key>
+	<integer>3</integer>
+	<key>Sensors_label_position</key>
+	<integer>1</integer>
+	<key>Sensors_mini_position</key>
+	<integer>0</integer>
+	<key>Sensors_sensor</key>
+	<string>PSTR</string>
+	<key>Sensors_stack_position</key>
+	<integer>2</integer>
+	<key>Sensors_state</key>
+	<true/>
+	<key>Sensors_widget</key>
+	<string>mini</string>
+	<key>ble_2c-32-6a-c7-cb-0f</key>
+	<true/>
+	<key>ble_2c-32-6a-c7-cb-0f_notification</key>
+	<string></string>
+	<key>runAtLoginInitialized</key>
+	<true/>
+	<key>sensor_Average System Total</key>
+	<false/>
+	<key>sensor_PDTR</key>
+	<false/>
+	<key>sensor_PSTR</key>
+	<false/>
+	<key>sensor_Total System Consumption</key>
+	<false/>
+	<key>setupProcess</key>
+	<true/>
+	<key>telemetry</key>
+	<true/>
+	<key>telemetry_id</key>
+	<string>F56C2885-0A4E-4185-8CDF-050DDE16726C</string>
+	<key>update-interval</key>
+	<string>Once per day</string>
+	<key>updater_check_ts</key>
+	<integer>1726044373</integer>
+	<key>version</key>
+	<string>2.11.9</string>
+</dict>
+</plist>
