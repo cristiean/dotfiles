@@ -14,6 +14,8 @@ The script should do this: \(ai.prompt)</string>
 	<string>gpt-4o</string>
 	<key>Default Bookmark Guid</key>
 	<string>A3A68D0B-7841-47C3-9752-A5F2C6ABBD5F</string>
+	<key>DefaultWideMode</key>
+	<true/>
 	<key>DimBackgroundWindows</key>
 	<false/>
 	<key>DimOnlyText</key>

@@ -1,5 +1,6 @@
-# Allow apps to be opened
-xattr -r -d com.apple.quarantine /Applications/DBeaver.app;
+# Get app out of quarantine
+# -r Recursively, -d Delete attribute
+xattr -dr com.apple.quarantine /Applications/app.app
 
 # Create symbolic link
 ln -s target source

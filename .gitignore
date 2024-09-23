@@ -1,4 +1,6 @@
+iterm2/AppSupport
 gh
+.vscode
 *DS_Store
 .zsh_history
 zsh/.zcompdump
