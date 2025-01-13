@@ -1,6 +1,7 @@
 "--- Set line numbering ------------------------------------------------------------------------
 set number                      "Set line numbering. set nu, set nonu
 set relativenumber              "Set relative line numbering. set renu, set norenu
+set numberwidth=4               "Set default width of line numbers
 "-----------------------------------------------------------------------------------------------
 
 "--- Set TAB to 4 spaces -----------------------------------------------------------------------

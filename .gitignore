@@ -3,5 +3,6 @@ gh
 .vscode
 *DS_Store
 .zsh_history
-zsh/.zcompdump
 zsh/.zsh_sessions
+zsh/.zcompcache
+zsh/.zcompdump

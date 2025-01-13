@@ -378,6 +378,8 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>HotkeyMigratedFromSingleToMulti</key>
 	<true/>
+	<key>MaxVertically</key>
+	<false/>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -2821,6 +2823,10 @@ The script should do this: \(ai.prompt)</string>
 	<key>PromptOnQuit</key>
 	<false/>
 	<key>QuitWhenAllWindowsClosed</key>
+	<true/>
+	<key>ReportHorizontalScrollEvents</key>
+	<true/>
+	<key>Selection Respects Soft Boundaries</key>
 	<true/>
 	<key>SmartPlacement</key>
 	<false/>

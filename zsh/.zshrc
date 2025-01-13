@@ -13,6 +13,9 @@ alias lS="ls -oS"
 alias ll="ls -oa"
 alias ld="ls -d .*"
 
+### Load .vimrc from custom location
+alias vim="vim -u ~/.config/.vimrc"  
+
 ### Open with app ##############################################################
 alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
 alias colab="open https://colab.research.google.com"
@@ -54,7 +57,15 @@ bindkey '^[[Z' reverse-menu-complete
 autoload -Uz compinit && compinit
 
 ### pip completion #############################################################
-# eval "$(pip completion --zsh)"
+eval "$(pip completion --zsh)"
 
 ### Activate z ################################################################# 
 # . /usr/local/etc/profile.d/z.sh
+
+### Add OpenJDK to environment ################################################
+export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+
+### iTerm2 Shell Utilities ####################################################
+test -e /Users/alexandru/.config/zsh/.iterm2_shell_integration.zsh && source /Users/alexandru/.config/zsh/.iterm2_shell_integration.zsh || true
+
