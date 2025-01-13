@@ -67,5 +67,5 @@ export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
 export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
 
 ### iTerm2 Shell Utilities ####################################################
-test -e /Users/alexandru/.config/zsh/.iterm2_shell_integration.zsh && source /Users/alexandru/.config/zsh/.iterm2_shell_integration.zsh || true
+test -e /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh && source /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh || true
 
