@@ -2826,6 +2826,8 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>ReportHorizontalScrollEvents</key>
 	<true/>
+	<key>RestrictSemanticHistoryPrefixAndSuffixToLogicalWindow</key>
+	<false/>
 	<key>Selection Respects Soft Boundaries</key>
 	<true/>
 	<key>SmartPlacement</key>

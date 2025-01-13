@@ -14,7 +14,7 @@ alias ll="ls -oa"
 alias ld="ls -d .*"
 
 ### Source Vim config from custom location #####################################
-ln -s ~/.config/.vimrc ~/.vimrc
+[ ! -L ~/.vimrc ] && ln -s ~/.config/.vimrc ~/.vimrc
 
 ### Open with app ##############################################################
 alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
@@ -60,7 +60,7 @@ autoload -Uz compinit && compinit
 eval "$(pip3 completion --zsh)"
 
 ### Activate z ################################################################# 
-# . /usr/local/etc/profile.d/z.sh
+. `brew --prefix`/etc/profile.d/z.sh
 
 ### Add OpenJDK to environment ################################################
 export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
