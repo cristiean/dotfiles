@@ -13,8 +13,8 @@ alias lS="ls -oS"
 alias ll="ls -oa"
 alias ld="ls -d .*"
 
-### Load .vimrc from custom location
-alias vim="vim -u ~/.config/.vimrc"  
+### Source Vim config from custom location #####################################
+ln -s ~/.config/.vimrc ~/.vimrc
 
 ### Open with app ##############################################################
 alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
