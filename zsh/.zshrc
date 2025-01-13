@@ -57,7 +57,7 @@ bindkey '^[[Z' reverse-menu-complete
 autoload -Uz compinit && compinit
 
 ### pip completion #############################################################
-eval "$(pip completion --zsh)"
+eval "$(pip3 completion --zsh)"
 
 ### Activate z ################################################################# 
 # . /usr/local/etc/profile.d/z.sh
