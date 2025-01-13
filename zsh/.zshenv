@@ -1,1 +1,2 @@
-# Add additional .zshenv commands below
+ZDOTDIR=$HOME/.config/zsh
+. $ZDOTDIR/.zshenv # sources .zshenv in $ZDOTDIR
