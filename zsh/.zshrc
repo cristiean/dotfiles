@@ -6,7 +6,8 @@ setopt noclobber                                # Prevent file overwriting
 setopt correct                                  # Spelling correction for cmds
 setopt globdots                                 # Match w/o explicit "."
 setopt interactivecomments                      # Inline # comments
-# Cross-platform ls aliases
+
+# ls aliases ###################################################################
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
     alias ls="ls -GFh"
@@ -14,11 +15,7 @@ else
     # Linux/Ubuntu
     alias ls="ls --color=auto -h"
 fi
-alias l="ls -1"
-alias la="ls -A"
-alias lS="ls -oS"
-alias ll="ls -oa"
-alias ld="ls -d .*"
+alias ll="ls -oa" # List files and directories
 
 ### Source Vim config from custom location #####################################
 [ ! -L ~/.vimrc ] && ln -s ~/.config/.vimrc ~/.vimrc
@@ -87,23 +84,23 @@ else
     fi
 fi
 
-### Add OpenJDK to environment ################################################
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS with Homebrew
-    if [ -d "/opt/homebrew/opt/openjdk@17" ]; then
-        export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
-        export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
-    fi
-else
-    # Linux/Ubuntu - detect Java installation
-    if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
-        export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-        export PATH="$JAVA_HOME/bin:$PATH"
-    elif [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
-        export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
-        export PATH="$JAVA_HOME/bin:$PATH"
-    fi
-fi
+# ### Add OpenJDK to environment ################################################
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+#     # macOS with Homebrew
+#     if [ -d "/opt/homebrew/opt/openjdk@17" ]; then
+#         export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+#         export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+#     fi
+# else
+#     # Linux/Ubuntu - detect Java installation
+#     if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+#         export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+#         export PATH="$JAVA_HOME/bin:$PATH"
+#     elif [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
+#         export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+#         export PATH="$JAVA_HOME/bin:$PATH"
+#     fi
+# fi
 
 ### Terminal Integration #######################################################
 # macOS iTerm2 integration
@@ -111,3 +108,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     test -e /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh && source /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh || true
 fi
 
+### Keybindings ################################################################
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Jump word left/right
+    bindkey '^[[1;5C' forward-word
+    bindkey '^[[1;5D' backward-word
+
+    # Ctrl+Backspace delete previous word
+    bindkey '^H' backward-kill-word
+fi
