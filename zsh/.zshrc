@@ -6,7 +6,14 @@ setopt noclobber                                # Prevent file overwriting
 setopt correct                                  # Spelling correction for cmds
 setopt globdots                                 # Match w/o explicit "."
 setopt interactivecomments                      # Inline # comments
-alias ls="ls -GFh"                              # Other aliases inherit options
+# Cross-platform ls aliases
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    alias ls="ls -GFh"
+else
+    # Linux/Ubuntu
+    alias ls="ls --color=auto -h"
+fi
 alias l="ls -1"
 alias la="ls -A"
 alias lS="ls -oS"
@@ -16,14 +23,12 @@ alias ld="ls -d .*"
 ### Source Vim config from custom location #####################################
 [ ! -L ~/.vimrc ] && ln -s ~/.config/.vimrc ~/.vimrc
 
-### Open with app ##############################################################
-alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
-alias colab="open https://colab.research.google.com"
-alias latex-symbols="open https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
-#alias jupyter-colab="jupyter notebook --no-browser --port=8888 \
-#                    --NotebookApp.port_retries=0 \
-#                    --NotebookApp.notebook_dir='~/colab/local/' \
-#                    --NotebookApp.allow_origin='https://colab.research.google.com'"
+### Open with app ##############################################################
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS specific aliases
+    alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
+    alias latex-symbols="open https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
+fi
 
 ### Python #####################################################################
 alias activate="source ./venv/bin/activate"
@@ -42,9 +47,9 @@ zstyle ':completion:*' list-separator '#'
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=* m:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' matcher-list '' \
-  'm:{a-z\-}={A-Z\_}' \
-  'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
-  'r:|?=** m:{a-z\-}={A-Z\_}'
+    'm:{a-z\-}={A-Z\_}' \
+    'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+    'r:|?=** m:{a-z\-}={A-Z\_}'
 
 zstyle ':completion:*' format $fg[blue]%B%U%d%u%b
 zstyle ':completion:*:warnings' format "$fg[red]No matches found"
@@ -57,15 +62,52 @@ bindkey '^[[Z' reverse-menu-complete
 autoload -Uz compinit && compinit
 
 ### pip completion #############################################################
-eval "$(pip3 completion --zsh)"
+# Cross-platform pip completion
+if command -v pip3 >/dev/null 2>&1; then
+    eval "$(pip3 completion --zsh 2>/dev/null)" || true
+elif command -v pip >/dev/null 2>&1; then
+    eval "$(pip completion --zsh 2>/dev/null)" || true
+fi
 
 ### Activate z ################################################################# 
-. `brew --prefix`/etc/profile.d/z.sh
+# Cross-platform z activation
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS with Homebrew
+    if command -v brew >/dev/null 2>&1; then
+        . `brew --prefix`/etc/profile.d/z.sh 2>/dev/null || true
+    fi
+else
+    # Linux/Ubuntu - install z via package manager or manual installation
+    if [ -f /usr/share/z/z.sh ]; then
+        . /usr/share/z/z.sh
+    elif [ -f /usr/local/share/z/z.sh ]; then
+        . /usr/local/share/z/z.sh
+    elif [ -f ~/.zsh/z.sh ]; then
+        . ~/.zsh/z.sh
+    fi
+fi
 
 ### Add OpenJDK to environment ################################################
-export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
-export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS with Homebrew
+    if [ -d "/opt/homebrew/opt/openjdk@17" ]; then
+        export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+        export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+    fi
+else
+    # Linux/Ubuntu - detect Java installation
+    if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+        export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+        export PATH="$JAVA_HOME/bin:$PATH"
+    elif [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
+        export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+        export PATH="$JAVA_HOME/bin:$PATH"
+    fi
+fi
 
-### iTerm2 Shell Utilities ####################################################
-test -e /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh && source /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh || true
+### Terminal Integration #######################################################
+# macOS iTerm2 integration
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    test -e /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh && source /Users/alexandru/.config/iterm2/.iterm2_shell_integration.zsh || true
+fi
 
