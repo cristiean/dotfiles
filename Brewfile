@@ -1,5 +1,3 @@
-tap "homebrew/bundle"
-tap "homebrew/services"
 brew "tree"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
