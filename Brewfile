@@ -1,5 +1,6 @@
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
+cask "adguard"
 cask "chatgpt"
 cask "claude"
 cask "hiddenbar"
