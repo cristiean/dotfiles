@@ -117,3 +117,4 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # Ctrl+Backspace delete previous word
     bindkey '^H' backward-kill-word
 fi
+alias claude-personal='CLAUDE_CONFIG_DIR=$HOME/.claude-personal claude'
