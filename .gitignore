@@ -6,3 +6,12 @@ gh
 zsh/.zsh_sessions
 zsh/.zcompcache
 zsh/.zcompdump
+
+# Machine-specific
+zsh/.zshrc.local
+
+# App state, logs and caches that apps write into ~/.config
+1Password/
+AWSVPNClient/
+karabiner/automatic_backups/
+iterm2/cc-status
