@@ -5,6 +5,8 @@
 #   - thumbnails default to 20x10 character cells (was 3x1)
 #   - the file name sits level with the middle of its thumbnail
 #   - folders and empty files take one line instead of a black square
+#   - previews of .env and *.example-style files get the right highlighting
+#     (see preview_type)
 # To pick up a newer iTerm2 version, copy the original again and reapply these.
 
 # imgls: ls(1) listing supplemented with image thumbnails and dimensions
@@ -150,6 +152,8 @@ sub write_image {
     my $encoded;
 
     $imgparams{'name'} = encode_base64($file, '');                      # file name is base64 encoded
+    my $type = ref $file eq '' ? preview_type($file) : undef;          # patched copy: type hint
+    if (defined $type) { $imgparams{'type'} = $type } else { delete $imgparams{'type'} }
     $imgparams{'size'} = $size;                                         # file size in bytes
 
     if (ref $file eq '')  {
@@ -167,6 +171,44 @@ sub write_image {
             join(';', map { $_ . '=' . $imgparams{$_} } keys %imgparams),       # semicolon separated pairs of param=value pairs
             $encoded,                                                           # base64 encoded image bytes
             "\007";                                                             # end-of-encoding char (BEL = ^G)
+}
+
+# Type hint for iTerm2's preview of a file (imgcat's -t), or undef to let
+# iTerm2 decide from the name and contents. Added for the patched copy, because
+# iTerm2 guesses Markdown for a .env file: its # comments look like headings.
+# Sends a language name (bash, yaml, ...), the form `imgcat -t` is known to honour.
+#   - env files are shell:            .env, env, .env.local, prod.env, .envrc
+#   - template suffixes are skipped:  app.yml.example -> yaml, env.example -> bash
+sub preview_type {
+    my ($base) = $_[0] =~ m{([^/]+)$};
+    my $templated = 0;
+    while ($base =~ /^(.+)\.(?:example|sample|template|dist)$/i) {
+        $base = $1;
+        $templated = 1;
+    }
+    return 'bash'       if $base =~ /^\.?env(?:\..+)?$/ or $base =~ /.\.env$/ or $base =~ /^\.?envrc$/;
+    return language_for_extension($1)   if $templated and $base =~ /.\.([A-Za-z0-9]+)$/;
+    return undef;
+}
+
+# iTerm2's language name for a file extension, from the table iTerm2 itself
+# uses (extensions.json in the app), or undef if unknown or ambiguous.
+my %ext_languages;
+sub language_for_extension {
+    my $ext = lc shift;
+    if (! %ext_languages) {
+        $ext_languages{''} = [];                                # loaded, even if the table is missing
+        if (open my $fh, '<', '/Applications/iTerm.app/Contents/Resources/extensions.json') {
+            local $/;
+            require JSON::PP;
+            my $entries = eval { JSON::PP::decode_json(<$fh>) } || [];
+            for my $entry (@$entries) {
+                push @{ $ext_languages{lc $_} }, $entry->{shortname}  for @{ $entry->{extensions} };
+            }
+        }
+    }
+    my $languages = $ext_languages{$ext};
+    return $languages && @$languages == 1 ? $languages->[0] : undef;
 }
 
 sub get_options {
