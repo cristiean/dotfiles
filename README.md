@@ -142,6 +142,6 @@ Shell config for one Mac only, like work aliases, goes in `~/.config/zsh/.zshrc.
 | `Brewfile`, `Brewfile.develop` | apps and CLIs: every Mac, and as needed |
 | `zsh/` | shell config. `.zshrc` holds aliases, completion, plugins, `klaude` and `airpods` |
 | `git/config`, `git/ignore` | global git settings and ignore rules |
-| `iterm2/` | iTerm2 settings and its shell integration utilities |
+| `iterm2/` | iTerm2 settings (profile *calm*); shell integration loads from the app itself |
 | `karabiner/`, `linearmouse/`, `Stats.plist` | keyboard, mouse and menu bar app settings |
 | `useful-commands` | one-off commands worth remembering |

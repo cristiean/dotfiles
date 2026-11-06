@@ -58,12 +58,6 @@ bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
 
-### Terminal Integration #######################################################
-# macOS iTerm2 integration
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    test -e $HOME/.config/iterm2/.iterm2_shell_integration.zsh && source $HOME/.config/iterm2/.iterm2_shell_integration.zsh || true
-fi
-
 ### Keybindings ################################################################
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # Jump word left/right

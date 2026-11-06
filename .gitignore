@@ -1,4 +1,3 @@
-iterm2/AppSupport
 gh
 .vscode
 *DS_Store
@@ -14,4 +13,8 @@ zsh/.zshrc.local
 1Password/
 AWSVPNClient/
 karabiner/automatic_backups/
-iterm2/cc-status
+
+# iterm2/ holds only the settings file. iTerm2 adds links to its own tools here,
+# and its shell integration comes from the app (Load Shell Integration Automatically).
+iterm2/*
+!iterm2/com.googlecode.iterm2.plist
