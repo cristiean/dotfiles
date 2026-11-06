@@ -65,14 +65,86 @@ autoload -Uz compinit && compinit
     path+=(/Applications/iTerm.app/Contents/Resources/utilities)
 
 ### Keybindings ################################################################
+# Jumps and deletes, like in a macOS text field. The terminal turns the keys
+# into codes; terminals differ, so each key is bound in every form it arrives in.
+#   Cmd+←/→      line start/end      Opt+←/→       word back/forward
+#   Cmd+Delete   delete the line     Opt+Delete    delete the word before
+# iTerm2's profile sends ^A ^E ^U, Esc b/f and Esc+Delete, which zsh's emacs keys
+# already handle. Terminal.app can't send Cmd keys to the shell: there, Ctrl+A,
+# Ctrl+E and Ctrl+U do the same.
+bindkey -e                                           # emacs keys, even if $EDITOR is vim
+bindkey '^[[1;3D' backward-word   '^[[1;3C' forward-word     # Opt+←/→, xterm style
+bindkey '^[^[[D'  backward-word   '^[^[[C'  forward-word     # Opt+←/→, Esc + arrow
+bindkey '^[[1;9D' beginning-of-line '^[[1;9C' end-of-line    # Cmd+←/→, xterm style
+bindkey '^[[H'    beginning-of-line '^[[F'  end-of-line      # Home/End (Fn+←/→)
+bindkey '^[[3~'   delete-char     '^[[3;3~' kill-word        # Fwd Delete, Opt+Fwd Delete
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Jump word left/right
-    bindkey '^[[1;5C' forward-word
-    bindkey '^[[1;5D' backward-word
-
-    # Ctrl+Backspace delete previous word
-    bindkey '^H' backward-kill-word
+    bindkey '^[[1;5D' backward-word '^[[1;5C' forward-word   # Ctrl+←/→
+    bindkey '^H' backward-kill-word                          # Ctrl+Backspace
 fi
+
+### Shift-select ###############################################################
+# Select part of the command line with Shift, like in a text field:
+#   Shift+←/→  by character   Shift+Opt+←/→  by word   Shift+Cmd+←/→  to start/end
+# While something is selected, typing or pasting replaces it, Delete removes it,
+# Cmd+X cuts it, and any other key deselects and does its usual job.
+# A selection is copied to the clipboard as you make it, so Cmd+C stays free for
+# copying output with the mouse. (Shift+Cmd and Cmd+X: iTerm2 only, via its
+# profile; Terminal.app keeps Cmd keys for itself.)
+zle_highlight=(region:standout)
+
+_ss_bounds() {                       # reply=(start end) of the selection
+    if (( MARK < CURSOR )); then reply=($MARK $CURSOR); else reply=($CURSOR $MARK); fi
+}
+_ss_copy() {                         # selection -> macOS clipboard
+    _ss_bounds
+    (( $+commands[pbcopy] )) && print -rn -- "${BUFFER[reply[1]+1,reply[2]]}" | pbcopy
+}
+_ss_stop() { REGION_ACTIVE=0; zle -K main }
+_ss_erase() {                        # remove the selected text, without copying it
+    _ss_bounds
+    BUFFER="${BUFFER[1,reply[1]]}${BUFFER[reply[2]+1,-1]}"
+    CURSOR=$reply[1]
+    _ss_stop
+}
+_ss_extend() {                       # select-<widget>: start or grow, then move
+    if (( ! REGION_ACTIVE )); then
+        MARK=$CURSOR REGION_ACTIVE=1
+        zle -K shift-select
+    fi
+    zle ${WIDGET#select-}
+    _ss_copy
+}
+_ss_cut()     { _ss_copy; _ss_erase }
+_ss_replace() { _ss_erase; zle -U -- "$KEYS" }       # typed key replaces it
+_ss_paste()   { _ss_erase; zle bracketed-paste }     # pasted text replaces it
+_ss_other()   { _ss_stop; zle -U -- "$KEYS" }        # deselect, then handle the key
+_ss_nothing() { }                                    # Cmd+X with nothing selected
+for _w in _ss_cut _ss_erase _ss_replace _ss_paste _ss_other _ss_nothing; do zle -N $_w; done
+for _w in backward-char forward-char backward-word forward-word beginning-of-line end-of-line; do
+    zle -N select-$_w _ss_extend
+done
+unset _w
+
+# Keymap while something is selected: every key deselects unless bound below
+bindkey -N shift-select
+bindkey -M shift-select -R '^@'-'^?' _ss_other
+bindkey -M shift-select -R '\M-^@'-'\M-^?' _ss_other
+bindkey -M shift-select -R ' '-'~' _ss_replace
+bindkey -M shift-select '^?' _ss_erase '^H' _ss_erase '^[[3~' _ss_erase
+bindkey -M shift-select '^[[200~' _ss_paste           # Cmd+V (bracketed paste)
+bindkey -M shift-select '^[[120;9u' _ss_cut           # Cmd+X (iTerm2 profile)
+bindkey '^[[120;9u' _ss_nothing
+
+# Shift+arrows in every form they arrive in, in both keymaps
+for _km in main shift-select; do
+    bindkey -M $_km '^[[1;2D' select-backward-char  '^[[1;2C' select-forward-char
+    bindkey -M $_km '^[[1;4D' select-backward-word  '^[[1;4C' select-forward-word
+    bindkey -M $_km '^[^[[1;2D' select-backward-word '^[^[[1;2C' select-forward-word
+    bindkey -M $_km '^[[1;10D' select-beginning-of-line '^[[1;10C' select-end-of-line
+    bindkey -M $_km '^[[1;2H' select-beginning-of-line '^[[1;2F' select-end-of-line
+done
+unset _km
 
 ### Claude Code: two subscriptions #############################################
 # `claude` runs on the work subscription with its config in ~/.claude.

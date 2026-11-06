@@ -114,6 +114,19 @@ You don't need to do these by hand:
 - **Typing**: no autocorrect, auto-capitalisation, double-space full stop or smart quotes and dashes
 - **Menu bar**: tighter icon spacing, so fewer icons hide under the notch
 
+## Editing a command
+
+Like in a macOS text field (set up in `zsh/.zshrc` and the iTerm2 profile):
+
+| Keys | Does |
+|---|---|
+| Cmd+←/→, Opt+←/→ | jump to line start/end, word back/forward |
+| Cmd+Delete, Opt+Delete | delete the line, the word before the cursor |
+| Shift + any of those arrows | select; the selection is copied to the clipboard |
+| type / paste / Delete / Cmd+X | replace / replace / remove / cut the selection |
+
+Terminal.app keeps Cmd keys for itself, so there use Ctrl+A, Ctrl+E and Ctrl+U for line start, line end and delete line. The Option and Shift keys work the same.
+
 ## Keeping the dotfiles up to date
 
 On a Mac that's already set up:
