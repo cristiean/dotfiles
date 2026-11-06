@@ -26,7 +26,7 @@ warn() { print -P "    %F{yellow}! $1%f" }
 # Work git hosts (GitLab etc.) use their own keys; this doesn't touch them.
 push_access() {
     step "Push access to cristiean/dotfiles from this Mac"
-    git -C $DOTFILES rev-parse --verify --quiet HEAD >/dev/null ||
+    git -C $DOTFILES rev-parse --verify --quiet HEAD &>/dev/null ||
         { warn "Run setup.sh without options first"; exit 1 }
 
     mkdir -p -m 700 $HOME/.ssh
