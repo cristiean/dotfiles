@@ -1,5 +1,6 @@
 brew "blueutil"
 brew "coreutils"
+brew "gh"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 cask "adguard"
