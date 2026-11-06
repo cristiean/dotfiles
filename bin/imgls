@@ -70,9 +70,10 @@ sub usage {
 # Some defaults
 my $def_image_width     = 20;                   # height (in character cells)
 my $def_image_height    = 10;                   # width  (in character cells)
-# Patched copy: a character cell's height / width. Menlo 14 with the profile's
-# 1.1 line spacing is about 2.1; set IMGLS_CELL_RATIO after changing the font.
-my $cell_ratio          = $ENV{'IMGLS_CELL_RATIO'} || 2.1;
+# Patched copy: a character cell's height / width. Measured for Menlo 14 with
+# the profile's 1.1 line spacing: about 2.4. Set IMGLS_CELL_RATIO after
+# changing the font or spacing.
+my $cell_ratio          = $ENV{'IMGLS_CELL_RATIO'} || 2.4;
 my $def_preserve_ratio  = 'true';               # preserve aspect ratio
 
 my %imgparams = (                               # default image option parameters
@@ -326,7 +327,7 @@ sub do_ls {
             my $box_rows = $rows // 1;
             my $dims = $h->{'dims'} // ($cols && $rows ? get_dimensions($h->{'file'}) : undef);
             if ($dims and $dims->{'width'} and $dims->{'height'}) {
-                my $fit = int(0.99 + $cols * $dims->{'height'} / $dims->{'width'} / $cell_ratio);
+                my $fit = int(0.5 + $cols * $dims->{'height'} / $dims->{'width'} / $cell_ratio);
                 $box_rows = $fit < 1 ? 1 : $fit < $rows ? $fit : $rows;
                 $imgparams{'height'} = $box_rows;
             }
