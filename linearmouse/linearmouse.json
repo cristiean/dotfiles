@@ -1,66 +1,127 @@
 {
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.12.0",
   "schemes" : [
     {
       "buttons" : {
-        "mappings" : [
-          {
-            "command" : false,
-            "option" : false,
-            "shift" : false,
-            "button" : 3,
-            "action" : "showDesktop",
-            "control" : false
-          },
-          {
-            "command" : false,
-            "shift" : false,
-            "option" : false,
-            "control" : false,
-            "button" : 4,
-            "action" : "missionControl"
+        "autoScroll" : {
+          "enabled" : true,
+          "mode" : [
+            "toggle",
+            "hold"
+          ],
+          "speed" : 0.7,
+          "toggleActivation" : "longPress",
+          "trigger" : {
+            "button" : 2
           }
-        ],
-        "universalBackForward" : false
-      },
-      "pointer" : {
-        "speed" : 0.0689655172413792768,
-        "disableAcceleration" : true,
-        "acceleration" : 1
-      },
-      "scrolling" : {
-        "distance" : "auto",
-        "modifiers" : {
-          "vertical" : {
-            "shift" : {
-              "type" : "changeSpeed",
-              "scale" : 0.1
-            }
-          }
-        },
-        "acceleration" : 1,
-        "reverse" : {
-          "vertical" : true
-        },
-        "speed" : 0
+        }
       },
       "if" : {
         "device" : {
-          "productName" : "USB Receiver",
-          "category" : "mouse",
-          "productID" : "0xc547",
-          "vendorID" : "0x46d"
+          "category" : "mouse"
+        }
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        },
+        "distance" : {
+          "vertical" : "auto"
+        },
+        "smoothed" : {
+          "vertical" : {
+            "enabled" : false
+          }
+        },
+        "speed" : {
+          "vertical" : 0
         }
       }
     },
     {
+      "buttons" : {
+        "autoScroll" : {
+          "enabled" : true,
+          "mode" : [
+            "toggle",
+            "hold"
+          ],
+          "speed" : 0.5,
+          "toggleActivation" : "longPress",
+          "trigger" : {
+            "button" : 2
+          }
+        },
+        "mappings" : [
+          {
+            "outcomes" : {
+              "shortPress" : "showDesktop"
+            },
+            "trigger" : {
+              "input" : {
+                "button" : 3
+              }
+            }
+          },
+          {
+            "outcomes" : {
+              "shortPress" : "missionControl"
+            },
+            "trigger" : {
+              "input" : {
+                "button" : 4
+              }
+            }
+          }
+        ],
+        "universalBackForward" : false
+      },
       "if" : {
         "device" : {
           "category" : "mouse",
+          "productID" : "0xc547",
           "productName" : "USB Receiver",
-          "vendorID" : "0x46d",
-          "productID" : "0xc547"
+          "vendorID" : "0x46d"
+        }
+      },
+      "logitech" : {
+        "highResolutionWheel" : false
+      },
+      "pointer" : {
+        "acceleration" : 1,
+        "disableAcceleration" : true,
+        "hardwareDPI" : 1000,
+        "speed" : 0.0689655172413792768
+      },
+      "scrolling" : {
+        "acceleration" : 1,
+        "distance" : "auto",
+        "modifiers" : {
+          "vertical" : {
+            "command" : {
+              "type" : "auto"
+            },
+            "shift" : {
+              "scale" : 0.1,
+              "type" : "changeSpeed"
+            }
+          }
         },
-        "app" : "com.apple.Safari"
+        "reverse" : {
+          "vertical" : true
+        },
+        "speed" : 0
+      }
+    },
+    {
+      "if" : {
+        "app" : "com.apple.Safari",
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xc547",
+          "productName" : "USB Receiver",
+          "vendorID" : "0x46d"
+        }
       },
       "scrolling" : {
         "acceleration" : {
@@ -73,8 +134,8 @@
         "device" : {
           "category" : "trackpad",
           "productID" : "0x0",
-          "vendorID" : "0x0",
-          "productName" : "Apple Internal Keyboard \/ Trackpad"
+          "productName" : "Apple Internal Keyboard \/ Trackpad",
+          "vendorID" : "0x0"
         }
       },
       "pointer" : {
@@ -82,23 +143,64 @@
       }
     },
     {
-      "scrolling" : {
-        "acceleration" : {
-          "vertical" : 1
-        }
-      },
       "if" : {
         "device" : {
-          "productID" : "0x342",
-          "vendorID" : "0x5ac",
           "category" : "trackpad",
-          "productName" : "Apple Internal Keyboard \/ Trackpad"
+          "productID" : "0x342",
+          "productName" : "Apple Internal Keyboard \/ Trackpad",
+          "vendorID" : "0x5ac"
         }
       },
       "pointer" : {
         "disableAcceleration" : false
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xb03a",
+          "productName" : "LOGI M240",
+          "serialNumber" : "89D29824",
+          "vendorID" : "0x46d"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 1,
+        "disableAcceleration" : true,
+        "hardwareDPI" : 1200,
+        "redirectsToScroll" : false,
+        "speed" : 0.08
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : true
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0x3412",
+          "productName" : "Hama MW-650 ",
+          "vendorID" : "0xe"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 1,
+        "disableAcceleration" : true
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : true
+        }
       }
     }
-  ],
-  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.0"
+  ]
 }
