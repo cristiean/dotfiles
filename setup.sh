@@ -1,11 +1,8 @@
 #!/bin/zsh
 # Set up a Mac from these dotfiles. Safe to re-run: every step checks first.
 #
-# The repo is private, so GitHub login comes before the clone. On a new Mac:
-#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#   eval "$(/opt/homebrew/bin/brew shellenv)"
-#   brew install gh && gh auth login --git-protocol https --web
-#   zsh -c "$(gh api repos/cristiean/dotfiles/contents/setup.sh -H 'Accept: application/vnd.github.raw')"
+# On a new Mac, in Terminal:
+#   zsh -c "$(curl -fsSL https://raw.githubusercontent.com/cristiean/dotfiles/master/setup.sh)"
 #
 # Once ~/.config is cloned, re-run any time to pull and apply changes:
 #   ~/.config/setup.sh
@@ -31,7 +28,7 @@ fi
 eval "$($brew_bin shellenv)"
 note "$(brew --version | head -1)"
 
-# 2. GitHub login. Git then authenticates through gh, which the clone needs.
+# 2. GitHub login, so git can push over https (git authenticates through gh)
 step "GitHub"
 command -v gh >/dev/null || brew install gh
 if gh auth status &>/dev/null; then
