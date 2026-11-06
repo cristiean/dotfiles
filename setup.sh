@@ -146,5 +146,5 @@ note "Open a new terminal tab to load the zsh config."
 note "Log out and back in for keyboard and menu bar settings."
 note "Then follow ~/.config/README.md: git login, app permissions, licenses."
 if [[ -z $(git -C $DOTFILES config --get remote.origin.pushurl) ]]; then
-    note "To push dotfiles changes from this Mac: ~/.config/setup.sh --push-access"
+    note "To push from this Mac, see \"Log in to git\" in the README."
 fi

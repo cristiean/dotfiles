@@ -31,14 +31,25 @@ brew bundle --file=~/.config/Brewfile.develop
 
 Git logs in with SSH keys, one per Mac and service. The `ssh-key` command creates one, copies its public key to the clipboard and prints the page to paste it into. When it asks for a passphrase, set one; the Keychain remembers it. Pasting can be done from any device, because the public key isn't secret.
 
-| On | Run | Paste the key into |
-|---|---|---|
-| Any Mac you'll push these dotfiles from | `~/.config/setup.sh --push-access` | this repo's Deploy keys page (tick **Allow write access**) |
-| A personal Mac | `ssh-key github.com` | your GitHub account's SSH keys page |
-| A work Mac, company on GitLab | `ssh-key gitlab.company.com`, using the company's GitLab address | your work GitLab account's SSH keys page |
-| A work Mac, company on GitHub | `ssh-key github.com` | your work GitHub account's SSH keys page |
+**Personal Mac.** One key for your whole GitHub account, so every repo works, these dotfiles included:
 
-`ssh-key` prints the exact page for GitHub and for any GitLab, then a command to test the key.
+```sh
+ssh-key github.com                     # paste the key into your GitHub account's SSH keys page
+git -C ~/.config remote set-url --push origin git@github.com:cristiean/dotfiles.git
+```
+
+The second line makes the dotfiles push with that key. Other repos just need SSH clone URLs (`git@github.com:owner/repo.git`).
+
+**Work Mac.** Your personal GitHub account stays off it:
+
+```sh
+ssh-key gitlab.company.com             # the company's git host, with your work account
+~/.config/setup.sh --push-access       # optional: lets this Mac push the dotfiles, and nothing else
+```
+
+For a company on GitHub instead, run `ssh-key github.com` and paste the key into your *work* GitHub account. `--push-access` asks you to paste its key into this repo's Deploy keys page and tick **Allow write access**.
+
+`ssh-key` prints the exact page to paste each key into, for GitHub and for any GitLab, and a command to test the key.
 
 On a work Mac, also set your work email for work repos. This repo keeps your personal one either way:
 
