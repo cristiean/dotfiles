@@ -18,8 +18,9 @@ fi
 alias ll="ls -oa" # List files and directories
 
 ### Link dotfiles that must live in ~ ##########################################
-[[ -L ~/.vimrc ]] || ln -s ~/.config/.vimrc ~/.vimrc
-[[ -e ~/.hushlogin ]] || ln -s ~/.config/.hushlogin ~/.hushlogin  # no "Last login"
+# Skipped if the file already exists, so a real ~/.vimrc is never replaced.
+[[ -e ~/.vimrc || -L ~/.vimrc ]] || ln -s ~/.config/.vimrc ~/.vimrc
+[[ -e ~/.hushlogin || -L ~/.hushlogin ]] || ln -s ~/.config/.hushlogin ~/.hushlogin  # no "Last login"
 
 ### Open with app ##############################################################
 if [[ "$OSTYPE" == "darwin"* ]]; then
