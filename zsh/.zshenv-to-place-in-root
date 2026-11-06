@@ -1,2 +1,4 @@
+# ~/.zshenv: tells zsh to read the rest of its config from ~/.config/zsh.
+# setup.sh copies this file to ~/.zshenv.
 ZDOTDIR=$HOME/.config/zsh
-. $ZDOTDIR/.zshenv # sources .zshenv in $ZDOTDIR
+. $ZDOTDIR/.zshenv
