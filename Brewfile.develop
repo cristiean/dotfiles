@@ -24,3 +24,6 @@ cask "dbeaver-community"
 
 # AI
 cask "claude-code"
+
+# GitHub CLI (PRs, issues). Not needed for git itself
+brew "gh"

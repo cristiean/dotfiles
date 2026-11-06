@@ -2,7 +2,6 @@
 
 brew "blueutil"
 brew "coreutils"
-brew "gh"
 brew "ripgrep"
 brew "tree"
 brew "uv"
