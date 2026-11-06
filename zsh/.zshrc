@@ -49,12 +49,13 @@ zstyle ':completion:*' matcher-list 'm:{a-z\-}={A-Z\_}' \
     'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
     'r:|?=** m:{a-z\-}={A-Z\_}'
 
-# Command names: your own shortcuts first, zsh plumbing out of the way.
+# Command names: your own shortcuts first, the long list of external commands
+# last, zsh plumbing out of the way.
 # Groups listed in this order; variables and keywords only when nothing else matches.
 zstyle ':completion:*:*:-command-:*:*' group-order \
-    aliases functions local-directories commands builtins
+    aliases functions local-directories builtins commands
 zstyle ':completion:*:*:-command-:*:*' tag-order \
-    'aliases functions local-directories commands builtins'
+    'aliases functions local-directories builtins commands'
 # Hide helper functions: zsh/plugin hooks (_*, azhw:*, add-zsh-hook), iTerm2's
 zstyle ':completion:*:functions' ignored-patterns \
     '_*' '*:*' 'add-zle-hook-widget' 'add-zsh-hook' 'iterm2_*'
