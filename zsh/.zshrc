@@ -43,8 +43,9 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' list-separator '#'
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' matcher-list '' \
-    'm:{a-z\-}={A-Z\_}' \
+# Smart case: lowercase matches either case (d -> Desktop, Dev, docs), but an
+# uppercase letter only matches uppercase. Typing - also matches _.
+zstyle ':completion:*' matcher-list 'm:{a-z\-}={A-Z\_}' \
     'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
     'r:|?=** m:{a-z\-}={A-Z\_}'
 
