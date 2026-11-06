@@ -2380,13 +2380,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.59999999999999998</real>
+									<real>0.40000000000000002</real>
 									<key>Color Space</key>
 									<string>sRGB</string>
 									<key>Green Component</key>
-									<real>0.59999999999999998</real>
+									<real>0.40000000000000002</real>
 									<key>Red Component</key>
-									<real>0.59999999999999998</real>
+									<real>0.40000000000000002</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2450,13 +2450,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.59999999999999998</real>
+									<real>0.40000000000000002</real>
 									<key>Color Space</key>
 									<string>sRGB</string>
 									<key>Green Component</key>
-									<real>0.59999999999999998</real>
+									<real>0.40000000000000002</real>
 									<key>Red Component</key>
-									<real>0.59999999999999998</real>
+									<real>0.40000000000000002</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
