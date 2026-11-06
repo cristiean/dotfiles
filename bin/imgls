@@ -3,7 +3,8 @@
 # Patched copy of iTerm2's imgls (iTerm.app/Contents/Resources/utilities/imgls),
 # found first on PATH via ~/.config/bin. Changes from the original:
 #   - thumbnails default to 20x10 character cells (was 3x1)
-#   - an image's name sits level with the middle of its thumbnail
+#   - an image's box is only as tall as the picture needs, so wide screenshots
+#     leave no empty rows, and its name sits level with the picture's middle
 #   - folders and empty files take one line instead of a black square
 #   - previews of .env and *.example-style files get the right highlighting
 #     (see preview_type)
@@ -69,6 +70,9 @@ sub usage {
 # Some defaults
 my $def_image_width     = 20;                   # height (in character cells)
 my $def_image_height    = 10;                   # width  (in character cells)
+# Patched copy: a character cell's height / width. Menlo 14 with the profile's
+# 1.1 line spacing is about 2.1; set IMGLS_CELL_RATIO after changing the font.
+my $cell_ratio          = $ENV{'IMGLS_CELL_RATIO'} || 2.1;
 my $def_preserve_ratio  = 'true';               # preserve aspect ratio
 
 my %imgparams = (                               # default image option parameters
@@ -315,12 +319,26 @@ sub do_ls {
             # (the original drew a black square here)
             print ' ' x ($cols // $def_image_width);
         }
-        else {
+        elsif (looks_like_image($h->{'file'})) {
+            # Ask for only as many rows as the picture needs at this width (at most
+            # the height setting), so a wide screenshot doesn't leave empty rows.
+            my $saved_height = $imgparams{'height'};
+            my $box_rows = $rows // 1;
+            my $dims = $h->{'dims'} // ($cols && $rows ? get_dimensions($h->{'file'}) : undef);
+            if ($dims and $dims->{'width'} and $dims->{'height'}) {
+                my $fit = int(0.99 + $cols * $dims->{'height'} / $dims->{'width'} / $cell_ratio);
+                $box_rows = $fit < 1 ? 1 : $fit < $rows ? $fit : $rows;
+                $imgparams{'height'} = $box_rows;
+            }
             write_image $h->{'file'}, $h->{'bytes'};
-            # Only images fill the width x height box. iTerm2 shows other files as
-            # full-width previews as tall as their text, so their name stays after them.
-            $up = int((($rows // 1) - 1) / 2)                   if looks_like_image($h->{'file'});
+            $imgparams{'height'} = $saved_height;
+            $up = int(($box_rows - 1) / 2);
             print "\033[${up}A"                                  if $up;
+        }
+        else {
+            # Other files: iTerm2 shows a full-width preview as tall as the text,
+            # so the name goes after it, as in the original
+            write_image $h->{'file'}, $h->{'bytes'};
         }
 
         if ($opts{'dimensions'}) {
