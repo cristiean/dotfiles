@@ -154,7 +154,7 @@ Shell config for one Mac only, like work aliases, goes in `~/.config/zsh/.zshrc.
 | `bin/ssh-key` | logs a Mac in to a git host with an SSH key |
 | `bin/imgls` | iTerm2's `imgls` with 20x10 thumbnails, names centred on images, and the right highlighting for env files |
 | `Brewfile`, `Brewfile.develop` | apps and CLIs: every Mac, and as needed |
-| `zsh/` | shell config. `.zshrc` holds aliases, completion, plugins, `klaude` and `airpods` |
+| `zsh/` | shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo` (open the repo page at this branch and folder) |
 | `git/config`, `git/ignore` | global git settings and ignore rules |
 | `iterm2/` | iTerm2 settings (profile *calm*); shell integration loads from the app itself |
 | `karabiner/`, `linearmouse/`, `Stats.plist` | keyboard, mouse and menu bar app settings |

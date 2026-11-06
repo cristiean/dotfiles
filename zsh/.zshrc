@@ -35,6 +35,60 @@ alias activate="source ./.venv/bin/activate"
 function camp { git commit -am "$*"; git push } # Use: $ camp fix bug
 function clone { git clone git@github.com:$1 }  # Use: $ clone user/repo
 
+# repo [-n] [file-or-folder]: open this repo's web page at the current branch and
+# folder (or at the given file or folder). Works for GitHub, GitLab (including a
+# company's own server) and SSH aliases from ~/.ssh/config. -n only prints the link.
+repo() {
+    emulate -L zsh
+    local print_only=0
+    [[ $1 == -n ]] && { print_only=1; shift }
+    git rev-parse --is-inside-work-tree &>/dev/null ||
+        { print -u2 "repo: not inside a git repository"; return 1 }
+
+    # The remote branch this branch tracks; without one, origin and the local name
+    local remote branch upstream
+    if upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null); then
+        remote=${upstream%%/*} branch=${upstream#*/}
+    else
+        remote=origin branch=$(git branch --show-current)
+        [[ -n $branch ]] || branch=$(git rev-parse HEAD)            # detached HEAD
+        print -u2 "repo: '$branch' isn't pushed (no upstream), so its page may not exist yet"
+    fi
+    local remote_url
+    remote_url=$(git remote get-url $remote 2>/dev/null) ||
+        { print -u2 "repo: no remote called '$remote'"; return 1 }
+
+    # Host and repo path from https://host/a/b.git, git@host:a/b.git or ssh://git@host:22/a/b.git
+    local u=$remote_url host repo_path
+    case $u in
+        http(s|)://*) u=${u#*://}; u=${u#*@}; host=${u%%/*}; repo_path=${u#*/} ;;
+        ssh://*)      u=${u#ssh://}; u=${u#*@}; host=${u%%/*}; host=${host%%:*}; repo_path=${u#*/} ;;
+        *:*)          u=${u#*@}; host=${u%%:*}; repo_path=${u#*:} ;;
+        *)            print -u2 "repo: can't make a web link from $remote_url"; return 1 ;;
+    esac
+    repo_path=${${repo_path%/}%.git}
+    if [[ $remote_url != http* ]]; then                  # SSH alias -> its real host name
+        local real=$(ssh -G $host 2>/dev/null | awk '$1 == "hostname" { print $2; exit }')
+        [[ -n $real ]] && host=$real
+    fi
+
+    # Folder (or the given file/folder) relative to the repo root
+    local kind=tree sub=$(git rev-parse --show-prefix)
+    if [[ -n $1 ]]; then
+        [[ -e $1 ]] || { print -u2 "repo: no such file or folder: $1"; return 1 }
+        local top=$(git rev-parse --show-toplevel) abs=${1:A}
+        sub=${${abs#$top}#/}
+        [[ -f $1 ]] && kind=blob
+    fi
+
+    local sep=/; [[ $host == *gitlab* ]] && sep=/-/      # GitLab: /-/tree/...
+    local link="https://$host/$repo_path$sep$kind/$branch/$sub"
+    link=${${link// /%20}//\#/%23}
+    print -r -- $link
+    (( print_only )) && return
+    if (( $+commands[open] )); then open $link; else xdg-open $link; fi
+}
+
 ### Weather ####################################################################
 function weather { curl http://wttr.in/"$*" }   # Use: $ weather Palo Alto
 
