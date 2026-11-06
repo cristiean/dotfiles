@@ -342,3 +342,14 @@ airpods() {
 
 ### Machine-specific overrides (untracked) #####################################
 [[ -f $ZDOTDIR/.zshrc.local ]] && source $ZDOTDIR/.zshrc.local
+
+### Plugins ####################################################################
+# zsh-autosuggestions:     grey suggestion from history as you type; → accepts
+# zsh-syntax-highlighting: colors the command line (green = valid command)
+# Installed via Brewfile (macOS) or apt (Linux). Highlighting must load last.
+for _plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+    for _dir in ${HOMEBREW_PREFIX:-/opt/homebrew}/share /usr/share; do
+        [[ -f $_dir/$_plugin/$_plugin.zsh ]] && { source $_dir/$_plugin/$_plugin.zsh; break }
+    done
+done
+unset _plugin _dir
