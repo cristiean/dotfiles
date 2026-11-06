@@ -3,7 +3,7 @@
 # Patched copy of iTerm2's imgls (iTerm.app/Contents/Resources/utilities/imgls),
 # found first on PATH via ~/.config/bin. Changes from the original:
 #   - thumbnails default to 20x10 character cells (was 3x1)
-#   - the file name sits level with the middle of its thumbnail
+#   - an image's name sits level with the middle of its thumbnail
 #   - folders and empty files take one line instead of a black square
 #   - previews of .env and *.example-style files get the right highlighting
 #     (see preview_type)
@@ -317,7 +317,9 @@ sub do_ls {
         }
         else {
             write_image $h->{'file'}, $h->{'bytes'};
-            $up = int((($rows // 1) - 1) / 2);
+            # Only images fill the width x height box. iTerm2 shows other files as
+            # full-width previews as tall as their text, so their name stays after them.
+            $up = int((($rows // 1) - 1) / 2)                   if looks_like_image($h->{'file'});
             print "\033[${up}A"                                  if $up;
         }
 
@@ -515,6 +517,18 @@ sub call_Image_Size {
 }
 
 # grab the specified image file's contents
+# True if the file starts like an image (PNG, JPEG, GIF, BMP, TIFF, ICNS, ICO,
+# WebP, HEIC/AVIF). Added for the patched copy, to centre names on images only.
+sub looks_like_image {
+    my $file = shift;
+    open (my $fh, "<:raw", $file) or return 0;
+    read($fh, my $head, 16) // return 0;
+    close $fh;
+    return $head =~ /^(?:\x89PNG|\xFF\xD8\xFF|GIF8|BM|II\*\0|MM\0\*|icns|\0\0\x01\0)/
+        || $head =~ /^RIFF....WEBP/s
+        || $head =~ /^....ftyp(?:heic|heix|hevc|mif1|msf1|avif)/s;
+}
+
 sub get_image_bytes {
     my $file = shift;
 
