@@ -1,0 +1,26 @@
+# Dev and work tools, installed only when needed. Comment out what this Mac
+# doesn't need, then run:
+#   brew bundle --file=~/.config/Brewfile.develop
+
+# Containers and Kubernetes
+cask "orbstack"            # Docker and Linux VMs (replaces Docker Desktop)
+brew "kubernetes-cli"      # kubectl
+brew "kubectx"             # switch kubectl context and namespace
+brew "helm"
+brew "k9s"                 # Kubernetes TUI
+brew "kind"                # local clusters in Docker
+brew "argocd"
+brew "crane"               # inspect container images and registries
+cask "freelens"            # Kubernetes GUI
+cask "openlens"            # Kubernetes GUI
+
+# Cloud and VPN
+brew "awscli"
+cask "aws-vpn-client"
+brew "wireguard-tools"
+
+# Databases
+cask "dbeaver-community"
+
+# AI
+cask "claude-code"

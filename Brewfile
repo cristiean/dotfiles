@@ -1,8 +1,14 @@
+# Installed on every Mac by setup.sh. Dev/work tools: Brewfile.develop
+
 brew "blueutil"
 brew "coreutils"
 brew "gh"
+brew "ripgrep"
+brew "tree"
+brew "uv"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
+
 cask "adguard"
 cask "chatgpt"
 cask "claude"
