@@ -2,9 +2,9 @@
 
 # Patched copy of iTerm2's imgls (iTerm.app/Contents/Resources/utilities/imgls),
 # found first on PATH via ~/.config/bin. Changes from the original:
-#   - thumbnails default to 10x5 character cells (was 3x1)
+#   - thumbnails default to 20x10 character cells (was 3x1)
 #   - the file name sits level with the middle of its thumbnail
-#   - files that aren't images take one line, with no black placeholder square
+#   - folders and empty files take one line instead of a black square
 # To pick up a newer iTerm2 version, copy the original again and reapply these.
 
 # imgls: ls(1) listing supplemented with image thumbnails and dimensions
@@ -65,8 +65,8 @@ sub usage {
 }
 
 # Some defaults
-my $def_image_width     = 10;                   # height (in character cells)
-my $def_image_height    = 5;                    # width  (in character cells)
+my $def_image_width     = 20;                   # height (in character cells)
+my $def_image_height    = 10;                   # width  (in character cells)
 my $def_preserve_ratio  = 'true';               # preserve aspect ratio
 
 my %imgparams = (                               # default image option parameters
@@ -268,10 +268,9 @@ sub do_ls {
         my $up = 0;
         my ($cols) = $imgparams{'width'}  =~ /^(\d+)$/;
         my ($rows) = $imgparams{'height'} =~ /^(\d+)$/;
-        my $is_image = -f $h->{'st'} && $h->{'bytes'} && ! ($opts{'dimensions'} and ! $h->{'dims'} and ! $opts{'unknown'})
-                       && looks_like_image($h->{'file'});
-        if (! $is_image) {
-            # Not an image: blank space as wide as a thumbnail, on one line
+        if (! -f $h->{'st'} or ! $h->{'bytes'} or ($opts{'dimensions'} and ! $h->{'dims'} and ! $opts{'unknown'})) {
+            # Folder or empty file: blank space as wide as a thumbnail, on one line
+            # (the original drew a black square here)
             print ' ' x ($cols // $def_image_width);
         }
         else {
@@ -474,18 +473,6 @@ sub call_Image_Size {
 }
 
 # grab the specified image file's contents
-# True if the file starts like an image format iTerm2 can show. Added for the
-# patched copy: the original sent every file and let iTerm2 fail on non-images.
-sub looks_like_image {
-    my $file = shift;
-    open (my $fh, "<:raw", $file) or return 0;
-    read($fh, my $head, 16) // return 0;
-    close $fh;
-    return $head =~ /^(?:\x89PNG|\xFF\xD8\xFF|GIF8|BM|II\*\0|MM\0\*|icns|%PDF|\0\0\x01\0)/
-        || $head =~ /^RIFF....WEBP/s
-        || $head =~ /^....ftyp(?:heic|heix|hevc|mif1|msf1|avif)/s;
-}
-
 sub get_image_bytes {
     my $file = shift;
 
