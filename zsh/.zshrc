@@ -58,6 +58,12 @@ bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
 
+### iTerm2 tools ##############################################################
+# imgcat (show an image in the terminal), imgls, it2dl (download a file from a
+# remote shell), it2copy, ... ship inside iTerm2.app, so they're always current.
+[[ -d /Applications/iTerm.app/Contents/Resources/utilities ]] &&
+    path+=(/Applications/iTerm.app/Contents/Resources/utilities)
+
 ### Keybindings ################################################################
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # Jump word left/right
