@@ -2362,7 +2362,7 @@
 					</dict>
 					<dict>
 						<key>class</key>
-						<string>iTermStatusBarWorkingDirectoryComponent</string>
+						<string>iTermStatusBarSwiftyStringComponent</string>
 						<key>configuration</key>
 						<dict>
 							<key>knobs</key>
@@ -2371,6 +2371,8 @@
 								<integer>1</integer>
 								<key>base: priority</key>
 								<integer>5</integer>
+								<key>expression</key>
+								<string>\(user.pwd)</string>
 								<key>maxwidth</key>
 								<real>1.7976931348623157e+308</real>
 								<key>minwidth</key>

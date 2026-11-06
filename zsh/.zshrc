@@ -64,6 +64,14 @@ autoload -Uz compinit && compinit
 [[ -d /Applications/iTerm.app/Contents/Resources/utilities ]] &&
     path+=(/Applications/iTerm.app/Contents/Resources/utilities)
 
+### iTerm2 status bar ##########################################################
+# The status bar shows \(user.pwd): this shell's folder, with ~ for home. It's an
+# Interpolated String component because iTerm2's Current Directory component
+# always draws a folder icon. Shell integration calls this at every prompt.
+iterm2_print_user_vars() {
+    iterm2_set_user_var pwd "${PWD/#$HOME/~}"
+}
+
 ### Keybindings ################################################################
 # Jumps and deletes, like in a macOS text field. The terminal turns the keys
 # into codes; terminals differ, so each key is bound in every form it arrives in.
