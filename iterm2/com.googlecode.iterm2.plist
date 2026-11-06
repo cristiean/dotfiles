@@ -2264,7 +2264,7 @@
 								<key>base: priority</key>
 								<integer>5</integer>
 								<key>format</key>
-								<string>EEEE, d MMM HH:mm</string>
+								<string>EEEE d MMM HH:mm</string>
 								<key>localize</key>
 								<integer>0</integer>
 								<key>maxwidth</key>

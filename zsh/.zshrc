@@ -48,6 +48,16 @@ zstyle ':completion:*' matcher-list '' \
     'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
     'r:|?=** m:{a-z\-}={A-Z\_}'
 
+# Command names: your own shortcuts first, zsh plumbing out of the way.
+# Groups listed in this order; variables and keywords only when nothing else matches.
+zstyle ':completion:*:*:-command-:*:*' group-order \
+    aliases functions local-directories commands builtins
+zstyle ':completion:*:*:-command-:*:*' tag-order \
+    'aliases functions local-directories commands builtins'
+# Hide helper functions: zsh/plugin hooks (_*, azhw:*, add-zsh-hook), iTerm2's
+zstyle ':completion:*:functions' ignored-patterns \
+    '_*' '*:*' 'add-zle-hook-widget' 'add-zsh-hook' 'iterm2_*'
+
 zstyle ':completion:*' format $fg[blue]%B%U%d%u%b
 zstyle ':completion:*:warnings' format "$fg[red]No matches found"
 zstyle ':completion*:default' menu yes select
