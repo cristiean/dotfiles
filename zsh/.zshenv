@@ -2,5 +2,5 @@
 
 typeset -U path   # drop duplicate PATH entries
 
-# User-installed CLIs (uv, pipx, Claude Code, ...)
-export PATH="$HOME/.local/bin:$PATH"
+# Dotfiles commands (ssh-key, ...) and user-installed CLIs (uv, pipx, ...)
+export PATH="$HOME/.config/bin:$HOME/.local/bin:$PATH"

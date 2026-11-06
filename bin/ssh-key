@@ -1,0 +1,77 @@
+#!/bin/zsh
+# ssh-key: log this Mac in to a git host (GitHub, GitLab, ...) with an SSH key.
+#
+#   ssh-key github.com            your GitHub account (personal or work)
+#   ssh-key gitlab.com            your GitLab.com account
+#   ssh-key gitlab.company.com    a company's own GitLab server
+#
+# It creates ~/.ssh/<host>_ed25519 (passphrase kept in the macOS Keychain),
+# adds a matching entry to ~/.ssh/config, copies the public key to the
+# clipboard and prints the page to paste it into. Safe to re-run: an existing
+# entry is reused, and its public key is copied again.
+#
+# Two accounts on the same host (e.g. personal and work GitHub on one Mac):
+# give the second one its own name, then clone with git@<name>:owner/repo.git
+#   ssh-key github.com github-work
+
+set -euo pipefail
+
+if [[ $# -lt 1 || $1 == -* ]]; then
+    sed -n '2,15s/^# \{0,1\}//p' $0
+    exit 1
+fi
+
+host=$1                 # real server, e.g. github.com
+name=${2:-$host}        # what git URLs use: git@<name>:owner/repo.git
+config=$HOME/.ssh/config
+
+note() { print -r -- "    $1" }
+
+mkdir -p -m 700 $HOME/.ssh
+touch $config && chmod 600 $config
+
+if grep -qix "Host $name" $config; then
+    # Already set up: reuse the key that entry points at
+    key=$(ssh -F $config -G $name 2>/dev/null </dev/null | awk '$1 == "identityfile" { print $2; exit }')
+    key=${key/#\~/$HOME}
+    if [[ ! -f $key.pub ]]; then
+        print -u2 "~/.ssh/config has 'Host $name', but its key $key.pub is missing. Fix or remove that entry, then re-run."
+        exit 1
+    fi
+    note "Already set up: Host $name uses ${key/#$HOME/~}"
+else
+    key=$HOME/.ssh/${name}_ed25519
+    if [[ ! -f $key ]]; then
+        note "Creating ${key/#$HOME/~}. Set a passphrase; the Keychain remembers it."
+        ssh-keygen -q -t ed25519 -f $key -C "$name, $(scutil --get ComputerName)"
+        ssh-add -q --apple-use-keychain $key || note "(couldn't add it to the Keychain; you'll be asked on first use)"
+    fi
+    cat >> $config <<EOF
+
+# Added by ssh-key on $(date +%Y-%m-%d)
+Host $name
+    HostName $host
+    User git
+    IdentityFile ~/.ssh/${name}_ed25519
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+    UseKeychain yes
+EOF
+    note "Added 'Host $name' to ~/.ssh/config"
+fi
+
+pbcopy < $key.pub
+note "Public key, copied to the clipboard (not secret):"
+note "$(cat $key.pub)"
+
+# Where to paste it. setup.sh overrides this for the dotfiles deploy key.
+if [[ -n ${SSH_KEY_ADD_URL:-} ]]; then
+    url=$SSH_KEY_ADD_URL
+elif [[ $host == github.com ]]; then
+    url=https://github.com/settings/ssh/new
+else
+    url=https://$host/-/user_settings/ssh_keys     # GitLab
+fi
+note "Paste it at $url"
+[[ -n ${SSH_KEY_ADD_HINT:-} ]] && note "  $SSH_KEY_ADD_HINT"
+note "Then test with: ssh -T git@$name"
