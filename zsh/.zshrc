@@ -17,18 +17,18 @@ else
 fi
 alias ll="ls -oa" # List files and directories
 
-### Source Vim config from custom location #####################################
-[ ! -L ~/.vimrc ] && ln -s ~/.config/.vimrc ~/.vimrc
+### Link dotfiles that must live in ~ ##########################################
+[[ -L ~/.vimrc ]] || ln -s ~/.config/.vimrc ~/.vimrc
+[[ -e ~/.hushlogin ]] || ln -s ~/.config/.hushlogin ~/.hushlogin  # no "Last login"
 
 ### Open with app ##############################################################
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS specific aliases
-    alias code="open -a 'Visual Studio Code'"       # Use: $ code [<PATH>] 
     alias latex-symbols="open https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
 fi
 
 ### Python #####################################################################
-alias activate="source ./venv/bin/activate"
+alias activate="source ./.venv/bin/activate"
 
 ### Git ########################################################################
 function camp { git commit -am "$*"; git push } # Use: $ camp fix bug
@@ -42,7 +42,6 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' list-separator '#'
 zstyle ':completion:*' auto-description 'specify: %d'
-zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=* m:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' matcher-list '' \
     'm:{a-z\-}={A-Z\_}' \
     'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
@@ -57,50 +56,6 @@ bindkey -M menuselect '^M' .accept-line
 bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
-
-### pip completion #############################################################
-# Cross-platform pip completion
-if command -v pip3 >/dev/null 2>&1; then
-    eval "$(pip3 completion --zsh 2>/dev/null)" || true
-elif command -v pip >/dev/null 2>&1; then
-    eval "$(pip completion --zsh 2>/dev/null)" || true
-fi
-
-### Activate z ################################################################# 
-# Cross-platform z activation
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS with Homebrew
-    if command -v brew >/dev/null 2>&1; then
-        . `brew --prefix`/etc/profile.d/z.sh 2>/dev/null || true
-    fi
-else
-    # Linux/Ubuntu - install z via package manager or manual installation
-    if [ -f /usr/share/z/z.sh ]; then
-        . /usr/share/z/z.sh
-    elif [ -f /usr/local/share/z/z.sh ]; then
-        . /usr/local/share/z/z.sh
-    elif [ -f ~/.zsh/z.sh ]; then
-        . ~/.zsh/z.sh
-    fi
-fi
-
-# ### Add OpenJDK to environment ################################################
-# if [[ "$OSTYPE" == "darwin"* ]]; then
-#     # macOS with Homebrew
-#     if [ -d "/opt/homebrew/opt/openjdk@17" ]; then
-#         export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
-#         export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
-#     fi
-# else
-#     # Linux/Ubuntu - detect Java installation
-#     if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
-#         export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-#         export PATH="$JAVA_HOME/bin:$PATH"
-#     elif [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
-#         export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
-#         export PATH="$JAVA_HOME/bin:$PATH"
-#     fi
-# fi
 
 ### Terminal Integration #######################################################
 # macOS iTerm2 integration
