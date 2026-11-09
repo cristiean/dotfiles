@@ -8,9 +8,11 @@
 //   Right-click  runs the device's command:
 //                  AirPods   connect if disconnected, disconnect if connected
 //                  Keyboard  forget it, then pair and connect it again
-//                While the command runs, its steps show next to the icon
-//                ("Connecting", "Pairing (2/10)", ...). The last one stays for a
-//                few seconds, then disappears.
+//                While the command runs, the icon gets the system's highlight
+//                (the rounded background a menu bar icon has while its menu is
+//                open) and its steps show next to it ("Connecting",
+//                "Pairing (2/10)", ...). The last one stays for a couple of
+//                seconds, then the text and highlight go away.
 //   Left-click   opens a menu: the device's status, the same command, and Quit.
 //
 // How it works
@@ -41,7 +43,7 @@ enum Settings {
     static let connectionCheckInterval: TimeInterval = 5
 
     /// How long the last step of a command stays next to the icon
-    static let resultDisplayDuration: TimeInterval = 4
+    static let resultDisplayDuration: TimeInterval = 2
 
     /// Icon size, chosen to match other apps' menu bar icons
     static let iconPointSize: CGFloat = 16
@@ -214,6 +216,10 @@ final class DeviceMenuBarIcon: NSObject {
         hideStatusTextTimer?.invalidate()
         statusItem.button?.appearsDisabled = false
 
+        // The system's own selected-state background, so it looks like any
+        // other menu bar icon in use (Apple's guidelines leave colour to macOS)
+        statusItem.button?.highlight(true)
+
         let command = action.command
         DispatchQueue.global(qos: .userInitiated).async {
             runBluetoothCommand(command) { step in
@@ -231,14 +237,16 @@ final class DeviceMenuBarIcon: NSObject {
         }
     }
 
-    /// Shows text next to the icon, or the icon alone when `text` is nil
+    /// Shows text next to the icon, or the icon alone (and no highlight) when
+    /// `text` is nil
     private func showStatusText(_ text: String?) {
         if let text {
             statusItem.length = NSStatusItem.variableLength
-            statusItem.button?.title = " " + text
+            statusItem.button?.title = " " + text + " "     // padding inside the highlight
         } else {
             statusItem.button?.title = ""
             statusItem.length = NSStatusItem.squareLength
+            statusItem.button?.highlight(false)
         }
     }
 
