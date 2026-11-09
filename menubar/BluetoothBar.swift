@@ -51,9 +51,8 @@ enum Settings {
 
     // The pill shown while a status is up: a neutral, translucent capsule like
     // the one macOS draws behind a selected menu bar icon, with normal text and
-    // only the icon tinted by state. It hugs the icon and text; the menu bar
-    // space around it is reserved for the longest status, so neighbouring icons
-    // don't shift. Both devices use the same measurements.
+    // only the icon tinted by state. It hugs the icon and text, and takes only
+    // that much menu bar space. Both devices use the same measurements.
 
     /// Capsule height. The menu bar is 24 pt tall, so this leaves 2 pt above and below.
     static let pillHeight: CGFloat = 20
@@ -69,8 +68,7 @@ enum Settings {
     /// The capsule is the menu bar's text colour at this opacity, so it reads as
     /// a subtle highlight on both light and dark menu bars
     static let pillBackgroundOpacity: CGFloat = 0.15
-    /// How long the capsule takes to resize when the status text changes
-    static let pillResizeDuration: TimeInterval = 0.2
+
 }
 
 // MARK: - Running the Bluetooth commands
@@ -199,18 +197,10 @@ func capsuleWidth(forText text: String) -> CGFloat {
                 + opticalBalance)
 }
 
-/// Menu bar space reserved while a status shows: room for the widest capsule
-/// any state needs. The same for both devices, so neighbouring icons stay put.
-/// (A few points extra, so the widest capsule isn't clipped at the edge.)
-let reservedPillSpace: CGFloat = (stateAppearances.values
-    .map { capsuleWidth(forText: $0.text) }
-    .max() ?? 0) + 4
-
 /// The icon and status text on a translucent capsule. It's laid over the menu
 /// bar button while a status shows, so its spacing is exact and the same for
 /// every device (the button's own layout spaces images and titles unevenly).
-/// The capsule starts at the left edge and hugs the content; when the text
-/// changes, it animates to the new width while the icon stays still.
+/// The capsule hugs the icon and text, with the same padding on both sides.
 final class PillView: NSView {
     private let capsule = CALayer()
     private let iconView = NSImageView()
@@ -236,31 +226,24 @@ final class PillView: NSView {
     func show(text: String, iconColor: NSColor) {
         label.stringValue = text
         iconView.contentTintColor = iconColor
-        // Animate the capsule to its new width (the first time, it just appears)
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = Settings.pillResizeDuration
-            context.allowsImplicitAnimation = true
-            layoutCapsule()
-        }
+        needsLayout = true
     }
 
     override func layout() {
         super.layout()
-        // The icon and text never move; only the capsule's width changes
-        let midY = bounds.midY
-        iconView.frame = NSRect(x: Settings.pillHorizontalPadding, y: midY - Settings.pillHeight / 2,
+        // The capsule, centred in the space the menu bar gives it
+        let capsuleFrame = NSRect(x: ((bounds.width - capsuleWidth(forText: label.stringValue)) / 2).rounded(),
+                                  y: (bounds.height - Settings.pillHeight) / 2,
+                                  width: capsuleWidth(forText: label.stringValue),
+                                  height: Settings.pillHeight)
+        capsule.frame = capsuleFrame
+        updateCapsuleColor()
+        // Icon after the padding, text after the icon
+        iconView.frame = NSRect(x: capsuleFrame.minX + Settings.pillHorizontalPadding, y: capsuleFrame.minY,
                                 width: Settings.pillIconSlotWidth, height: Settings.pillHeight)
         label.sizeToFit()
         label.frame.origin = NSPoint(x: iconView.frame.maxX + Settings.pillIconTextSpacing - labelTextInset,
-                                     y: midY - label.frame.height / 2)
-        layoutCapsule()
-    }
-
-    private func layoutCapsule() {
-        capsule.frame = NSRect(x: 0, y: (bounds.height - Settings.pillHeight) / 2,
-                               width: capsuleWidth(forText: label.stringValue),
-                               height: Settings.pillHeight)
-        updateCapsuleColor()
+                                     y: capsuleFrame.midY - label.frame.height / 2)
     }
 
     // The capsule's colour depends on light/dark mode, so it's recomputed when
@@ -406,13 +389,15 @@ final class DeviceMenuBarIcon: NSObject {
         isShowingState = true
         button.appearsDisabled = false
         button.image = nil                           // the pill draws its own icon
-        statusItem.length = reservedPillSpace
+        let shown = appearance(forState: state)
+        // Exactly the capsule's width (plus a point either side so its rounded
+        // ends aren't clipped)
+        statusItem.length = capsuleWidth(forText: shown.text) + 2
         if pillView.superview == nil {
             pillView.frame = button.bounds
             pillView.autoresizingMask = [.width, .height]
             button.addSubview(pillView)
         }
-        let shown = appearance(forState: state)
         pillView.show(text: shown.text, iconColor: shown.color)
     }
 

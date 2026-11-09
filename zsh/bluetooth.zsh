@@ -21,7 +21,7 @@ BT_COMMAND_END_COLUMN=24
 BT_TIMEOUT=8
 BT_REPAIR_GRACE=1.5          # seconds to switch the keyboard off and on
 BT_REPAIR_TIMEOUT=45         # give up pairing after this many seconds
-BT_PAIR_ATTEMPT_TIMEOUT=5    # one pairing attempt waits at most this long
+BT_PAIR_ATTEMPT_TIMEOUT=3    # one pairing attempt waits at most this long
 
 # For the menu bar app: report a state word on stderr as "@state <word>" when
 # BT_PROGRESS is set; does nothing otherwise. The app turns each word into the
@@ -244,8 +244,8 @@ bt_is_paired() {
 # it's advertising: right after being switched off and back on.
 #
 # Steps: forget it (which also disconnects it), wait BT_REPAIR_GRACE seconds so
-# you can switch it off and on, then try to pair about once a second until it
-# connects or BT_REPAIR_TIMEOUT runs out. While it runs, the command's own line
+# you can switch it off and on, then keep trying to pair (each try waits at most
+# BT_PAIR_ATTEMPT_TIMEOUT seconds) until it connects or BT_REPAIR_TIMEOUT runs out. While it runs, the command's own line
 # shows progress, with a grey hint below it:
 #   keyboard ···· ⌨️ taste ···· ○ Unpaired ······ ~ Searching
 #     Switch ⌨️ taste off and on. ...
@@ -304,10 +304,13 @@ bt_repair() {
   deadline=$(( EPOCHREALTIME + BT_REPAIR_TIMEOUT ))
   while (( EPOCHREALTIME < deadline )); do
     bt_is_paired "$address" && [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
-    gtimeout --foreground $BT_PAIR_ATTEMPT_TIMEOUT blueutil --pair "$address" &>/dev/null
-    blueutil --connect "$address" &>/dev/null
+    # Connect only once pairing worked: connecting to a keyboard that isn't
+    # there yet can stall for seconds
+    if gtimeout --foreground $BT_PAIR_ATTEMPT_TIMEOUT blueutil --pair "$address" &>/dev/null; then
+      blueutil --connect "$address" &>/dev/null
+    fi
     bt_is_paired "$address" && [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
-    sleep 0.5
+    sleep 0.25
   done
 
   if (( paired )); then bt_report connected; message="✓ Connected" color=green
