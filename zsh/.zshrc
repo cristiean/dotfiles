@@ -278,9 +278,8 @@ klaude() {
 
 ### Bluetooth: AirPods and keyboard ###########################################
 #   airpods            connect / disconnect the AirPods
-#   keyboard           connect / disconnect the Magic Keyboard
-#   keyboard pair      pair it with this Mac (e.g. a new laptop)
-#   keyboard forget    unpair it from this Mac (e.g. the old laptop)
+#   keyboard           re-pair the Magic Keyboard with this Mac and connect it
+#                      (e.g. after switching laptops): forgets it, then pairs
 # Requires: brew install blueutil coreutils, and Bluetooth access for the
 # terminal app (System Settings > Privacy & Security > Bluetooth).
 # Find device addresses with: blueutil --paired
@@ -490,13 +489,11 @@ airpods() {
   bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME"
 }
 
+# Forget first: a keyboard can show as connected yet type nothing, and only a
+# fresh pairing fixes that
 keyboard() {
-  case ${1:-} in
-    "")     bt_toggle "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" ;;
-    pair)   bt_pair   "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" ;;
-    forget) bt_forget "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" ;;
-    *)      print -r -- "usage: keyboard [pair|forget]"; return 1 ;;
-  esac
+  bt_forget "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" &&
+    bt_pair "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME"
 }
 
 # Is the device in this Mac's list of paired devices?
@@ -515,16 +512,11 @@ bt_pair() {
   command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
   command -v gtimeout &>/dev/null || { print -P "%F{red}✗ Missing dependency: coreutils%f"; return 1 }
 
-  if [[ $(bt_get_state "$address") == 1 ]]; then
-    bt_status "$name" "✓ Already connected" green; print
-    return 0
-  fi
-
   # A stale pairing from before (e.g. an earlier session on this Mac) blocks a fresh one
   bt_is_paired "$address" && blueutil --unpair "$address" &>/dev/null
 
   print -P "%BSwitch $name off and on now%b (or plug in its cable)."
-  print -P "%F{245}If another Mac is nearby and awake, run 'keyboard forget' there first.%f"
+  print -P "%F{245}If another Mac nearby still has it, forget it there first.%f"
   for (( try = 1; try <= 10; try++ )); do
     bt_status "$name" "~ Pairing (attempt $try/10)" yellow
     if gtimeout --foreground 15 blueutil --pair "$address" &>/dev/null; then
