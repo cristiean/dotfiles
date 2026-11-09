@@ -1,111 +1,119 @@
 // BluetoothBar: menu bar icons for the AirPods and the Magic Keyboard.
 //
-//   Left-click   run the device's command from ~/.config/zsh/bluetooth.zsh:
+//   Right-click  run the device's command from ~/.config/zsh/bluetooth.zsh:
 //                  AirPods   connect / disconnect            (bt_toggle)
 //                  Keyboard  forget, then pair and connect   (keyboard)
-//   Right-click  status and Quit
+//   Left-click   menu: status, the same command, Quit
 //
-// An icon is grey while its device is disconnected, and the result of a click
-// shows briefly next to it. The app declares Bluetooth use in its Info.plist,
-// so macOS asks once and then lets it (and the commands it runs) use Bluetooth.
-// Device addresses and names come from bluetooth.zsh, so there's one place to
-// change them. Build with ./build.sh.
+// An icon is grey while its device is disconnected. While a command runs, its
+// steps show next to the icon (e.g. "Pairing (2/10)"), as reported by the shell
+// functions with BT_PROGRESS set; the last one stays for a few seconds.
+// The app declares Bluetooth use in its Info.plist, so macOS asks once and then
+// lets the commands it runs use Bluetooth. Device addresses and names come from
+// bluetooth.zsh, so there's one place to change them. Build with ./build.sh.
 
 import AppKit
-import IOBluetooth
 import ServiceManagement
 
 let bluetoothZsh = NSHomeDirectory() + "/.config/zsh/bluetooth.zsh"
 
-/// Run a zsh command with bluetooth.zsh loaded. Returns its exit status and output.
-func zsh(_ command: String) -> (status: Int32, output: String) {
+/// Run a zsh command with bluetooth.zsh loaded. Each "@progress <text>" line it
+/// writes to stderr is passed to onProgress. Returns the exit status and stdout.
+@discardableResult
+func zsh(_ command: String, onProgress: ((String) -> Void)? = nil) -> (status: Int32, output: String) {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/bin/zsh")
     process.arguments = ["-f", "-c", "source '\(bluetoothZsh)' && \(command)"]
     var environment = ProcessInfo.processInfo.environment
     environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    environment["LANG"] = "en_US.UTF-8"
+    if onProgress != nil { environment["BT_PROGRESS"] = "1" }
     process.environment = environment
+
     let output = Pipe()
+    let errors = Pipe()
     process.standardOutput = output
-    process.standardError = FileHandle.nullDevice
+    process.standardError = errors
+    var pending = ""
+    errors.fileHandleForReading.readabilityHandler = { handle in
+        pending += String(decoding: handle.availableData, as: UTF8.self)
+        while let newline = pending.firstIndex(of: "\n") {
+            let line = String(pending[..<newline])
+            pending = String(pending[pending.index(after: newline)...])
+            if line.hasPrefix("@progress ") { onProgress?(String(line.dropFirst(10))) }
+        }
+    }
     do { try process.run() } catch { return (-1, "") }
     let data = output.fileHandleForReading.readDataToEndOfFile()
     process.waitUntilExit()
+    errors.fileHandleForReading.readabilityHandler = nil
     return (process.terminationStatus, String(decoding: data, as: UTF8.self))
 }
 
 final class DeviceItem: NSObject {
-    enum Kind { case toggle, repair }
-
     let name: String
     let address: String
     let command: String
-    let kind: Kind
+    let actionTitle: (Bool) -> String       // menu item text, given "connected"
     let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    var connected = false
     var busy = false
-    var flashTimer: Timer?
+    var clearTimer: Timer?
 
-    init(name: String, address: String, symbol: String, command: String, kind: Kind) {
+    init(name: String, address: String, symbol: String, command: String,
+         actionTitle: @escaping (Bool) -> String) {
         self.name = name
         self.address = address
         self.command = command
-        self.kind = kind
+        self.actionTitle = actionTitle
         super.init()
-        item.autosaveName = symbol
+        item.autosaveName = "BluetoothBar-\(symbol)"
         if let button = item.button {
             let image = NSImage(systemSymbolName: symbol, accessibilityDescription: name)
             image?.isTemplate = true
             button.image = image
             button.imagePosition = .imageLeft
+            button.appearsDisabled = true
             button.target = self
             button.action = #selector(clicked)
-            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.sendAction(on: [.leftMouseDown, .rightMouseUp])
         }
         refresh()
     }
 
-    var connected: Bool {
-        IOBluetoothDevice(addressString: address)?.isConnected() ?? false
-    }
-
-    /// Grey while disconnected
+    /// Check the connection the same way the shell does (blueutil); grey if not connected
     func refresh() {
-        guard !busy else { return }
-        item.button?.appearsDisabled = !connected
-    }
-
-    @objc func clicked() {
-        if NSApp.currentEvent?.type == .rightMouseUp { showMenu() } else { run() }
-    }
-
-    func run() {
-        guard !busy else { return }
-        busy = true
-        item.button?.appearsDisabled = false
-        flash(kind == .repair ? "Switch it off and on…" : "…", seconds: nil)
-        let command = self.command
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = zsh(command)
+        let address = self.address
+        DispatchQueue.global(qos: .utility).async {
+            let state = zsh("bt_get_state '\(address)'").output.trimmingCharacters(in: .whitespacesAndNewlines)
             DispatchQueue.main.async {
-                self.busy = false
-                switch self.kind {
-                case .toggle:
-                    self.flash(self.connected ? "✓ Connected" : "○ Disconnected", seconds: 4)
-                case .repair:
-                    self.flash(result.status == 0 ? "✓ Paired & connected" : "✗ Couldn't pair", seconds: 6)
-                }
-                self.refresh()
+                self.connected = (state == "1")
+                if !self.busy { self.item.button?.appearsDisabled = !self.connected }
             }
         }
     }
 
-    /// Show a short text next to the icon; nil seconds keeps it until the next flash
-    func flash(_ text: String, seconds: Double?) {
-        flashTimer?.invalidate()
-        item.button?.title = " " + text
-        guard let seconds else { return }
-        flashTimer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { [weak self] _ in
-            self?.item.button?.title = ""
+    @objc func clicked() {
+        if NSApp.currentEvent?.type == .rightMouseUp { run() } else { showMenu() }
+    }
+
+    @objc func run() {
+        guard !busy else { return }
+        busy = true
+        clearTimer?.invalidate()
+        item.button?.appearsDisabled = false
+        let command = self.command
+        DispatchQueue.global(qos: .userInitiated).async {
+            zsh(command) { text in
+                DispatchQueue.main.async { self.item.button?.title = " " + text }
+            }
+            DispatchQueue.main.async {
+                self.busy = false
+                self.clearTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false) { _ in
+                    self.item.button?.title = ""
+                }
+                self.refresh()
+            }
         }
     }
 
@@ -114,6 +122,9 @@ final class DeviceItem: NSObject {
         let status = menu.addItem(withTitle: "\(name): \(connected ? "connected" : "not connected")",
                                   action: nil, keyEquivalent: "")
         status.isEnabled = false
+        let action = menu.addItem(withTitle: actionTitle(connected), action: #selector(run), keyEquivalent: "")
+        action.target = self
+        action.isEnabled = !busy
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit BluetoothBar",
                      action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -143,9 +154,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Created right to left: the keyboard ends up right of the AirPods
         items = [
             DeviceItem(name: config[3], address: config[2], symbol: "keyboard",
-                       command: "keyboard", kind: .repair),
+                       command: "keyboard", actionTitle: { _ in "Re-pair" }),
             DeviceItem(name: config[1], address: config[0], symbol: "airpods",
-                       command: #"bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME""#, kind: .toggle),
+                       command: #"bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME""#,
+                       actionTitle: { $0 ? "Disconnect" : "Connect" }),
         ]
         timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
             self?.items.forEach { $0.refresh() }

@@ -20,13 +20,20 @@ BT_STATUS_COLUMN=36
 BT_COMMAND_END_COLUMN=24
 BT_TIMEOUT=8
 
-# Render Bluetooth status
+# Render Bluetooth status. With BT_PROGRESS set (the menu bar app does this), it
+# reports plain progress on stderr instead, e.g. "@progress Pairing (2/10)".
 
 bt_status() {
   local name="$1"
   local message="$2"
   local color="$3"
   local first="${4:-0}"
+
+  if [[ -n ${BT_PROGRESS:-} ]]; then
+    [[ $message != [[:alpha:]]* ]] && message=${message#* }   # drop the ✓ ○ ~ symbol
+    print -u2 -r -- "@progress $message"
+    return
+  fi
 
   local width=24
   local padding=$((width - ${#name}))
