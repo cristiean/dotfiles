@@ -152,6 +152,7 @@ Shell config for one Mac only, like work aliases, goes in `~/.config/zsh/.zshrc.
 |---|---|
 | `setup.sh` | sets up a Mac (see above) |
 | `bin/ssh-key` | logs a Mac in to a git host with an SSH key |
+| `menubar/` | BluetoothBar: menu bar icons for the AirPods and keyboard; left-click connects or re-pairs (logic in `zsh/bluetooth.zsh`) |
 | `bin/imgls` | iTerm2's `imgls` with 20x10 thumbnails, names centred on images, and the right highlighting for env files |
 | `Brewfile`, `Brewfile.develop` | apps and CLIs: every Mac, and as needed |
 | `zsh/` | shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo` (open the repo page at this branch and folder) |

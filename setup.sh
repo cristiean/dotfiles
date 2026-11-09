@@ -111,6 +111,10 @@ defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$DOTFILES/iterm2
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
 note "Settings folder: ~/.config/iterm2 (restart iTerm2 if it is open)"
 
+# BluetoothBar: menu bar icons for the AirPods and keyboard (~/.config/menubar)
+"$DOTFILES/menubar/build.sh" >/dev/null && note "BluetoothBar built and started (allow Bluetooth when asked)" ||
+    warn "BluetoothBar didn't build; run ~/.config/menubar/build.sh to see why"
+
 # 6. macOS settings. Most take effect after logging out and back in.
 step "macOS settings"
 # Dock: auto-hide, scale effect, minimise into the app icon
