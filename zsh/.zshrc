@@ -124,12 +124,6 @@ bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
 
-### VS Code ####################################################################
-# `code .` opens this folder in VS Code. Its command-line tool ships inside the
-# app (Homebrew links it when it installs VS Code; this covers other installs).
-[[ -d "/Applications/Visual Studio Code.app/Contents/Resources/app/bin" ]] &&
-    path+=("/Applications/Visual Studio Code.app/Contents/Resources/app/bin")
-
 ### iTerm2 tools ##############################################################
 # imgcat (show an image in the terminal), imgls, it2dl (download a file from a
 # remote shell), it2copy, ... ship inside iTerm2.app, so they're always current.
