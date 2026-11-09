@@ -8,17 +8,17 @@
 //   Right-click  runs the device's command:
 //                  AirPods   connect if disconnected, disconnect if connected
 //                  Keyboard  forget it, then pair and connect it again
-//                While the command runs, the icon sits on a rounded "pill"
-//                background (like a menu bar icon whose menu is open) and its
-//                steps show next to it ("Connecting", "Pairing (2/10)", ...).
-//                The last one stays for a couple of seconds, then the text and
-//                pill go away.
+//                While the command runs, the icon and its status ("Connecting",
+//                "Searching", ...) sit on a rounded "pill" coloured by state:
+//                blue while working, green when connected, grey when
+//                disconnected, red when it failed. The last status stays for a
+//                couple of seconds, then the text and pill go away.
 //   Left-click   opens a menu: the device's status, the same command, and Quit.
 //
 // How it works
 //   The app doesn't talk to Bluetooth itself. It runs the same zsh functions as
 //   the terminal commands `airpods` and `keyboard`, from ~/.config/zsh/bluetooth.zsh,
-//   and reads their progress. Device names and addresses also come from there,
+//   and follows the state words they report (see bt_report there). Device names and addresses also come from there,
 //   so that file is the one place to change them.
 //   macOS only lets an app (and the commands it runs) use Bluetooth if the app
 //   declares it; Info.plist does that, and macOS asks once on first use.
@@ -48,10 +48,9 @@ enum Settings {
     /// Icon size, chosen to match other apps' menu bar icons
     static let iconPointSize: CGFloat = 16
 
-    /// The pill behind a running command: the menu bar's own text colour at low
-    /// opacity, so it adapts to light and dark menu bars without a custom colour
-    /// (Apple's guidelines leave colour in the menu bar to macOS)
-    static let pillOpacity: CGFloat = 0.18
+    /// The pill behind a running command is the state's colour at this opacity,
+    /// so the icon and text on it stay readable on light and dark menu bars
+    static let pillOpacity: CGFloat = 0.45
     static let pillVerticalInset: CGFloat = 3
     static let pillCornerRadius: CGFloat = 6
 }
@@ -67,12 +66,13 @@ struct CommandResult {
 
 /// Runs a zsh command with bluetooth.zsh loaded, and waits for it to finish.
 ///
-/// If `onProgress` is given, the command runs with BT_PROGRESS set. bluetooth.zsh
-/// then writes each step to stderr as "@progress <step>" instead of drawing its
-/// terminal status line, and each step is passed to `onProgress` as it happens.
+/// If `onState` is given, the command runs with BT_PROGRESS set. bluetooth.zsh
+/// then draws no terminal output and instead writes each state it reaches to
+/// stderr as "@state <word>" (e.g. "@state searching"); each word is passed to
+/// `onState` as it happens.
 @discardableResult
 func runBluetoothCommand(_ command: String,
-                         onProgress: ((String) -> Void)? = nil) -> CommandResult {
+                         onState: ((String) -> Void)? = nil) -> CommandResult {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/bin/zsh")
     // -f: skip the user's zsh startup files; only bluetooth.zsh is needed
@@ -81,7 +81,7 @@ func runBluetoothCommand(_ command: String,
     var environment = ProcessInfo.processInfo.environment
     environment["PATH"] = Settings.commandSearchPath
     environment["LANG"] = "en_US.UTF-8"      // device names contain emoji
-    if onProgress != nil { environment["BT_PROGRESS"] = "1" }
+    if onState != nil { environment["BT_PROGRESS"] = "1" }
     process.environment = environment
 
     let standardOutput = Pipe()
@@ -89,16 +89,16 @@ func runBluetoothCommand(_ command: String,
     process.standardOutput = standardOutput
     process.standardError = standardError
 
-    // Collect stderr as it arrives and pass on complete "@progress" lines
-    let progressPrefix = "@progress "
+    // Collect stderr as it arrives and pass on complete "@state" lines
+    let statePrefix = "@state "
     var unfinishedLine = ""
     standardError.fileHandleForReading.readabilityHandler = { handle in
         unfinishedLine += String(decoding: handle.availableData, as: UTF8.self)
         while let newline = unfinishedLine.firstIndex(of: "\n") {
             let line = String(unfinishedLine[..<newline])
             unfinishedLine = String(unfinishedLine[unfinishedLine.index(after: newline)...])
-            if line.hasPrefix(progressPrefix) {
-                onProgress?(String(line.dropFirst(progressPrefix.count)))
+            if line.hasPrefix(statePrefix) {
+                onState?(String(line.dropFirst(statePrefix.count)))
             }
         }
     }
@@ -135,6 +135,34 @@ func readDevicesFromBluetoothFunctions() -> (airpods: Device, keyboard: Device)?
             keyboard: Device(name: lines[3], address: lines[2]))
 }
 
+// MARK: - States: what the menu bar shows for each state word
+
+struct StateAppearance {
+    let text: String
+    let color: NSColor
+}
+
+/// The text and pill colour for each state word bluetooth.zsh reports.
+/// Colours are macOS's standard system colours, which adapt to light/dark mode.
+let stateAppearances: [String: StateAppearance] = [
+    // In progress
+    "connecting":    StateAppearance(text: "Connecting",      color: .systemBlue),
+    "disconnecting": StateAppearance(text: "Disconnecting",   color: .systemBlue),
+    "unpairing":     StateAppearance(text: "Unpairing",       color: .systemBlue),
+    "searching":     StateAppearance(text: "Searching",       color: .systemBlue),
+    // Results
+    "connected":     StateAppearance(text: "Connected",       color: .systemGreen),
+    "disconnected":  StateAppearance(text: "Disconnected",    color: .systemGray),
+    "timed-out":     StateAppearance(text: "Timed out",       color: .systemRed),
+    "not-found":     StateAppearance(text: "Not found",       color: .systemRed),
+    "unpair-failed": StateAppearance(text: "Couldn't unpair", color: .systemRed),
+    "unknown":       StateAppearance(text: "Unknown",         color: .systemOrange),
+]
+
+func appearance(forState state: String) -> StateAppearance {
+    stateAppearances[state] ?? StateAppearance(text: state, color: .systemGray)
+}
+
 // MARK: - One menu bar icon per device
 
 /// What clicking a device's icon does
@@ -143,6 +171,9 @@ struct DeviceAction {
     let command: String
     /// The action's name in the menu, given whether the device is connected
     let menuTitle: (_ isConnected: Bool) -> String
+    /// Every state word the command can report; the pill is sized for the
+    /// longest one, so it doesn't change width as the text changes
+    let possibleStates: [String]
 }
 
 final class DeviceMenuBarIcon: NSObject {
@@ -224,57 +255,70 @@ final class DeviceMenuBarIcon: NSObject {
         hideStatusTextTimer?.invalidate()
         statusItem.button?.appearsDisabled = false
 
-        showPill(true)
-
         let command = action.command
         DispatchQueue.global(qos: .userInitiated).async {
-            runBluetoothCommand(command) { step in
-                DispatchQueue.main.async { self.showStatusText(step) }
+            runBluetoothCommand(command) { state in
+                DispatchQueue.main.async { self.showState(state) }
             }
             DispatchQueue.main.async {
                 self.isRunningAction = false
                 self.hideStatusTextTimer = Timer.scheduledTimer(
                     withTimeInterval: Settings.resultDisplayDuration, repeats: false
                 ) { _ in
-                    self.showStatusText(nil)
+                    self.showState(nil)
                 }
                 self.refreshConnectionState()
             }
         }
     }
 
-    /// Shows text next to the icon, or the icon alone (and no pill) when
-    /// `text` is nil
-    private func showStatusText(_ text: String?) {
-        if let text {
-            statusItem.length = NSStatusItem.variableLength
-            statusItem.button?.title = " " + text + " "     // padding inside the pill
-        } else {
-            statusItem.button?.title = ""
+    /// Shows a state's text on its coloured pill next to the icon, or the icon
+    /// alone (no text, no pill) when `state` is nil
+    private func showState(_ state: String?) {
+        guard let button = statusItem.button else { return }
+        guard let state else {
+            button.title = ""
             statusItem.length = NSStatusItem.squareLength
-            showPill(false)
+            pillLayer.isHidden = true
+            return
         }
+        let shown = appearance(forState: state)
+        button.title = " " + shown.text
+        statusItem.length = pillWidth
+        showPill(color: shown.color)
     }
 
-    /// Shows or hides the rounded background behind the icon and its text.
+    /// Room for the icon plus the longest state text this device can show
+    private lazy var pillWidth: CGFloat = {
+        let font = statusItem.button?.font ?? NSFont.menuBarFont(ofSize: 0)
+        let longestText = action.possibleStates
+            .map { (" " + appearance(forState: $0).text as NSString).size(withAttributes: [.font: font]).width }
+            .max() ?? 0
+        let iconWidth = statusItem.button?.image?.size.width ?? Settings.iconPointSize
+        let padding: CGFloat = 16
+        return ceil(iconWidth + longestText + padding)
+    }()
+
+    /// Shows the rounded background behind the icon and its text, in `color`.
     /// (A button's built-in highlight can't be used: macOS clears it as soon as
     /// the click ends.)
-    private func showPill(_ visible: Bool) {
+    private func showPill(color: NSColor) {
         guard let button = statusItem.button else { return }
         if pillLayer.superlayer == nil {
             button.wantsLayer = true
             pillLayer.cornerRadius = Settings.pillCornerRadius
-            // Follows the button as it widens for text and shrinks back
+            // Follows the button if its size changes
             pillLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
             button.layer?.insertSublayer(pillLayer, at: 0)
         }
+        button.layoutSubtreeIfNeeded()
         pillLayer.frame = button.bounds.insetBy(dx: 0, dy: Settings.pillVerticalInset)
-        // Resolve the text colour for the menu bar's current light/dark appearance
+        // System colours look different in light and dark mode: resolve it for
+        // the menu bar's current appearance
         button.effectiveAppearance.performAsCurrentDrawingAppearance {
-            self.pillLayer.backgroundColor =
-                NSColor.labelColor.withAlphaComponent(Settings.pillOpacity).cgColor
+            self.pillLayer.backgroundColor = color.withAlphaComponent(Settings.pillOpacity).cgColor
         }
-        pillLayer.isHidden = !visible
+        pillLayer.isHidden = false
     }
 
     /// The left-click menu: status (greyed, not clickable), the action, and Quit
@@ -319,11 +363,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DeviceMenuBarIcon(
                 id: "keyboard", device: devices.keyboard, symbolName: "keyboard",
                 action: DeviceAction(command: "keyboard",
-                                     menuTitle: { _ in "Re-pair" })),
+                                     menuTitle: { _ in "Re-pair" },
+                                     possibleStates: ["unpairing", "searching", "connected",
+                                                      "not-found", "unpair-failed"])),
             DeviceMenuBarIcon(
                 id: "airpods", device: devices.airpods, symbolName: "airpodspro",
                 action: DeviceAction(command: #"bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME""#,
-                                     menuTitle: { isConnected in isConnected ? "Disconnect" : "Connect" })),
+                                     menuTitle: { isConnected in isConnected ? "Disconnect" : "Connect" },
+                                     possibleStates: ["connecting", "connected", "disconnecting",
+                                                      "disconnected", "timed-out", "unknown"])),
         ]
 
         connectionCheckTimer = Timer.scheduledTimer(

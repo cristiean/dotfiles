@@ -19,9 +19,21 @@ KEYBOARD_NAME="⌨️ taste"
 BT_STATUS_COLUMN=36
 BT_COMMAND_END_COLUMN=24
 BT_TIMEOUT=8
+BT_REPAIR_GRACE=1.5          # seconds to switch the keyboard off and on
+BT_REPAIR_TIMEOUT=45         # give up pairing after this many seconds
+BT_PAIR_ATTEMPT_TIMEOUT=5    # one pairing attempt waits at most this long
 
-# Render Bluetooth status. With BT_PROGRESS set (the menu bar app does this), it
-# reports plain progress on stderr instead, e.g. "@progress Pairing (2/10)".
+# For the menu bar app: report a state word on stderr as "@state <word>" when
+# BT_PROGRESS is set; does nothing otherwise. The app turns each word into the
+# text and colour it shows. Words: connecting, connected, disconnecting,
+# disconnected, timed-out, unknown, unpairing, unpair-failed, searching, not-found
+bt_report() {
+  [[ -n ${BT_PROGRESS:-} ]] && print -u2 -r -- "@state $1"
+  return 0
+}
+
+# Render Bluetooth status. With BT_PROGRESS set (the menu bar app does this) it
+# draws nothing: the app follows bt_report's state words instead.
 
 bt_status() {
   local name="$1"
@@ -29,11 +41,7 @@ bt_status() {
   local color="$3"
   local first="${4:-0}"
 
-  if [[ -n ${BT_PROGRESS:-} ]]; then
-    [[ $message != [[:alpha:]]* ]] && message=${message#* }   # drop the ✓ ○ ~ symbol
-    print -u2 -r -- "@progress $message"
-    return
-  fi
+  [[ -n ${BT_PROGRESS:-} ]] && return
 
   local width=24
   local padding=$((width - ${#name}))
@@ -137,7 +145,7 @@ bt_toggle() {
 
   # Determine current state
   if ! state=$(bt_get_state "$address"); then
-    bt_status "$name" "? Unknown" 214 1
+    bt_report unknown; bt_status "$name" "? Unknown" 214 1
     print
     return 1
   fi
@@ -146,15 +154,15 @@ bt_toggle() {
     1)
       action="--disconnect"
       expected=0
-      bt_status "$name" "~ Disconnecting" 245 1
+      bt_report disconnecting; bt_status "$name" "~ Disconnecting" 245 1
       ;;
     0)
       action="--connect"
       expected=1
-      bt_status "$name" "~ Connecting" yellow 1
+      bt_report connecting; bt_status "$name" "~ Connecting" yellow 1
       ;;
     *)
-      bt_status "$name" "? Unknown" 214 1
+      bt_report unknown; bt_status "$name" "? Unknown" 214 1
       print
       return 1
       ;;
@@ -198,18 +206,18 @@ bt_toggle() {
   # Display final status
   if (( verified )); then
     if [[ "$expected" == 1 ]]; then
-      bt_status "$name" "✓ Connected" green
+      bt_report connected; bt_status "$name" "✓ Connected" green
     else
-      bt_status "$name" "○ Disconnected" 245
+      bt_report disconnected; bt_status "$name" "○ Disconnected" 245
     fi
     print
     return 0
   fi
 
   if (( saw_valid_state )); then
-    bt_status "$name" "✗ Timed out" red
+    bt_report timed-out; bt_status "$name" "✗ Timed out" red
   else
-    bt_status "$name" "? Unknown" 214
+    bt_report unknown; bt_status "$name" "? Unknown" 214
   fi
 
   print
@@ -233,30 +241,38 @@ bt_is_paired() {
 # Forget a device on this Mac, then pair and connect it again. A Magic Keyboard
 # can show as connected yet type nothing, and only a fresh pairing fixes that.
 # It stays paired to the last Mac that had it, so it only accepts this one while
-# it's advertising: right after being switched off for a few seconds and back on. While it runs, the
-# command's own line shows progress, with a grey hint below it:
-#   keyboard ···· ⌨️ taste ···· ○ Forgotten ······ ~ Pairing (2/10)
+# it's advertising: right after being switched off and back on.
+#
+# Steps: forget it (which also disconnects it), wait BT_REPAIR_GRACE seconds so
+# you can switch it off and on, then try to pair about once a second until it
+# connects or BT_REPAIR_TIMEOUT runs out. While it runs, the command's own line
+# shows progress, with a grey hint below it:
+#   keyboard ···· ⌨️ taste ···· ○ Unpaired ······ ~ Searching
 #     Switch ⌨️ taste off and on. ...
 # When it's done, the line folds to the result and the hint goes away:
-#   keyboard ···· ⌨️ taste ···· ✓ Paired & connected
+#   keyboard ···· ⌨️ taste ···· ✓ Connected
 bt_repair() {
   local address="$1" name="${2:-Bluetooth device}"
   local dot_color="#858A93" message color
-  local -i try inline=0 paired=0
+  local -i inline=0 paired=0
+  local -F deadline
 
   command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
   command -v gtimeout &>/dev/null || { print -P "%F{red}✗ Missing dependency: coreutils%f"; return 1 }
+  zmodload zsh/datetime 2>/dev/null || { print -P "%F{red}✗ Cannot load zsh/datetime%f"; return 1 }
   # One line holds both statuses, so it needs a wide window; otherwise one per line
   [[ -t 1 ]] && (( COLUMNS >= BT_STATUS_COLUMN + 80 )) && inline=1
 
-  # 1. Forget
-  local forgotten="○ Forgotten"
+  # 1. Forget it on this Mac
+  local forgotten="○ Unpaired"
   if bt_is_paired "$address"; then
+    bt_report unpairing
     blueutil --disconnect "$address" &>/dev/null
     blueutil --unpair "$address" &>/dev/null      # blueutil calls this experimental
-    sleep 1
+    sleep 0.5
     if bt_is_paired "$address"; then
-      bt_status "$name" "✗ Still paired" red 1; print
+      bt_report unpair-failed
+      bt_status "$name" "✗ Couldn't unpair" red 1; print
       print -r -- "  Remove it in System Settings > Bluetooth: ⓘ next to it > Forget This Device."
       return 1
     fi
@@ -264,36 +280,38 @@ bt_repair() {
     forgotten="○ Not paired"
   fi
 
-  # 2. Pair and connect, retrying while the keyboard is switched off and on
+  # 2. Show what to do, and give a moment to switch the keyboard off and on
+  bt_report searching
   local hint="Switch $name off and on. If macOS asks, press Connect (Cancel breaks the pairing). A Mac nearby that still has it can grab it first."
   if (( inline )); then
     print -Pn "%F{245}  ${hint//\%/%%}%f"         # grey, on the line below the command
     bt_status "$name" "$forgotten" 245 1        # back up to the command's line
     print -Pn " %F{$dot_color}······%f "
-    print -n $'\e7'                             # remember where the pairing status goes
+    print -n $'\e7'                             # remember where the search status goes
+    print -Pn "%F{yellow}~ Searching%f"
   else
     bt_status "$name" "$forgotten" 245; print
     print -P "%F{245}  ${hint//\%/%%}%f"
+    bt_status "$name" "~ Searching" yellow
   fi
+  sleep $BT_REPAIR_GRACE
 
-  for (( try = 1; try <= 10; try++ )); do
-    message="~ Pairing ($try/10)"
-    if (( inline )); then print -n $'\e8\e[K'; print -Pn "%F{yellow}$message%f"
-    else bt_status "$name" "$message" yellow; fi
-    # Pairing can also finish through macOS's own "wants to connect" prompt
-    # while blueutil waits, so check the device itself each time. It must be
-    # paired as well as connected: the link counts as connected before that
-    # prompt is accepted, and the keyboard types nothing until it is.
+  # 3. Try to pair until it connects or time runs out. Pairing can also finish
+  #    through macOS's own "wants to connect" prompt while blueutil waits, so
+  #    check the device itself each time. It must be paired as well as connected:
+  #    the link counts as connected before that prompt is accepted, and the
+  #    keyboard types nothing until it is.
+  deadline=$(( EPOCHREALTIME + BT_REPAIR_TIMEOUT ))
+  while (( EPOCHREALTIME < deadline )); do
     bt_is_paired "$address" && [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
-    gtimeout --foreground 15 blueutil --pair "$address" &>/dev/null
+    gtimeout --foreground $BT_PAIR_ATTEMPT_TIMEOUT blueutil --pair "$address" &>/dev/null
     blueutil --connect "$address" &>/dev/null
-    sleep 1
     bt_is_paired "$address" && [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
-    sleep 1
+    sleep 0.5
   done
 
-  if (( paired )); then message="✓ Paired & connected" color=green
-  else message="✗ Couldn't pair" color=red; fi
+  if (( paired )); then bt_report connected; message="✓ Connected" color=green
+  else bt_report not-found; message="✗ Not found" color=red; fi
   local fallback="Plug in its cable for a few seconds, or pair it in System Settings > Bluetooth."
   if (( inline )); then
     print -n $'\e8'
