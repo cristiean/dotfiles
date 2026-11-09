@@ -533,7 +533,7 @@ bt_repair() {
   fi
 
   # 2. Pair and connect, retrying while the keyboard is switched off and on
-  local hint="Switch $name off, wait a couple of seconds, then switch it on. A Mac nearby that still has it can grab it first."
+  local hint="Switch $name off, wait a couple of seconds, then on. Accept macOS's prompt if it asks. A Mac nearby that still has it can grab it first."
   if (( inline )); then
     print -Pn "%F{245}  ${hint//\%/%%}%f"         # grey, on the line below the command
     bt_status "$name" "$forgotten" 245 1        # back up to the command's line
@@ -548,12 +548,14 @@ bt_repair() {
     message="~ Pairing ($try/10)"
     if (( inline )); then print -n $'\e8\e[K'; print -Pn "%F{yellow}$message%f"
     else bt_status "$name" "$message" yellow; fi
-    if gtimeout --foreground 15 blueutil --pair "$address" &>/dev/null; then
-      blueutil --connect "$address" &>/dev/null
-      sleep 1
-      [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
-    fi
-    sleep 2
+    # Pairing can also finish through macOS's own "wants to connect" prompt
+    # while blueutil waits, so check the connection itself each time
+    [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
+    gtimeout --foreground 15 blueutil --pair "$address" &>/dev/null
+    blueutil --connect "$address" &>/dev/null
+    sleep 1
+    [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
+    sleep 1
   done
 
   if (( paired )); then message="✓ Paired & connected" color=green
