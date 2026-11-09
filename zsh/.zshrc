@@ -489,11 +489,8 @@ airpods() {
   bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME"
 }
 
-# Forget first: a keyboard can show as connected yet type nothing, and only a
-# fresh pairing fixes that
 keyboard() {
-  bt_forget "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" &&
-    bt_pair "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME"
+  bt_repair "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME"
 }
 
 # Is the device in this Mac's list of paired devices?
@@ -501,57 +498,71 @@ bt_is_paired() {
   blueutil --paired 2>/dev/null | grep -qi -- "${1//:/-}"
 }
 
-# Pair a device with this Mac. A Magic Keyboard stays paired to the last Mac
-# that had it, so it only accepts a new Mac while it's advertising: right after
-# it's switched off and on, if no other Mac grabs it first. Plugging in its
-# cable pairs it too, without any of this.
-bt_pair() {
+# Forget a device on this Mac, then pair and connect it again. A Magic Keyboard
+# can show as connected yet type nothing, and only a fresh pairing fixes that.
+# It stays paired to the last Mac that had it, so it only accepts this one while
+# it's advertising: right after being switched off and on. Output, on the
+# command's own line, with the hint below it:
+#   keyboard ···· ⌨️ taste ···· ○ Forgotten ······ ~ Pairing (2/10)
+#     Switch ⌨️ taste off and on a few times, quickly, ...
+bt_repair() {
   local address="$1" name="${2:-Bluetooth device}"
-  local -i try
+  local dot_color="#858A93" message color
+  local -i try inline=0 paired=0
 
   command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
   command -v gtimeout &>/dev/null || { print -P "%F{red}✗ Missing dependency: coreutils%f"; return 1 }
+  # One line holds both statuses, so it needs a wide window; otherwise one per line
+  [[ -t 1 ]] && (( COLUMNS >= BT_STATUS_COLUMN + 80 )) && inline=1
 
-  # A stale pairing from before (e.g. an earlier session on this Mac) blocks a fresh one
-  bt_is_paired "$address" && blueutil --unpair "$address" &>/dev/null
+  # 1. Forget
+  local forgotten="○ Forgotten"
+  if bt_is_paired "$address"; then
+    blueutil --disconnect "$address" &>/dev/null
+    blueutil --unpair "$address" &>/dev/null      # blueutil calls this experimental
+    sleep 1
+    if bt_is_paired "$address"; then
+      bt_status "$name" "✗ Still paired" red 1; print
+      print -r -- "  Remove it in System Settings > Bluetooth: ⓘ next to it > Forget This Device."
+      return 1
+    fi
+  else
+    forgotten="○ Not paired"
+  fi
 
-  print -P "%BSwitch $name off and on now%b (or plug in its cable)."
-  print -P "%F{245}If another Mac nearby still has it, forget it there first.%f"
+  # 2. Pair and connect, retrying while the keyboard is switched off and on
+  local hint="Switch $name off and on a few times, quickly, until it pairs (or plug in its cable)."
+  if (( inline )); then
+    print -rn -- "  $hint"                     # goes on the line below the command
+    bt_status "$name" "$forgotten" 245 1        # back up to the command's line
+    print -Pn " %F{$dot_color}······%f "
+    print -n $'\e7'                             # remember where the pairing status goes
+  else
+    bt_status "$name" "$forgotten" 245; print
+    print -r -- "  $hint"
+  fi
+
   for (( try = 1; try <= 10; try++ )); do
-    bt_status "$name" "~ Pairing (attempt $try/10)" yellow
+    message="~ Pairing ($try/10)"
+    if (( inline )); then print -n $'\e8\e[K'; print -Pn "%F{yellow}$message%f"
+    else bt_status "$name" "$message" yellow; fi
     if gtimeout --foreground 15 blueutil --pair "$address" &>/dev/null; then
       blueutil --connect "$address" &>/dev/null
       sleep 1
-      if [[ $(bt_get_state "$address") == 1 ]]; then
-        bt_status "$name" "✓ Paired and connected" green; print
-        return 0
-      fi
+      [[ $(bt_get_state "$address") == 1 ]] && { paired=1; break }
     fi
     sleep 2
   done
-  bt_status "$name" "✗ Couldn't pair" red; print
-  print -r -- "  Plug in its cable for a few seconds, or pair it in System Settings > Bluetooth."
-  return 1
-}
 
-# Unpair a device from this Mac, so it stops reconnecting to it
-bt_forget() {
-  local address="$1" name="${2:-Bluetooth device}"
-  command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
-
-  if ! bt_is_paired "$address"; then
-    bt_status "$name" "○ Not paired with this Mac" 245; print
-    return 0
+  if (( paired )); then message="✓ Paired & connected" color=green
+  else message="✗ Couldn't pair" color=red; fi
+  if (( inline )); then
+    print -n $'\e8\e[K'; print -Pn "%F{$color}$message%f"
+    print; print                                # past the hint line
+  else
+    bt_status "$name" "$message" $color; print
   fi
-  blueutil --disconnect "$address" &>/dev/null
-  blueutil --unpair "$address" &>/dev/null       # blueutil calls this experimental
-  sleep 1
-  if bt_is_paired "$address"; then
-    bt_status "$name" "✗ Still paired" red; print
-    print -r -- "  Remove it in System Settings > Bluetooth: ⓘ next to it > Forget This Device."
-    return 1
-  fi
-  bt_status "$name" "○ Forgotten" 245; print
+  (( paired )) || { print -r -- "  Plug in its cable for a few seconds, or pair it in System Settings > Bluetooth."; return 1 }
 }
 
 ### Machine-specific overrides (untracked) #####################################
