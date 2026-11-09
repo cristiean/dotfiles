@@ -62,14 +62,14 @@ final class DeviceItem: NSObject {
     var busy = false
     var clearTimer: Timer?
 
-    init(name: String, address: String, symbol: String, command: String,
+    init(id: String, name: String, address: String, symbol: String, command: String,
          actionTitle: @escaping (Bool) -> String) {
         self.name = name
         self.address = address
         self.command = command
         self.actionTitle = actionTitle
         super.init()
-        item.autosaveName = "BluetoothBar-\(symbol)"
+        item.autosaveName = "BluetoothBar-\(id)"     // stable even if the icon changes
         if let button = item.button {
             let image = NSImage(systemSymbolName: symbol, accessibilityDescription: name)
             image?.isTemplate = true
@@ -166,9 +166,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         // Created right to left: the keyboard ends up right of the AirPods
         items = [
-            DeviceItem(name: config[3], address: config[2], symbol: "keyboard",
+            DeviceItem(id: "keyboard", name: config[3], address: config[2], symbol: "keyboard",
                        command: "keyboard", actionTitle: { _ in "Re-pair" }),
-            DeviceItem(name: config[1], address: config[0], symbol: "airpods",
+            DeviceItem(id: "airpods", name: config[1], address: config[0], symbol: "airpodspro",
                        command: #"bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME""#,
                        actionTitle: { $0 ? "Disconnect" : "Connect" }),
         ]
