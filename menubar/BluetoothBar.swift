@@ -8,11 +8,11 @@
 //   Right-click  runs the device's command:
 //                  AirPods   connect if disconnected, disconnect if connected
 //                  Keyboard  forget it, then pair and connect it again
-//                While the command runs, the icon gets the system's highlight
-//                (the rounded background a menu bar icon has while its menu is
-//                open) and its steps show next to it ("Connecting",
-//                "Pairing (2/10)", ...). The last one stays for a couple of
-//                seconds, then the text and highlight go away.
+//                While the command runs, the icon sits on a rounded "pill"
+//                background (like a menu bar icon whose menu is open) and its
+//                steps show next to it ("Connecting", "Pairing (2/10)", ...).
+//                The last one stays for a couple of seconds, then the text and
+//                pill go away.
 //   Left-click   opens a menu: the device's status, the same command, and Quit.
 //
 // How it works
@@ -47,6 +47,13 @@ enum Settings {
 
     /// Icon size, chosen to match other apps' menu bar icons
     static let iconPointSize: CGFloat = 16
+
+    /// The pill behind a running command: the menu bar's own text colour at low
+    /// opacity, so it adapts to light and dark menu bars without a custom colour
+    /// (Apple's guidelines leave colour in the menu bar to macOS)
+    static let pillOpacity: CGFloat = 0.18
+    static let pillVerticalInset: CGFloat = 3
+    static let pillCornerRadius: CGFloat = 6
 }
 
 // MARK: - Running the Bluetooth commands
@@ -146,6 +153,7 @@ final class DeviceMenuBarIcon: NSObject {
     private var isConnected = false
     private var isRunningAction = false
     private var hideStatusTextTimer: Timer?
+    private let pillLayer = CALayer()
 
     /// - Parameters:
     ///   - id: a stable name macOS uses to remember the icon's position
@@ -216,9 +224,7 @@ final class DeviceMenuBarIcon: NSObject {
         hideStatusTextTimer?.invalidate()
         statusItem.button?.appearsDisabled = false
 
-        // The system's own selected-state background, so it looks like any
-        // other menu bar icon in use (Apple's guidelines leave colour to macOS)
-        statusItem.button?.highlight(true)
+        showPill(true)
 
         let command = action.command
         DispatchQueue.global(qos: .userInitiated).async {
@@ -237,17 +243,38 @@ final class DeviceMenuBarIcon: NSObject {
         }
     }
 
-    /// Shows text next to the icon, or the icon alone (and no highlight) when
+    /// Shows text next to the icon, or the icon alone (and no pill) when
     /// `text` is nil
     private func showStatusText(_ text: String?) {
         if let text {
             statusItem.length = NSStatusItem.variableLength
-            statusItem.button?.title = " " + text + " "     // padding inside the highlight
+            statusItem.button?.title = " " + text + " "     // padding inside the pill
         } else {
             statusItem.button?.title = ""
             statusItem.length = NSStatusItem.squareLength
-            statusItem.button?.highlight(false)
+            showPill(false)
         }
+    }
+
+    /// Shows or hides the rounded background behind the icon and its text.
+    /// (A button's built-in highlight can't be used: macOS clears it as soon as
+    /// the click ends.)
+    private func showPill(_ visible: Bool) {
+        guard let button = statusItem.button else { return }
+        if pillLayer.superlayer == nil {
+            button.wantsLayer = true
+            pillLayer.cornerRadius = Settings.pillCornerRadius
+            // Follows the button as it widens for text and shrinks back
+            pillLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+            button.layer?.insertSublayer(pillLayer, at: 0)
+        }
+        pillLayer.frame = button.bounds.insetBy(dx: 0, dy: Settings.pillVerticalInset)
+        // Resolve the text colour for the menu bar's current light/dark appearance
+        button.effectiveAppearance.performAsCurrentDrawingAppearance {
+            self.pillLayer.backgroundColor =
+                NSColor.labelColor.withAlphaComponent(Settings.pillOpacity).cgColor
+        }
+        pillLayer.isHidden = !visible
     }
 
     /// The left-click menu: status (greyed, not clickable), the action, and Quit
