@@ -124,6 +124,12 @@ bindkey '^[[Z' reverse-menu-complete
 
 autoload -Uz compinit && compinit
 
+### VS Code ####################################################################
+# `code .` opens this folder in VS Code. Its command-line tool ships inside the
+# app (Homebrew links it when it installs VS Code; this covers other installs).
+[[ -d "/Applications/Visual Studio Code.app/Contents/Resources/app/bin" ]] &&
+    path+=("/Applications/Visual Studio Code.app/Contents/Resources/app/bin")
+
 ### iTerm2 tools ##############################################################
 # imgcat (show an image in the terminal), imgls, it2dl (download a file from a
 # remote shell), it2copy, ... ship inside iTerm2.app, so they're always current.
@@ -504,7 +510,7 @@ bt_is_paired() {
 # it's advertising: right after being switched off for a few seconds and back on. While it runs, the
 # command's own line shows progress, with a grey hint below it:
 #   keyboard ···· ⌨️ taste ···· ○ Forgotten ······ ~ Pairing (2/10)
-#     Switch ⌨️ taste off, wait a couple of seconds, then switch it on. ...
+#     Switch ⌨️ taste off and on. ...
 # When it's done, the line folds to the result and the hint goes away:
 #   keyboard ···· ⌨️ taste ···· ✓ Paired & connected
 bt_repair() {
@@ -533,7 +539,7 @@ bt_repair() {
   fi
 
   # 2. Pair and connect, retrying while the keyboard is switched off and on
-  local hint="Switch $name off, wait a couple of seconds, then on. If macOS asks, press Connect (Cancel breaks the pairing). A Mac nearby that still has it can grab it first."
+  local hint="Switch $name off and on. If macOS asks, press Connect (Cancel breaks the pairing). A Mac nearby that still has it can grab it first."
   if (( inline )); then
     print -Pn "%F{245}  ${hint//\%/%%}%f"         # grey, on the line below the command
     bt_status "$name" "$forgotten" 245 1        # back up to the command's line
