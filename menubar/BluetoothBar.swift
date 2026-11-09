@@ -1,8 +1,9 @@
 // BluetoothBar: menu bar icons for the AirPods and the Magic Keyboard.
 //
 // What you see
-//   One icon per device. It's drawn normally while the device is connected and
-//   greyed out while it isn't, and it's re-checked every few seconds.
+//   One icon per device. While resting (no status showing), it's drawn normally
+//   if the device is connected and greyed out if it isn't, re-checked every few
+//   seconds. While a status shows, the icon and text are always solid.
 //
 // What the clicks do
 //   Right-click  runs the device's command:
@@ -183,6 +184,8 @@ final class DeviceMenuBarIcon: NSObject {
 
     private var isConnected = false
     private var isRunningAction = false
+    /// True while a status (text on a pill) is showing next to the icon
+    private var isShowingState = false
     private var hideStatusTextTimer: Timer?
     private let pillLayer = CALayer()
 
@@ -229,12 +232,15 @@ final class DeviceMenuBarIcon: NSObject {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             DispatchQueue.main.async {
                 self.isConnected = (state == "1")
-                // While an action runs, the icon stays drawn normally
-                if !self.isRunningAction {
-                    self.statusItem.button?.appearsDisabled = !self.isConnected
-                }
+                self.updateRestingLook()
             }
         }
+    }
+
+    /// Greys the icon out if the device isn't connected, but only while resting:
+    /// greying a showing status would make its text hard to read on the pill
+    private func updateRestingLook() {
+        statusItem.button?.appearsDisabled = !isShowingState && !isConnected
     }
 
     // MARK: Clicks
@@ -277,11 +283,15 @@ final class DeviceMenuBarIcon: NSObject {
     private func showState(_ state: String?) {
         guard let button = statusItem.button else { return }
         guard let state else {
+            isShowingState = false
             button.title = ""
             statusItem.length = NSStatusItem.squareLength
             pillLayer.isHidden = true
+            updateRestingLook()
             return
         }
+        isShowingState = true
+        button.appearsDisabled = false             // solid icon and text on the pill
         let shown = appearance(forState: state)
         button.title = " " + shown.text
         statusItem.length = pillWidth
