@@ -49,11 +49,21 @@ enum Settings {
     /// Icon size, chosen to match other apps' menu bar icons
     static let iconPointSize: CGFloat = 16
 
-    /// The pill behind a running command is the state's colour at this opacity,
-    /// so the icon and text on it stay readable on light and dark menu bars
-    static let pillOpacity: CGFloat = 0.45
-    static let pillVerticalInset: CGFloat = 3
-    static let pillCornerRadius: CGFloat = 6
+    // The pill shown while a status is up: a solid capsule in the state's colour
+    // with a white icon and text, like macOS's own coloured indicators (e.g. the
+    // screen-sharing one). Both icons use the same measurements.
+
+    /// Capsule height. The menu bar is 24 pt tall, so this leaves 2 pt above and below.
+    static let pillHeight: CGFloat = 20
+    /// Space between the capsule's edge and the icon (and after the longest text)
+    static let pillHorizontalPadding: CGFloat = 8
+    /// Space between the icon and the text
+    static let pillIconTextSpacing: CGFloat = 5
+    /// Room reserved for the icon, so the text starts at the same place for
+    /// every device even though their symbols differ in width
+    static let pillIconSlotWidth: CGFloat = 22
+    /// Menu bar text size, slightly bolder so white text reads well on colour
+    static let pillFont = NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
 }
 
 // MARK: - Running the Bluetooth commands
@@ -164,6 +174,72 @@ func appearance(forState state: String) -> StateAppearance {
     stateAppearances[state] ?? StateAppearance(text: state, color: .systemGray)
 }
 
+// MARK: - The pill
+
+/// One width for every pill, for both devices and every state: padding, the
+/// icon, and the longest status text. Sharing it keeps both pills identical, and
+/// a pill never changes width as its text changes.
+let pillWidth: CGFloat = {
+    let longestText = stateAppearances.values
+        .map { ($0.text as NSString).size(withAttributes: [.font: Settings.pillFont]).width }
+        .max() ?? 0
+    return ceil(Settings.pillHorizontalPadding + Settings.pillIconSlotWidth
+                + Settings.pillIconTextSpacing + longestText + Settings.pillHorizontalPadding)
+}()
+
+/// A solid capsule with a white icon and text. It's laid over the menu bar
+/// button while a status shows, so its spacing is exact and the same for every
+/// device (the button's own layout spaces images and titles unevenly).
+final class PillView: NSView {
+    private let iconView = NSImageView()
+    private let label = NSTextField(labelWithString: "")
+    private var color: NSColor = .systemBlue
+
+    init(icon: NSImage?) {
+        super.init(frame: .zero)
+        iconView.image = icon
+        iconView.contentTintColor = .white          // tints the template symbol
+        iconView.imageScaling = .scaleProportionallyDown
+        label.font = Settings.pillFont
+        label.textColor = .white
+        addSubview(iconView)
+        addSubview(label)
+    }
+
+    required init?(coder: NSCoder) { fatalError("not used") }
+
+    func show(text: String, color: NSColor) {
+        label.stringValue = text
+        self.color = color
+        needsLayout = true
+        needsDisplay = true
+    }
+
+    /// The capsule, vertically centred in the menu bar
+    private var capsuleRect: NSRect {
+        NSRect(x: 0, y: (bounds.height - Settings.pillHeight) / 2,
+               width: bounds.width, height: Settings.pillHeight)
+    }
+
+    override func layout() {
+        super.layout()
+        let capsule = capsuleRect
+        // Icon centred in its slot, after the left padding
+        iconView.frame = NSRect(x: capsule.minX + Settings.pillHorizontalPadding, y: capsule.minY,
+                                width: Settings.pillIconSlotWidth, height: capsule.height)
+        // Text right after the icon slot, vertically centred
+        label.sizeToFit()
+        label.frame.origin = NSPoint(x: iconView.frame.maxX + Settings.pillIconTextSpacing,
+                                     y: capsule.midY - label.frame.height / 2)
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let radius = Settings.pillHeight / 2         // fully rounded ends
+        color.setFill()
+        NSBezierPath(roundedRect: capsuleRect, xRadius: radius, yRadius: radius).fill()
+    }
+}
+
 // MARK: - One menu bar icon per device
 
 /// What clicking a device's icon does
@@ -172,9 +248,6 @@ struct DeviceAction {
     let command: String
     /// The action's name in the menu, given whether the device is connected
     let menuTitle: (_ isConnected: Bool) -> String
-    /// Every state word the command can report; the pill is sized for the
-    /// longest one, so it doesn't change width as the text changes
-    let possibleStates: [String]
 }
 
 final class DeviceMenuBarIcon: NSObject {
@@ -187,7 +260,8 @@ final class DeviceMenuBarIcon: NSObject {
     /// True while a status (text on a pill) is showing next to the icon
     private var isShowingState = false
     private var hideStatusTextTimer: Timer?
-    private let pillLayer = CALayer()
+    private let icon: NSImage?
+    private let pillView: PillView
 
     /// - Parameters:
     ///   - id: a stable name macOS uses to remember the icon's position
@@ -195,14 +269,15 @@ final class DeviceMenuBarIcon: NSObject {
     init(id: String, device: Device, symbolName: String, action: DeviceAction) {
         self.device = device
         self.action = action
+        self.icon = Self.menuBarIcon(symbolName: symbolName, description: device.name)
+        self.pillView = PillView(icon: icon)
         // Square (icon-sized) while idle; it widens only while showing text
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
 
         statusItem.autosaveName = "BluetoothBar-\(id)"
         if let button = statusItem.button {
-            button.image = Self.menuBarIcon(symbolName: symbolName, description: device.name)
-            button.imagePosition = .imageLeft
+            button.image = icon
             button.appearsDisabled = true        // grey until the first check
             button.target = self
             button.action = #selector(handleClick)
@@ -278,57 +353,29 @@ final class DeviceMenuBarIcon: NSObject {
         }
     }
 
-    /// Shows a state's text on its coloured pill next to the icon, or the icon
-    /// alone (no text, no pill) when `state` is nil
-    private func showState(_ state: String?) {
+    /// Shows a state's text on its coloured pill, or the plain icon (no pill)
+    /// when `state` is nil
+    func showState(_ state: String?) {
         guard let button = statusItem.button else { return }
         guard let state else {
             isShowingState = false
-            button.title = ""
+            pillView.removeFromSuperview()
+            button.image = icon
             statusItem.length = NSStatusItem.squareLength
-            pillLayer.isHidden = true
             updateRestingLook()
             return
         }
         isShowingState = true
-        button.appearsDisabled = false             // solid icon and text on the pill
-        let shown = appearance(forState: state)
-        button.title = " " + shown.text
+        button.appearsDisabled = false
+        button.image = nil                           // the pill draws its own icon
         statusItem.length = pillWidth
-        showPill(color: shown.color)
-    }
-
-    /// Room for the icon plus the longest state text this device can show
-    private lazy var pillWidth: CGFloat = {
-        let font = statusItem.button?.font ?? NSFont.menuBarFont(ofSize: 0)
-        let longestText = action.possibleStates
-            .map { (" " + appearance(forState: $0).text as NSString).size(withAttributes: [.font: font]).width }
-            .max() ?? 0
-        let iconWidth = statusItem.button?.image?.size.width ?? Settings.iconPointSize
-        let padding: CGFloat = 16
-        return ceil(iconWidth + longestText + padding)
-    }()
-
-    /// Shows the rounded background behind the icon and its text, in `color`.
-    /// (A button's built-in highlight can't be used: macOS clears it as soon as
-    /// the click ends.)
-    private func showPill(color: NSColor) {
-        guard let button = statusItem.button else { return }
-        if pillLayer.superlayer == nil {
-            button.wantsLayer = true
-            pillLayer.cornerRadius = Settings.pillCornerRadius
-            // Follows the button if its size changes
-            pillLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-            button.layer?.insertSublayer(pillLayer, at: 0)
+        let shown = appearance(forState: state)
+        pillView.show(text: shown.text, color: shown.color)
+        if pillView.superview == nil {
+            pillView.frame = button.bounds
+            pillView.autoresizingMask = [.width, .height]
+            button.addSubview(pillView)
         }
-        button.layoutSubtreeIfNeeded()
-        pillLayer.frame = button.bounds.insetBy(dx: 0, dy: Settings.pillVerticalInset)
-        // System colours look different in light and dark mode: resolve it for
-        // the menu bar's current appearance
-        button.effectiveAppearance.performAsCurrentDrawingAppearance {
-            self.pillLayer.backgroundColor = color.withAlphaComponent(Settings.pillOpacity).cgColor
-        }
-        pillLayer.isHidden = false
     }
 
     /// The left-click menu: status (greyed, not clickable), the action, and Quit
@@ -373,16 +420,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DeviceMenuBarIcon(
                 id: "keyboard", device: devices.keyboard, symbolName: "keyboard",
                 action: DeviceAction(command: "keyboard",
-                                     menuTitle: { _ in "Re-pair" },
-                                     possibleStates: ["unpairing", "searching", "connected",
-                                                      "not-found", "unpair-failed"])),
+                                     menuTitle: { _ in "Re-pair" })),
             DeviceMenuBarIcon(
                 id: "airpods", device: devices.airpods, symbolName: "airpodspro",
                 action: DeviceAction(command: #"bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME""#,
-                                     menuTitle: { isConnected in isConnected ? "Disconnect" : "Connect" },
-                                     possibleStates: ["connecting", "connected", "disconnecting",
-                                                      "disconnected", "timed-out", "unknown"])),
+                                     menuTitle: { isConnected in isConnected ? "Disconnect" : "Connect" })),
         ]
+
+        // For design work: `open BluetoothBar.app --args --preview searching`
+        // shows that state on both icons and keeps it there, running nothing
+        let arguments = CommandLine.arguments
+        if let flag = arguments.firstIndex(of: "--preview"), flag + 1 < arguments.count {
+            icons.forEach { $0.showState(arguments[flag + 1]) }
+            return
+        }
 
         connectionCheckTimer = Timer.scheduledTimer(
             withTimeInterval: Settings.connectionCheckInterval, repeats: true
