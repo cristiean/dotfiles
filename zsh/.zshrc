@@ -276,13 +276,20 @@ klaude() {
     CLAUDE_CONFIG_DIR=$personal command claude "${settings[@]}" "$@"
 }
 
-### AirPods utility for quick connect / disconnect #############################
-# Requires: brew install blueutil coreutils
+### Bluetooth: AirPods and keyboard ###########################################
+#   airpods            connect / disconnect the AirPods
+#   keyboard           connect / disconnect the Magic Keyboard
+#   keyboard pair      pair it with this Mac (e.g. a new laptop)
+#   keyboard forget    unpair it from this Mac (e.g. the old laptop)
+# Requires: brew install blueutil coreutils, and Bluetooth access for the
+# terminal app (System Settings > Privacy & Security > Bluetooth).
 # Find device addresses with: blueutil --paired
 
 # Bluetooth devices
 AIRPODS_BT_ADDRESS="74-77-86-6d-d5-a9"
 AIRPODS_NAME="🍤 shrimps"
+KEYBOARD_BT_ADDRESS="38-09-fb-35-90-5d"
+KEYBOARD_NAME="⌨️ taste"
 
 # Configuration
 BT_STATUS_COLUMN=36
@@ -483,9 +490,77 @@ airpods() {
   bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME"
 }
 
-# keyboard() {
-#   bt_toggle "$KEYBOARD_BT_ADDRESS" "Magic Keyboard"
-# }
+keyboard() {
+  case ${1:-} in
+    "")     bt_toggle "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" ;;
+    pair)   bt_pair   "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" ;;
+    forget) bt_forget "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME" ;;
+    *)      print -r -- "usage: keyboard [pair|forget]"; return 1 ;;
+  esac
+}
+
+# Is the device in this Mac's list of paired devices?
+bt_is_paired() {
+  blueutil --paired 2>/dev/null | grep -qi -- "${1//:/-}"
+}
+
+# Pair a device with this Mac. A Magic Keyboard stays paired to the last Mac
+# that had it, so it only accepts a new Mac while it's advertising: right after
+# it's switched off and on, if no other Mac grabs it first. Plugging in its
+# cable pairs it too, without any of this.
+bt_pair() {
+  local address="$1" name="${2:-Bluetooth device}"
+  local -i try
+
+  command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
+  command -v gtimeout &>/dev/null || { print -P "%F{red}✗ Missing dependency: coreutils%f"; return 1 }
+
+  if [[ $(bt_get_state "$address") == 1 ]]; then
+    bt_status "$name" "✓ Already connected" green; print
+    return 0
+  fi
+
+  # A stale pairing from before (e.g. an earlier session on this Mac) blocks a fresh one
+  bt_is_paired "$address" && blueutil --unpair "$address" &>/dev/null
+
+  print -P "%BSwitch $name off and on now%b (or plug in its cable)."
+  print -P "%F{245}If another Mac is nearby and awake, run 'keyboard forget' there first.%f"
+  for (( try = 1; try <= 10; try++ )); do
+    bt_status "$name" "~ Pairing (attempt $try/10)" yellow
+    if gtimeout --foreground 15 blueutil --pair "$address" &>/dev/null; then
+      blueutil --connect "$address" &>/dev/null
+      sleep 1
+      if [[ $(bt_get_state "$address") == 1 ]]; then
+        bt_status "$name" "✓ Paired and connected" green; print
+        return 0
+      fi
+    fi
+    sleep 2
+  done
+  bt_status "$name" "✗ Couldn't pair" red; print
+  print -r -- "  Plug in its cable for a few seconds, or pair it in System Settings > Bluetooth."
+  return 1
+}
+
+# Unpair a device from this Mac, so it stops reconnecting to it
+bt_forget() {
+  local address="$1" name="${2:-Bluetooth device}"
+  command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
+
+  if ! bt_is_paired "$address"; then
+    bt_status "$name" "○ Not paired with this Mac" 245; print
+    return 0
+  fi
+  blueutil --disconnect "$address" &>/dev/null
+  blueutil --unpair "$address" &>/dev/null       # blueutil calls this experimental
+  sleep 1
+  if bt_is_paired "$address"; then
+    bt_status "$name" "✗ Still paired" red; print
+    print -r -- "  Remove it in System Settings > Bluetooth: ⓘ next to it > Forget This Device."
+    return 1
+  fi
+  bt_status "$name" "○ Forgotten" 245; print
+}
 
 ### Machine-specific overrides (untracked) #####################################
 [[ -f $ZDOTDIR/.zshrc.local ]] && source $ZDOTDIR/.zshrc.local
