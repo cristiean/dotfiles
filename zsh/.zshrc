@@ -501,10 +501,10 @@ bt_is_paired() {
 # Forget a device on this Mac, then pair and connect it again. A Magic Keyboard
 # can show as connected yet type nothing, and only a fresh pairing fixes that.
 # It stays paired to the last Mac that had it, so it only accepts this one while
-# it's advertising: right after being switched off and on. While it runs, the
+# it's advertising: right after being switched off for a few seconds and back on. While it runs, the
 # command's own line shows progress, with a grey hint below it:
 #   keyboard ···· ⌨️ taste ···· ○ Forgotten ······ ~ Pairing (2/10)
-#     Switch ⌨️ taste off and on a few times, quickly, ...
+#     Switch ⌨️ taste off, wait a couple of seconds, then switch it on. ...
 # When it's done, the line folds to the result and the hint goes away:
 #   keyboard ···· ⌨️ taste ···· ✓ Paired & connected
 bt_repair() {
@@ -533,7 +533,7 @@ bt_repair() {
   fi
 
   # 2. Pair and connect, retrying while the keyboard is switched off and on
-  local hint="Switch $name off and on a few times, quickly, until it pairs. A Mac nearby that still has it can grab it first."
+  local hint="Switch $name off, wait a couple of seconds, then switch it on. A Mac nearby that still has it can grab it first."
   if (( inline )); then
     print -Pn "%F{245}  ${hint//\%/%%}%f"         # grey, on the line below the command
     bt_status "$name" "$forgotten" 245 1        # back up to the command's line
