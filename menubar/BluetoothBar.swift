@@ -61,9 +61,9 @@ enum Settings {
     static let pillHorizontalPadding: CGFloat = 8
     /// Space between the icon and the text
     static let pillIconTextSpacing: CGFloat = 5
-    /// Room reserved for the icon, so the text starts at the same place for
-    /// every device even though their symbols differ in width
-    static let pillIconSlotWidth: CGFloat = 22
+    /// Room reserved for the icon (the widest symbol, keyboard, is 24 pt), so
+    /// the text starts at the same place for every device
+    static let pillIconSlotWidth: CGFloat = 24
     /// Menu bar text size and weight
     static let pillFont = NSFont.menuBarFont(ofSize: 0)
     /// The capsule is the menu bar's text colour at this opacity, so it reads as
@@ -183,19 +183,28 @@ func appearance(forState state: String) -> StateAppearance {
 
 // MARK: - The pill
 
+/// A text field draws its text this far inside its frame; the layout below
+/// offsets it so the visible text starts and ends exactly where intended
+let labelTextInset: CGFloat = 2
+
 /// Width of a capsule around the icon and `text`: padding, icon slot, gap, text,
-/// padding
+/// padding (the same padding on both sides)
 func capsuleWidth(forText text: String) -> CGFloat {
     let textWidth = (text as NSString).size(withAttributes: [.font: Settings.pillFont]).width
+    // The symbols carry about a point more transparent edge than the text,
+    // so the right side gets that much extra to make the visible margins equal
+    let opticalBalance: CGFloat = 1
     return ceil(Settings.pillHorizontalPadding + Settings.pillIconSlotWidth
-                + Settings.pillIconTextSpacing + textWidth + Settings.pillHorizontalPadding)
+                + Settings.pillIconTextSpacing + textWidth + Settings.pillHorizontalPadding
+                + opticalBalance)
 }
 
 /// Menu bar space reserved while a status shows: room for the widest capsule
 /// any state needs. The same for both devices, so neighbouring icons stay put.
-let reservedPillSpace: CGFloat = stateAppearances.values
+/// (A few points extra, so the widest capsule isn't clipped at the edge.)
+let reservedPillSpace: CGFloat = (stateAppearances.values
     .map { capsuleWidth(forText: $0.text) }
-    .max() ?? 0
+    .max() ?? 0) + 4
 
 /// The icon and status text on a translucent capsule. It's laid over the menu
 /// bar button while a status shows, so its spacing is exact and the same for
@@ -242,7 +251,7 @@ final class PillView: NSView {
         iconView.frame = NSRect(x: Settings.pillHorizontalPadding, y: midY - Settings.pillHeight / 2,
                                 width: Settings.pillIconSlotWidth, height: Settings.pillHeight)
         label.sizeToFit()
-        label.frame.origin = NSPoint(x: iconView.frame.maxX + Settings.pillIconTextSpacing,
+        label.frame.origin = NSPoint(x: iconView.frame.maxX + Settings.pillIconTextSpacing - labelTextInset,
                                      y: midY - label.frame.height / 2)
         layoutCapsule()
     }
