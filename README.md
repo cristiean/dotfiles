@@ -78,8 +78,6 @@ Open each app once and grant what it asks for:
 
 - **LinearMouse**: Accessibility permission
 - **Rectangle**: Accessibility permission. Turn off macOS's own window tiling. Turn off *Animate footprint*, turn on *Haptic feedback*.
-- **Hidden Bar**: permissions, *Start at Login*, *Autocollapse: 30s*, don't show the menu.
-  If macOS says it's damaged, run: `sudo xattr -dr com.apple.quarantine "/Applications/Hidden Bar.app"`
 - **Karabiner-Elements**: permissions (its config is already in `~/.config/karabiner`)
 - **Stats**: import settings from the file `~/.config/Stats.plist`
 - **Rocket**: permissions, enter the license. *Start at Login*, *Fuzzy search*, *Double key trigger*, *Size: Large*.
