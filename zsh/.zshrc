@@ -501,10 +501,12 @@ bt_is_paired() {
 # Forget a device on this Mac, then pair and connect it again. A Magic Keyboard
 # can show as connected yet type nothing, and only a fresh pairing fixes that.
 # It stays paired to the last Mac that had it, so it only accepts this one while
-# it's advertising: right after being switched off and on. Output, on the
-# command's own line, with the hint below it:
+# it's advertising: right after being switched off and on. While it runs, the
+# command's own line shows progress, with a grey hint below it:
 #   keyboard ···· ⌨️ taste ···· ○ Forgotten ······ ~ Pairing (2/10)
 #     Switch ⌨️ taste off and on a few times, quickly, ...
+# When it's done, the line folds to the result and the hint goes away:
+#   keyboard ···· ⌨️ taste ···· ✓ Paired & connected
 bt_repair() {
   local address="$1" name="${2:-Bluetooth device}"
   local dot_color="#858A93" message color
@@ -531,15 +533,15 @@ bt_repair() {
   fi
 
   # 2. Pair and connect, retrying while the keyboard is switched off and on
-  local hint="Switch $name off and on a few times, quickly, until it pairs (or plug in its cable)."
+  local hint="Switch $name off and on a few times, quickly, until it pairs. A Mac nearby that still has it can grab it first."
   if (( inline )); then
-    print -rn -- "  $hint"                     # goes on the line below the command
+    print -Pn "%F{245}  ${hint//\%/%%}%f"         # grey, on the line below the command
     bt_status "$name" "$forgotten" 245 1        # back up to the command's line
     print -Pn " %F{$dot_color}······%f "
     print -n $'\e7'                             # remember where the pairing status goes
   else
     bt_status "$name" "$forgotten" 245; print
-    print -r -- "  $hint"
+    print -P "%F{245}  ${hint//\%/%%}%f"
   fi
 
   for (( try = 1; try <= 10; try++ )); do
@@ -556,13 +558,17 @@ bt_repair() {
 
   if (( paired )); then message="✓ Paired & connected" color=green
   else message="✗ Couldn't pair" color=red; fi
+  local fallback="Plug in its cable for a few seconds, or pair it in System Settings > Bluetooth."
   if (( inline )); then
-    print -n $'\e8\e[K'; print -Pn "%F{$color}$message%f"
-    print; print                                # past the hint line
+    print -n $'\e8'
+    bt_status "$name" "$message" $color         # redraw the line with just the result
+    print -n $'\n\e[2K'                         # clear the hint line
+    (( paired )) || print -P "%F{245}  $fallback%f"
   else
     bt_status "$name" "$message" $color; print
+    (( paired )) || print -P "%F{245}  $fallback%f"
   fi
-  (( paired )) || { print -r -- "  Plug in its cable for a few seconds, or pair it in System Settings > Bluetooth."; return 1 }
+  (( paired ))
 }
 
 ### Machine-specific overrides (untracked) #####################################
