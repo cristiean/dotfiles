@@ -3,8 +3,9 @@
 
 ### Bluetooth: AirPods and keyboard ###########################################
 #   airpods            connect / disconnect the AirPods
-#   keyboard           re-pair the Magic Keyboard with this Mac and connect it
-#                      (e.g. after switching laptops): forgets it, then pairs
+#   keyboard           toggle the Magic Keyboard: if it's paired and connected,
+#                      unpair it cleanly (e.g. before moving it to another Mac);
+#                      otherwise pair it with this Mac and connect it
 # Requires: brew install blueutil coreutils, and Bluetooth access for the
 # terminal app (System Settings > Privacy & Security > Bluetooth).
 # Find device addresses with: blueutil --paired
@@ -26,7 +27,8 @@ BT_PAIR_ATTEMPT_TIMEOUT=3    # one pairing attempt waits at most this long
 # For the menu bar app: report a state word on stderr as "@state <word>" when
 # BT_PROGRESS is set; does nothing otherwise. The app turns each word into the
 # text and colour it shows. Words: connecting, connected, disconnecting,
-# disconnected, timed-out, unknown, unpairing, unpair-failed, searching, not-found
+# disconnected, timed-out, unknown, unpairing, unpaired, unpair-failed,
+# searching, not-found
 bt_report() {
   [[ -n ${BT_PROGRESS:-} ]] && print -u2 -r -- "@state $1"
   return 0
@@ -229,8 +231,37 @@ airpods() {
   bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME"
 }
 
+# A toggle: paired and connected -> unpair it cleanly; anything else -> forget
+# any stale pairing, then pair and connect it (bt_repair)
 keyboard() {
-  bt_repair "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME"
+  if bt_is_paired "$KEYBOARD_BT_ADDRESS" && [[ $(bt_get_state "$KEYBOARD_BT_ADDRESS") == 1 ]]; then
+    bt_unpair "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME"
+  else
+    bt_repair "$KEYBOARD_BT_ADDRESS" "$KEYBOARD_NAME"
+  fi
+}
+
+# Disconnect and unpair a device cleanly, so another Mac can pair with it.
+# Shown on the command's own line, like airpods:
+#   keyboard ···· ⌨️ taste ···· ○ Unpaired
+bt_unpair() {
+  local address="$1" name="${2:-Bluetooth device}"
+  command -v blueutil &>/dev/null || { print -P "%F{red}✗ Missing dependency: blueutil%f"; return 1 }
+
+  bt_report unpairing
+  bt_status "$name" "~ Unpairing" yellow 1
+  blueutil --disconnect "$address" &>/dev/null
+  blueutil --unpair "$address" &>/dev/null        # blueutil calls this experimental
+  sleep 0.5
+
+  if bt_is_paired "$address"; then
+    bt_report unpair-failed
+    bt_status "$name" "✗ Couldn't unpair" red; print
+    print -P "%F{245}  Remove it in System Settings > Bluetooth: ⓘ next to it > Forget This Device.%f"
+    return 1
+  fi
+  bt_report unpaired
+  bt_status "$name" "○ Unpaired" 245; print
 }
 
 # Is the device in this Mac's list of paired devices?

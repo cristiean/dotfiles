@@ -8,7 +8,8 @@
 // What the clicks do
 //   Right-click  runs the device's command:
 //                  AirPods   connect if disconnected, disconnect if connected
-//                  Keyboard  forget it, then pair and connect it again
+//                  Keyboard  unpair if paired and connected, otherwise pair
+//                            and connect it (forgetting any stale pairing first)
 //                While the command runs, the icon and its status ("Connecting",
 //                "Searching", ...) sit on a subtle rounded "pill", and the icon
 //                is tinted by state: blue while working, green when connected,
@@ -171,6 +172,7 @@ let stateAppearances: [String: StateAppearance] = [
     "disconnected":  StateAppearance(text: "Disconnected",    color: .systemGray),
     "timed-out":     StateAppearance(text: "Timed out",       color: .systemRed),
     "not-found":     StateAppearance(text: "Not found",       color: .systemRed),
+    "unpaired":      StateAppearance(text: "Unpaired",        color: .systemGray),
     "unpair-failed": StateAppearance(text: "Couldn't unpair", color: .systemRed),
     "unknown":       StateAppearance(text: "Unknown",         color: .systemOrange),
 ]
@@ -343,9 +345,9 @@ final class DeviceMenuBarIcon: NSObject {
 
     @objc private func handleClick() {
         if NSApp.currentEvent?.type == .rightMouseUp {
-            runAction()
-        } else {
             showMenu()
+        } else {
+            runAction()
         }
     }
 
@@ -443,7 +445,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DeviceMenuBarIcon(
                 id: "keyboard", device: devices.keyboard, symbolName: "keyboard",
                 action: DeviceAction(command: "keyboard",
-                                     menuTitle: { _ in "Re-pair" })),
+                                     menuTitle: { isConnected in isConnected ? "Unpair" : "Pair" })),
             DeviceMenuBarIcon(
                 id: "airpods", device: devices.airpods, symbolName: "airpodspro",
                 action: DeviceAction(command: #"bt_toggle "$AIRPODS_BT_ADDRESS" "$AIRPODS_NAME""#,
