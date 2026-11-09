@@ -55,7 +55,9 @@ final class DeviceItem: NSObject {
     let address: String
     let command: String
     let actionTitle: (Bool) -> String       // menu item text, given "connected"
-    let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    // Square while idle, like other menu bar icons; wider only while text shows.
+    // (Hidden Bar's collapse squeezed out the variable-width version.)
+    let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     var connected = false
     var busy = false
     var clearTimer: Timer?
@@ -105,15 +107,26 @@ final class DeviceItem: NSObject {
         let command = self.command
         DispatchQueue.global(qos: .userInitiated).async {
             zsh(command) { text in
-                DispatchQueue.main.async { self.item.button?.title = " " + text }
+                DispatchQueue.main.async { self.show(text) }
             }
             DispatchQueue.main.async {
                 self.busy = false
                 self.clearTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false) { _ in
-                    self.item.button?.title = ""
+                    self.show(nil)
                 }
                 self.refresh()
             }
+        }
+    }
+
+    /// Text next to the icon, or nil for the icon alone
+    func show(_ text: String?) {
+        if let text {
+            item.length = NSStatusItem.variableLength
+            item.button?.title = " " + text
+        } else {
+            item.button?.title = ""
+            item.length = NSStatusItem.squareLength
         }
     }
 
