@@ -17,6 +17,7 @@ It's safe to run again; every step checks before it acts. It:
 - Makes commits to this repo use your personal name and email, even on a work Mac
 - Installs every app and CLI in the `Brewfile`
 - Points iTerm2 at `~/.config/iterm2` for its settings
+- Links the [agent skills](#agent-skills) in `~/.config/skills` into Claude Code and Codex
 - Applies the macOS settings listed under [What `setup.sh` sets](#what-setupsh-sets)
 
 Then **log out and back in**, and open iTerm2.
@@ -125,6 +126,48 @@ Like in a macOS text field (set up in `zsh/.zshrc` and the iTerm2 profile):
 
 Terminal.app keeps Cmd keys for itself, so there use Ctrl+A, Ctrl+E and Ctrl+U for line start, line end and delete line. The Option and Shift keys work the same.
 
+## Agent skills
+
+A skill is a folder of instructions that a coding agent loads when a task calls for it. Each folder in `skills/` is one skill, and `setup.sh` links it into three places, so every agent reads the same copy:
+
+| Agent | Linked into | Call it by name with |
+|---|---|---|
+| Claude Code, work account (`claude`) | `~/.claude/skills/` | `/technical-writing` |
+| Claude Code, personal account (`klaude`) | `~/.claude-personal/skills/` | `/technical-writing` |
+| Codex | `~/.agents/skills/` | `$technical-writing` |
+
+The agents also pick a skill up by themselves when a task matches its description.
+
+`skills/technical-writing/` makes an agent write and edit documentation, messages and error text so they read clearly on the first pass. `SKILL.md` holds the rules, `references/` the detail and `SOURCES.md` where each rule comes from.
+
+### Install
+
+`setup.sh` installs the skills as part of setting up a Mac. To install or refresh only the skills:
+
+```sh
+~/.config/setup.sh --skills
+```
+
+It's safe to run again. Check the links, then start a new session in the agent; a session that's already open doesn't see a new skill:
+
+```sh
+ls -l ~/.claude/skills ~/.claude-personal/skills ~/.agents/skills
+```
+
+In Claude Code, type `/` and look for `technical-writing`. In Codex, type `$` or run `/skills`.
+
+Other agents:
+
+- **Claude desktop or web chat, Cowork and cloud sessions** don't read these folders. Upload the skill folder as a zip file in the app's skills settings, and upload it again after each change.
+- **Any other agent that supports skills**: link `~/.config/skills/technical-writing` into that agent's personal skills folder.
+- **An agent without skills**: tell it to read `~/.config/skills/technical-writing/SKILL.md` before it writes.
+
+### Change or add a skill
+
+To change a skill, edit its files; the links mean every agent sees the change in its next session. To add one, create `skills/<name>/SKILL.md` and run `~/.config/setup.sh --skills`.
+
+Test prompts for a skill live in its `evals/` folder. The outputs of a test run go to `skills/<name>-workspace/`, which git ignores.
+
 ## Keeping the dotfiles up to date
 
 On a Mac that's already set up:
@@ -155,6 +198,7 @@ Shell config for one Mac only, like work aliases, goes in `~/.config/zsh/.zshrc.
 | `Brewfile`, `Brewfile.develop` | apps and CLIs: every Mac, and as needed |
 | `zsh/` | shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo` (open the repo page at this branch and folder) |
 | `git/config`, `git/ignore` | global git settings and ignore rules |
+| `skills/` | [agent skills](#agent-skills) for Claude Code and Codex |
 | `iterm2/` | iTerm2 settings (profile *calm*); shell integration loads from the app itself |
 | `karabiner/`, `linearmouse/`, `Stats.plist` | keyboard, mouse and menu bar app settings |
 | `useful-commands` | one-off commands worth remembering |

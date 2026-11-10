@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: rewrite-padded-readme
+expected_outcome: |
+  A plain README that keeps every fact of the draft, removes the padding, flags the two schedule times that contradict each other, and does not pass on the unsupported claim that no data is ever lost without flagging it.
+context:
+  scaffold_script: place-files.sh

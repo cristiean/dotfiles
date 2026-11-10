@@ -1,0 +1,20 @@
+[slack export, #data-oncall, 2026-10-22]
+
+maria: ok writing down what we did last night for the events_raw dupes thing before i forget
+maria: so the alert was EventsRawDuplicateRows, fires when the dq check finds > 0.1% duplicate event_id in a partition
+maria: cause is almost always the backfill job getting retried after it already committed (it's not idempotent, appends)
+tom: first thing check its actually dupes and not the dq check being wrong.
+tom: select event_date, count(*) c, count(distinct event_id) d from analytics.events_raw where event_date = '<date>' group by 1
+tom: if c == d the alert is wrong, just ack it and tell the dq channel
+maria: yeah. if c > d then you need to fix. what we did:
+maria: airflow dags pause events_backfill   <- do this FIRST or it'll keep appending while you fix
+maria: then drop the partition:  alter table analytics.events_raw drop partition (event_date = '<date>')
+maria: oh and before you drop make sure the raw files are still in s3://acme-raw/events/<date>/ because if they got lifecycled (after 30 days) you can't reload and dropping loses the data for good!!
+tom: aws s3 ls s3://acme-raw/events/<date>/ | head
+tom: if its empty DONT drop. escalate
+maria: then reload: airflow dags trigger events_load --conf '{"date": "<date>"}'
+maria: takes like 20 min for a normal day
+maria: then rerun the count query, c should equal d
+tom: and unpause the backfill dag after. airflow dags unpause events_backfill
+tom: you need the data-oncall role for the drop i think? not sure
+maria: also downstream, events_daily_agg reads this, it'll have been wrong too. need to rerun that for the date. dont remember the command

@@ -9,6 +9,9 @@ zsh/.zcompdump
 # Machine-specific
 zsh/.zshrc.local
 
+# Test runs of a skill (see "Agent skills" in the README)
+skills/*-workspace/
+
 # App state, logs and caches that apps write into ~/.config
 1Password/
 AWSVPNClient/

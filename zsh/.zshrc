@@ -237,8 +237,11 @@ unset _km
 #   settings.json              read with --settings rather than a symlink: a
 #                              program that saves a file by writing a new one
 #                              replaces a symlink with an ordinary file
+#   skills/<name>              a symlink per skill to ~/.config/skills/<name>,
+#                              made by setup.sh for both accounts and for Codex
 #
-# The links are made on every launch, so a new machine needs nothing else.
+# The plans and memory links are made on every launch, so a new machine needs
+# nothing else.
 
 # Make $2 a symlink to the shared directory $1. An empty directory at $2 is
 # replaced; one with files is left alone with a warning, so nothing is lost.

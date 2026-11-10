@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: ask-platform-team
+expected_outcome: |
+  A short chat message that leads with a specific subject, states the goal, quotes the exact error, says what was tried, labels the guess as a guess, gives the deadline without calling it urgent, and ends with one bounded request.

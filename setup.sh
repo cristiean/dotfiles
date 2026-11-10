@@ -9,6 +9,9 @@
 #
 # To push dotfiles changes from this Mac (optional, per Mac):
 #   ~/.config/setup.sh --push-access
+#
+# To link the agent skills only, without the rest of the setup:
+#   ~/.config/setup.sh --skills
 
 set -euo pipefail
 
@@ -37,12 +40,34 @@ push_access() {
         $DOTFILES/bin/ssh-key github.com github-dotfiles
 }
 
+# Agent skills. Each folder in ~/.config/skills is one skill; it is linked into
+# the personal skills folder of Claude Code (work and personal account) and of
+# Codex, so all three read the same copy.
+link_skills() {
+    step "Agent skills"
+    local skill dir link
+    for skill in $DOTFILES/skills/*(N/); do
+        [[ -f $skill/SKILL.md ]] || continue
+        for dir in $HOME/.claude/skills $HOME/.claude-personal/skills $HOME/.agents/skills; do
+            link=$dir/${skill:t}
+            if [[ -e $link && ! -L $link ]]; then
+                warn "$link exists and is not a link; left as it is"
+            else
+                mkdir -p $dir
+                ln -sfn $skill $link
+            fi
+        done
+        note "${skill:t}"
+    done
+}
+
 [[ $OSTYPE == darwin* ]] || { print "setup.sh is for macOS only"; exit 1 }
 
 case ${1:-} in
     --push-access) push_access; exit ;;
+    --skills) link_skills; exit ;;
     "") ;;
-    *) print "usage: setup.sh [--push-access]"; exit 1 ;;
+    *) print "usage: setup.sh [--push-access | --skills]"; exit 1 ;;
 esac
 
 # 1. Homebrew (also installs the Xcode Command Line Tools, which provide git)
@@ -115,7 +140,10 @@ note "Settings folder: ~/.config/iterm2 (restart iTerm2 if it is open)"
 "$DOTFILES/menubar/build.sh" >/dev/null && note "BluetoothBar built and started (allow Bluetooth when asked)" ||
     warn "BluetoothBar didn't build; run ~/.config/menubar/build.sh to see why"
 
-# 6. macOS settings. Most take effect after logging out and back in.
+# 6. Agent skills, linked into Claude Code and Codex
+link_skills
+
+# 7. macOS settings. Most take effect after logging out and back in.
 step "macOS settings"
 # Dock: auto-hide, scale effect, minimise into the app icon
 defaults write com.apple.dock autohide -bool true
