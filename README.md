@@ -19,6 +19,7 @@ The script does the following:
 - Makes commits to the dotfiles use your personal name and email, even on a work Mac.
 - Shows a list of apps and CLIs, and installs the entries that you leave checked.
 - Points iTerm2 at `~/.config/iterm2` for its settings.
+- Links the settings folder of DBeaver to `~/.config/dbeaver`, if DBeaver is installed.
 - Builds BluetoothBar from `menubar/` and starts it. Allow Bluetooth when macOS asks.
 - Links the [agent skills](#agent-skills) in `~/.config/skills` into Claude Code and Codex.
 - Applies the macOS settings listed under [What `setup.sh` sets](#what-setupsh-sets).
@@ -100,7 +101,10 @@ Open each app once and do what this list says:
 - Stats: import the settings from the file `~/.config/Stats.plist`.
 - Rocket: grant the permissions that it asks for and enter the license. Turn on **Start at Login**, **Fuzzy search** and **Double key trigger**, and set **Size** to **Large**.
 - Vivid: grant the permissions that it asks for and enter the license.
-- VS Code: sign in to Settings Sync with GitHub and let it pull your settings. Its SQL formatter runs the `sqlfluff` command, so check `sqlfluff` in the list of apps on a Mac where you format SQL.
+- VS Code: sign in to Settings Sync with GitHub and let it pull your settings.
+- DBeaver: add your connections. The dotfiles hold the preferences of DBeaver and not its connections or passwords, because the repo is public.
+
+VS Code and DBeaver format SQL with the `sqlfluff` command, so check `sqlfluff` in the list of apps on a Mac where you format SQL.
 
 ### 4. Change System Settings by hand
 
@@ -231,6 +235,23 @@ The command line takes the same editing keys as a macOS text field. `zsh/.zshrc`
 
 Terminal.app keeps the Cmd keys for itself. In Terminal.app, use Ctrl+A for the start of the line, Ctrl+E for the end of the line and Ctrl+U to delete the line. The Option and Shift keys work the same.
 
+### Keys in DBeaver
+
+These keys do in DBeaver what they do in VS Code. DBeaver reads them from `dbeaver/org.eclipse.ui.workbench.prefs`.
+
+| Keys | What they do |
+|---|---|
+| Cmd+Shift+I | Format the SQL with SQLFluff |
+| Cmd+T | Open a new SQL script |
+| Cmd+Shift+[ and Cmd+Shift+] | Go to the previous or the next tab |
+| Option+↑ and Option+↓ | Move the line up or down |
+| Shift+Option+↑ and Shift+Option+↓ | Copy the line up or down |
+| Cmd+Option+↑ and Cmd+Option+↓ | Add a cursor on the line above or below |
+
+DBeaver's own keys for these commands still work, for example Ctrl+Shift+F to format. Two commands lose their keys: **Previous query** and **Next query** had Option+↑ and Option+↓.
+
+To change a key, open **Settings > User Interface > Keys** in DBeaver. DBeaver saves the change to the same file.
+
 ### What's where
 
 | Path | What it is |
@@ -241,8 +262,10 @@ Terminal.app keeps the Cmd keys for itself. In Terminal.app, use Ctrl+A for the 
 | `bin/imgls` | iTerm2's `imgls` with 20x10 thumbnails, names centred on images, and the right highlighting for env files |
 | `zsh/` | Shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo`, which opens the repo page at this branch and folder. |
 | `git/config`, `git/ignore` | Global git settings and ignore rules |
-| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: the SQL dialect to use when a project sets none |
+| `bin/sql-format` | Formats the SQL on standard input with SQLFluff. The SQL formatter of DBeaver runs it. |
+| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: the SQL dialect to use when a project sets none, and upper case for keywords, function names, literals and data types |
 | `iterm2/` | iTerm2 settings, with the profile `calm`. Shell integration loads from the app itself. |
+| `dbeaver/` | DBeaver preferences, such as the SQL formatter and the [keys](#keys-in-dbeaver). `setup.sh` links the settings folder of DBeaver to this folder. Git tracks four preference files and ignores the files that hold window state. |
 | `karabiner/`, `linearmouse/`, `Stats.plist` | Keyboard, mouse and menu bar app settings |
 | `menubar/` | BluetoothBar: menu bar icons for the AirPods and the keyboard. A right-click toggles the device: it connects or disconnects the AirPods, and pairs or unpairs the keyboard. A left-click shows a menu. The logic is in `zsh/bluetooth.zsh`. |
 | `skills/` | [Agent skills](#agent-skills) for Claude Code and Codex |

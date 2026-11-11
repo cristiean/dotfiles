@@ -1,0 +1,35 @@
+#!/bin/sh
+# sql-format: format SQL with SQLFluff. It reads the SQL from standard input
+# and prints the result.
+#
+#   pbpaste | sql-format
+#
+# DBeaver's SQL formatter runs this script (dbeaver/org.jkiss.dbeaver.core.prefs).
+# DBeaver replaces the SQL in the editor with everything that the command
+# prints, error messages included. So this script prints only SQL: if SQLFluff
+# cannot format the input, for example because it cannot parse it, the script
+# prints the input unchanged.
+#
+# SQLFluff takes its settings from ~/.config/sqlfluff/.sqlfluff, and from the
+# config of the project when you run the script inside one.
+
+# DBeaver starts without Homebrew on its PATH.
+PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+
+# The x keeps the newlines at the end of the input, which $(...) removes.
+sql=$(cat; printf x)
+sql=${sql%x}
+
+formatted=$(printf '%s' "$sql" | sqlfluff format - 2>/dev/null)
+if [ -z "$formatted" ]; then
+    printf '%s' "$sql"
+    exit
+fi
+
+# SQLFluff ends its output with a newline. Print that newline only if the input
+# ended with one, so that formatting a selection adds no blank line after it.
+case $sql in
+    *"
+") printf '%s\n' "$formatted" ;;
+    *) printf '%s' "$formatted" ;;
+esac

@@ -22,3 +22,12 @@ karabiner/automatic_backups/
 # and its shell integration comes from the app (Load Shell Integration Automatically).
 iterm2/*
 !iterm2/com.googlecode.iterm2.plist
+
+# dbeaver/ is DBeaver's settings folder: setup.sh links it. Git tracks the files
+# that change only when a preference changes: general settings, keys with fonts
+# and colours, the theme and the diagram style. The other files hold window state.
+dbeaver/*
+!dbeaver/org.jkiss.dbeaver.core.prefs
+!dbeaver/org.eclipse.ui.workbench.prefs
+!dbeaver/org.eclipse.e4.ui.css.swt.theme.prefs
+!dbeaver/org.jkiss.dbeaver.ui.editors.erd.prefs

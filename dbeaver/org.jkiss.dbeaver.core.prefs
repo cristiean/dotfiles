@@ -1,0 +1,14 @@
+dataformat.profile.language=en
+driver.selector.orderBy=score
+eclipse.preferences.version=1
+navigator.settings.default.preset=advanced
+org.jkiss.dbeaver.core.confirm.exit=always
+resultset.grid.value.format=UI
+resultset.show.colorizeDataTypes=true
+sql.format.external.cmd=/bin/sh -c ~/.config/bin/sql-format
+sql.format.external.timeout=10000
+sql.format.formatter=EXTERNAL
+sql.format.keywordCase=UPPER
+sql.proposals.insert.table.alias=NONE
+tipOfTheDayInitializer.notFirstRun=true
+ui.show.tip.of.the.day.on.startup=false

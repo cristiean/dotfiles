@@ -19,7 +19,7 @@ brew "wireguard-tools"
 
 # Databases
 cask "dbeaver-community"
-brew "sqlfluff"            # SQL linter and formatter; VS Code's SQLFluff extension runs it
+brew "sqlfluff"            # SQL linter and formatter; VS Code and DBeaver format SQL with it
 
 # AI
 cask "claude-code"

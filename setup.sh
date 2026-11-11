@@ -61,6 +61,38 @@ link_skills() {
     done
 }
 
+# DBeaver preferences. DBeaver has no setting for where it keeps them: it reads
+# them from a folder inside its workspace. That folder becomes a link to
+# ~/.config/dbeaver, where git tracks the preference files (see .gitignore).
+# Connections and passwords are in other folders of the workspace and stay there.
+link_dbeaver() {
+    [[ -d /Applications/DBeaver.app ]] || return 0
+    step "DBeaver"
+    local settings=$HOME/Library/DBeaverData/workspace6/.metadata/.plugins/org.eclipse.core.runtime/.settings
+    local file backup
+    if [[ ! -L $settings ]]; then
+        if pgrep -xq dbeaver; then
+            warn "DBeaver is open. Quit it, then re-run to link its settings"
+            return 0
+        fi
+        if [[ -d $settings ]]; then
+            # Keep the files that the dotfiles don't have, such as window state.
+            # If a file is in both places, the dotfiles copy wins.
+            for file in $settings/*(ND); do
+                [[ -e $DOTFILES/dbeaver/${file:t} ]] || mv $file $DOTFILES/dbeaver/
+            done
+            if ! rmdir $settings 2>/dev/null; then
+                backup=$settings.backup-$(date +%Y%m%d-%H%M%S)
+                mv $settings $backup
+                warn "This Mac's own copies moved to $backup"
+            fi
+        fi
+        mkdir -p ${settings:h}
+    fi
+    ln -sfn $DOTFILES/dbeaver $settings
+    note "Settings folder: ~/.config/dbeaver"
+}
+
 # Apps and CLIs. A list shows the entries of Brewfile, checked, and of
 # Brewfile.develop, unchecked. You check or uncheck entries, and the choice goes
 # to Brewfile.local, which `brew bundle` then installs. Brewfile.local keeps the
@@ -290,10 +322,13 @@ note "Settings folder: ~/.config/iterm2 (restart iTerm2 if it is open)"
 "$DOTFILES/menubar/build.sh" >/dev/null && note "BluetoothBar built and started (allow Bluetooth when asked)" ||
     warn "BluetoothBar didn't build; run ~/.config/menubar/build.sh to see why"
 
-# 6. Agent skills, linked into Claude Code and Codex
+# 6. DBeaver, if it is installed, loads its preferences from ~/.config/dbeaver
+link_dbeaver
+
+# 7. Agent skills, linked into Claude Code and Codex
 link_skills
 
-# 7. macOS settings. Most take effect after logging out and back in.
+# 8. macOS settings. Most take effect after logging out and back in.
 step "macOS settings"
 # Dock: auto-hide, scale effect, minimise into the app icon
 defaults write com.apple.dock autohide -bool true
