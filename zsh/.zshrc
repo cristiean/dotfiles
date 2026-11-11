@@ -139,8 +139,19 @@ autoload -Uz compinit && compinit
 # The status bar shows \(user.pwd): this shell's folder, with ~ for home. It's an
 # Interpolated String component because iTerm2's Current Directory component
 # always draws a folder icon. Shell integration calls this at every prompt.
+#
+# The status bar also shows \(user.git): the branch, with a + when the repo has
+# uncommitted changes, and nothing outside a repo. It replaces iTerm2's git
+# component, which draws a dark strip above the branch name.
 iterm2_print_user_vars() {
     iterm2_set_user_var pwd "${PWD/#$HOME/~}"
+    local branch dirty=
+    if branch=$(git symbolic-ref --short -q HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null); then
+        [[ -n $(git status --porcelain 2>/dev/null | head -1) ]] && dirty=+
+        iterm2_set_user_var git "⎇ $branch$dirty"
+    else
+        iterm2_set_user_var git ""
+    fi
 }
 
 ### Keybindings ################################################################
