@@ -15,6 +15,18 @@
 [fetch]
     prune = true                # drop remote branches deleted on the server
 
+[pull]
+    rebase = true               # `git pull` replays local commits on top of the remote's
+
+[merge]
+    conflictStyle = zdiff3      # conflict markers also show the common ancestor's version
+
+[rerere]
+    enabled = true              # record how a conflict was resolved; reuse it if it recurs
+
+[branch]
+    sort = -committerdate       # `git branch` lists the branch with the latest commit first
+
 [color "status"]
     added = green bold
     changed = red bold

@@ -1,1 +1,13 @@
+# Global git ignore rules. Git reads ~/.config/git/ignore automatically and
+# applies it in every repo.
+
+# Claude Code: your own settings for a project, not shared with the team
 **/.claude/settings.local.json
+
+# macOS: Finder's view settings for a folder
+.DS_Store
+
+# VS Code: the unique-window-colors extension writes window colours to this
+# file in each folder it opens. A repo that tracks the file still shows changes
+# to it, because ignore rules only apply to untracked files.
+**/.vscode/settings.json

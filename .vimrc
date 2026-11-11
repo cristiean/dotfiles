@@ -16,6 +16,7 @@ set shiftwidth=4                "Indents will have a width of 4.
 "--- Visual help stuff -------------------------------------------------------------------------
 set incsearch                   "Set incremental search
 set hlsearch                    "Highlight search results
+set ignorecase                  "Ignore case in search patterns. smartcase needs this set.
 set smartcase                   "Ignore case if search pattern is lowercase, else case-sensitive
 "-----------------------------------------------------------------------------------------------
 

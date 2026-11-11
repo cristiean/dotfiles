@@ -7,6 +7,14 @@ setopt correct                                  # Spelling correction for cmds
 setopt globdots                                 # Match w/o explicit "."
 setopt interactivecomments                      # Inline # comments
 
+### History ####################################################################
+# zsh-autosuggestions suggests commands from this history.
+HISTFILE=$ZDOTDIR/.zsh_history
+HISTSIZE=50000                                  # Commands kept in memory
+SAVEHIST=50000                                  # Commands saved to $HISTFILE
+setopt share_history                            # Open shells share new commands
+setopt hist_ignore_all_dups                     # Keep only the latest copy of a command
+
 # ls aliases ###################################################################
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
@@ -88,9 +96,6 @@ repo() {
     (( print_only )) && return
     if (( $+commands[open] )); then open $link; else xdg-open $link; fi
 }
-
-### Weather ####################################################################
-function weather { curl http://wttr.in/"$*" }   # Use: $ weather Palo Alto
 
 ### Auto completions ###########################################################
 zstyle ':completion:*' group-name ''
