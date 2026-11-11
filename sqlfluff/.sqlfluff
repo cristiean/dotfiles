@@ -2,8 +2,8 @@
 # ~/.config/sqlfluff/.sqlfluff first and a project's own config after it, so a
 # project's settings override the ones here.
 #
-# The layout settings give compact queries. A list of columns stays on one line
-# while it fits, each clause starts a line and a short subquery stays inline.
+# The layout settings give compact queries. A list of columns, a short
+# statement and a short subquery each stay on one line while they fit.
 
 [sqlfluff]
 # The dialect for SQL in a folder that sets none. SQLFluff cannot detect the
@@ -19,13 +19,16 @@ max_line_length = 160
 #   names are case-sensitive, so a query with a changed name fails.
 # - layout.select_targets puts every column of a SELECT on its own line.
 # - layout.cte_newline adds a blank line after every CTE.
-exclude_rules = capitalisation.identifiers, capitalisation.functions, capitalisation.types, layout.select_targets, layout.cte_newline
+# - convention.terminator moves the semicolon. It stays where you put it.
+exclude_rules = capitalisation.identifiers, capitalisation.functions, capitalisation.types, layout.select_targets, layout.cte_newline, convention.terminator
 
 [sqlfluff:indentation]
-# WITH stands on its own line, and each CTE is indented below it.
+# WITH stands on its own line, and each CTE is indented below it. Then
+# bin/sqlfluff-compact puts the first CTE on the line of WITH and lines the
+# next ones up under it.
 indented_ctes = True
 # The first condition follows WHERE on the same line. A line that starts with
-# AND or OR is indented below it.
+# AND or OR is indented below it by 4, which bin/sqlfluff-compact makes 2.
 implicit_indents = require
 # SQLFluff leaves the indentation inside ALTER TABLE as you wrote it. Without
 # this, it moves the ADD COLUMN lines back to the left margin.
@@ -61,45 +64,19 @@ spacing_before = align
 align_within = bracketed
 align_scope = bracketed_arguments
 
-# Each clause starts a line: SELECT, FROM, JOIN, WHERE, GROUP BY, HAVING,
-# ORDER BY and LIMIT. The exception is a subquery inside an expression, such as
-# x IN (SELECT ...), which stays on one line while it fits.
-[sqlfluff:layout:type:select_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression
-
-[sqlfluff:layout:type:from_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression
-
-[sqlfluff:layout:type:join_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression
-
+# A clause may share a line with the clause before it, as in
+#     SELECT * FROM t WHERE x = 1;
+# SQLFluff starts a new line for a clause only where you started one, or to
+# break a line that is longer than max_line_length. By default it always puts
+# these four keywords at the start of a line.
 [sqlfluff:layout:type:where_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression, pipe_operator_clause
+keyword_line_position = none
 
 [sqlfluff:layout:type:groupby_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression
+keyword_line_position = none
 
 [sqlfluff:layout:type:having_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression
+keyword_line_position = none
 
 [sqlfluff:layout:type:orderby_clause]
-line_position = leading
-keyword_line_position = leading
-keyword_line_position_exclusions = expression, window_specification, aggregate_order_by, withingroup_clause, pipe_operator_clause
-
-[sqlfluff:layout:type:limit_clause]
-line_position = alone
-keyword_line_position = leading
-keyword_line_position_exclusions = expression
+keyword_line_position = none

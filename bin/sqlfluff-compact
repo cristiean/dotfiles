@@ -1,21 +1,34 @@
 #!/usr/bin/env python3
-"""sqlfluff-compact: SQLFluff, with AND and OR indented by 2 under WHERE.
+"""sqlfluff-compact: SQLFluff, plus four layout changes that it has no setting for.
 
-SQLFluff indents the lines that continue a WHERE clause by 4:
+1. AND and OR are indented by 2 under WHERE, so that the conditions line up:
 
-    WHERE a = 1
-        AND b = 2
+       WHERE a = 1
+         AND b = 2
 
-This script runs SQLFluff and then moves those lines 2 to the left, so that
-AND ends under the E of WHERE:
+2. The first CTE stands on the line of WITH, and the next ones line up under it:
 
-    WHERE a = 1
-      AND b = 2
+       WITH first AS (
+               SELECT ...
+            ),
+            second AS (
+               SELECT ...
+            )
+       SELECT ...
 
-It takes the same arguments as sqlfluff:
+3. The first column stands on the line of SELECT, and the next lines of the
+   list line up under it:
 
-- `fix ... -` formats the SQL on standard input, then moves the lines.
-- `lint ... -` moves the lines back first, so that SQLFluff does not report them.
+       SELECT a, b,
+              c
+       FROM t
+
+4. An empty line follows the semicolon that ends a statement.
+
+The script takes the same arguments as sqlfluff:
+
+- `fix ... -` formats the SQL on standard input, then makes the four changes.
+- `lint` runs without the indentation rule (LT02), which would report 1 to 3.
 - Every other command goes to sqlfluff unchanged.
 
 In a project that has its own SQLFluff config, every command goes to sqlfluff
@@ -25,12 +38,18 @@ VS Code runs this script through its setting sqlfluff.executablePath.
 bin/sql-format runs it for DBeaver.
 """
 
+import configparser
 import os
 import re
 import subprocess
 import sys
 
 WHERE = re.compile(r"WHERE\b", re.IGNORECASE)
+WITH = re.compile(r"WITH$", re.IGNORECASE)
+SELECT = re.compile(r"SELECT( DISTINCT)?$", re.IGNORECASE)
+DOLLAR_QUOTE = re.compile(r"\$[A-Za-z_]*\$")
+
+USER_CONFIG = os.path.expanduser("~/.config/sqlfluff/.sqlfluff")
 
 # The files in which a project can keep its SQLFluff config, and the text that
 # shows the file has one. None: the file is only for SQLFluff.
@@ -63,6 +82,9 @@ def has_project_config(args: list) -> bool:
     if "--stdin-filename" in args[:-1]:
         name = args[args.index("--stdin-filename") + 1]
         folder = os.path.dirname(os.path.abspath(name))
+    elif args[-1] != "-" and os.path.exists(args[-1]):
+        target = os.path.abspath(args[-1])
+        folder = target if os.path.isdir(target) else os.path.dirname(target)
     home = os.path.expanduser("~")
     while folder != home:
         for name, marker in PROJECT_CONFIGS.items():
@@ -81,12 +103,35 @@ def has_project_config(args: list) -> bool:
     return False
 
 
-def starts_in_code(lines: list) -> list:
-    """For each line, say whether it starts in code: not inside a string or a block comment."""
-    flags = []
+def without_indentation_rule(args: list) -> list:
+    """Return the arguments of `lint` with LT02 added to the excluded rules.
+
+    --exclude-rules on the command line replaces the list in the config, so the
+    list from the user's config goes on the command line too.
+    """
+    for position, arg in enumerate(args):
+        if arg == "--exclude-rules" and position + 1 < len(args):
+            return args[: position + 1] + [args[position + 1] + ",LT02"] + args[position + 2 :]
+        if arg.startswith("--exclude-rules="):
+            return args[:position] + [arg + ",LT02"] + args[position + 1 :]
+    config = configparser.ConfigParser(interpolation=None)
+    config.read(USER_CONFIG)
+    excluded = config.get("sqlfluff", "exclude_rules", fallback="")
+    rules = ",".join(rule.strip() for rule in excluded.split(",") if rule.strip())
+    return args[:1] + ["--exclude-rules", (rules + "," if rules else "") + "LT02"] + args[1:]
+
+
+def scan(lines: list) -> tuple:
+    """Say two things about each line.
+
+    - Whether it starts in code: not inside a string or a block comment.
+    - Whether its code ends with a semicolon. A comment after the semicolon doesn't count.
+    """
+    starts_in_code, ends_statement = [], []
     inside = None  # None in code, else the mark that ends the string or comment
     for line in lines:
-        flags.append(inside is None)
+        starts_in_code.append(inside is None)
+        last_code_char = ""
         position = 0
         while position < len(line):
             char, pair = line[position], line[position : position + 2]
@@ -96,11 +141,19 @@ def starts_in_code(lines: list) -> list:
                 if pair == "/*":
                     inside, position = "*/", position + 2
                     continue
+                dollar_quote = DOLLAR_QUOTE.match(line, position)
+                if dollar_quote:
+                    inside, position = dollar_quote.group(), dollar_quote.end()
+                    last_code_char = "$"
+                    continue
                 if char in "'\"`":
                     inside = char
-            elif inside == "*/":
-                if pair == "*/":
-                    inside, position = None, position + 2
+                if not char.isspace():
+                    last_code_char = char
+            elif len(inside) > 1:  # a block comment or a dollar-quoted string
+                if line.startswith(inside, position):
+                    position += len(inside)
+                    inside = None
                     continue
             elif char == "\\":
                 position += 2
@@ -108,61 +161,107 @@ def starts_in_code(lines: list) -> list:
             elif char == inside:
                 inside = None
             position += 1
-    return flags
+        ends_statement.append(inside is None and last_code_char == ";")
+    return starts_in_code, ends_statement
 
 
 def indent_of(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
 
 
-def move_where_lines(sql: str, compact: bool) -> str:
-    """Move the lines that continue each WHERE clause.
+def lines_below(lines: list, in_code: list, number: int) -> list:
+    """Return the numbers of the lines that continue line `number`: the ones indented more.
 
-    compact=True moves them 2 to the left, if SQLFluff indented them by 4 or more.
-    compact=False moves them 2 to the right, if they are indented by 2.
-    A line that starts inside a string or a block comment never moves.
+    Empty lines and lines that start inside a string or a block comment are left out.
     """
-    lines = sql.split("\n")
-    in_code = starts_in_code(lines)
+    base = indent_of(lines[number])
+    continuation = []
+    for below in range(number + 1, len(lines)):
+        if not in_code[below] or not lines[below].strip():
+            continue
+        if indent_of(lines[below]) <= base:
+            break
+        continuation.append(below)
+    return continuation
+
+
+def indent_where_by_two(lines: list) -> None:
+    """Move the lines that continue each WHERE clause 2 to the left.
+
+    They move only if SQLFluff indented them by 4 or more, so SQL that SQLFluff
+    could not format, and returned as it was, stays as it was.
+    """
+    in_code, _ = scan(lines)
     for number, line in enumerate(lines):
         if not in_code[number] or not WHERE.match(line.lstrip(" ")):
             continue
-        base = indent_of(line)
-        # The clause continues on the lines below that are indented more than WHERE.
-        continuation = []
-        for below in range(number + 1, len(lines)):
-            if not in_code[below] or not lines[below].strip():
-                continue
-            if indent_of(lines[below]) <= base:
-                break
-            continuation.append(below)
-        if not continuation:
-            continue
-        nearest = min(indent_of(lines[below]) for below in continuation)
-        if compact and nearest >= base + 4:
+        continuation = lines_below(lines, in_code, number)
+        if continuation and min(indent_of(lines[below]) for below in continuation) >= indent_of(line) + 4:
             for below in continuation:
                 lines[below] = lines[below][2:]
-        elif not compact and nearest == base + 2:
-            for below in continuation:
-                lines[below] = "  " + lines[below]
+
+
+def join_first_item(lines: list, keyword: "re.Pattern", only_names: bool) -> None:
+    """Put the first item on the line of the keyword, and line the next ones up under it.
+
+    SQLFluff writes the keyword on its own line and the items 4 deeper. The
+    lines below the first item move to the right, to the column where the first
+    item now starts. With only_names, only the lines that were 4 deeper move:
+    the names and closing brackets of CTEs, and not their bodies.
+    """
+    in_code, _ = scan(lines)
+    number = 0
+    while number < len(lines):
+        line = lines[number]
+        if in_code[number] and keyword.match(line.strip(" ")):
+            base = indent_of(line)
+            continuation = lines_below(lines, in_code, number)
+            first = continuation[0] if continuation else None
+            if first == number + 1 and indent_of(lines[first]) == base + 4 and not lines[first].lstrip().startswith("--"):
+                shift = " " * (len(line.strip(" ")) + 1 - 4)
+                for below in continuation[1:]:
+                    if not only_names or indent_of(lines[below]) == base + 4:
+                        lines[below] = shift + lines[below]
+                lines[number] = line + " " + lines[first].lstrip(" ")
+                del lines[first], in_code[first]
+        number += 1
+
+
+def separate_statements(lines: list) -> None:
+    """Add an empty line after a semicolon that ends a statement.
+
+    The next statement must start at the left margin. This leaves the
+    statements inside the body of a procedure together.
+    """
+    _, ends_statement = scan(lines)
+    for number in range(len(lines) - 2, -1, -1):
+        following = lines[number + 1]
+        if ends_statement[number] and following.strip() and indent_of(following) == 0:
+            lines.insert(number + 1, "")
+
+
+def make_compact(sql: str) -> str:
+    lines = sql.split("\n")
+    indent_where_by_two(lines)
+    join_first_item(lines, WITH, only_names=True)
+    join_first_item(lines, SELECT, only_names=False)
+    separate_statements(lines)
     return "\n".join(lines)
 
 
 def main() -> None:
     args = sys.argv[1:]
     sqlfluff = find_sqlfluff()
-    reads_stdin = len(args) > 1 and args[0] in ("fix", "lint") and args[-1] == "-"
-    if not reads_stdin or has_project_config(args):
+    command = args[0] if args else ""
+    fixes_stdin = command == "fix" and len(args) > 1 and args[-1] == "-"
+    if not (fixes_stdin or command == "lint") or has_project_config(args):
         os.execv(sqlfluff, [sqlfluff] + args)
+    if command == "lint":
+        os.execv(sqlfluff, [sqlfluff] + without_indentation_rule(args))
 
+    result = subprocess.run([sqlfluff] + args, stdin=sys.stdin.buffer, capture_output=True)
     # surrogateescape passes bytes that are not UTF-8 through unchanged.
-    sql = sys.stdin.buffer.read().decode("utf-8", "surrogateescape")
-    if args[0] == "lint":
-        sql = move_where_lines(sql, compact=False)
-    result = subprocess.run([sqlfluff] + args, input=sql.encode("utf-8", "surrogateescape"), capture_output=True)
-    output = result.stdout.decode("utf-8", "surrogateescape")
-    if args[0] == "fix":
-        output = move_where_lines(output, compact=True)
+    output = make_compact(result.stdout.decode("utf-8", "surrogateescape"))
     sys.stdout.buffer.write(output.encode("utf-8", "surrogateescape"))
     sys.stderr.buffer.write(result.stderr)
     sys.exit(result.returncode)
