@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""sqlfluff-compact: SQLFluff, plus four layout changes that it has no setting for.
+"""sqlfluff-compact: SQLFluff, plus five layout changes that it has no setting for.
 
 1. AND and OR are indented by 2 under WHERE, so that the conditions line up:
 
@@ -9,11 +9,9 @@
 2. The first CTE stands on the line of WITH, and the next ones line up under it:
 
        WITH first AS (
-               SELECT ...
-            ),
+               SELECT ...),
             second AS (
-               SELECT ...
-            )
+               SELECT ...)
        SELECT ...
 
 3. The first column stands on the line of SELECT, and the next lines of the
@@ -23,12 +21,16 @@
               c
        FROM t
 
-4. An empty line follows the semicolon that ends a statement.
+4. In a query, a closing bracket ends the line before it. It does not start a
+   line of its own. In other statements, such as CREATE TABLE, it stays on its
+   own line.
+
+5. An empty line follows the semicolon that ends a statement.
 
 The script takes the same arguments as sqlfluff:
 
-- `fix ... -` formats the SQL on standard input, then makes the four changes.
-- `lint` runs without the indentation rule (LT02), which would report 1 to 3.
+- `fix ... -` formats the SQL on standard input, then makes the five changes.
+- `lint` runs without the rules LT02 and LT07, which would report 1 to 4.
 - Every other command goes to sqlfluff unchanged.
 
 In a project that has its own SQLFluff config, every command goes to sqlfluff
@@ -48,6 +50,11 @@ WHERE = re.compile(r"WHERE\b", re.IGNORECASE)
 WITH = re.compile(r"WITH$", re.IGNORECASE)
 SELECT = re.compile(r"SELECT( DISTINCT)?$", re.IGNORECASE)
 DOLLAR_QUOTE = re.compile(r"\$[A-Za-z_]*\$")
+FIRST_WORD = re.compile(r"\s*([A-Za-z]+)")
+# The closing brackets that start a line, with the comma or semicolon after them.
+CLOSING_BRACKETS = re.compile(r"\s*\)+[,;]?")
+# The statements that count as queries: the first word of each.
+QUERIES = {"SELECT", "WITH", "INSERT"}
 
 USER_CONFIG = os.path.expanduser("~/.config/sqlfluff/.sqlfluff")
 
@@ -103,35 +110,38 @@ def has_project_config(args: list) -> bool:
     return False
 
 
-def without_indentation_rule(args: list) -> list:
-    """Return the arguments of `lint` with LT02 added to the excluded rules.
+def without_layout_rules(args: list) -> list:
+    """Return the arguments of `lint` with LT02 and LT07 added to the excluded rules.
+
+    LT02 checks indentation, and LT07 wants the closing bracket of a CTE on a new line.
 
     --exclude-rules on the command line replaces the list in the config, so the
     list from the user's config goes on the command line too.
     """
     for position, arg in enumerate(args):
         if arg == "--exclude-rules" and position + 1 < len(args):
-            return args[: position + 1] + [args[position + 1] + ",LT02"] + args[position + 2 :]
+            return args[: position + 1] + [args[position + 1] + ",LT02,LT07"] + args[position + 2 :]
         if arg.startswith("--exclude-rules="):
-            return args[:position] + [arg + ",LT02"] + args[position + 1 :]
+            return args[:position] + [arg + ",LT02,LT07"] + args[position + 1 :]
     config = configparser.ConfigParser(interpolation=None)
     config.read(USER_CONFIG)
     excluded = config.get("sqlfluff", "exclude_rules", fallback="")
     rules = ",".join(rule.strip() for rule in excluded.split(",") if rule.strip())
-    return args[:1] + ["--exclude-rules", (rules + "," if rules else "") + "LT02"] + args[1:]
+    return args[:1] + ["--exclude-rules", (rules + "," if rules else "") + "LT02,LT07"] + args[1:]
 
 
 def scan(lines: list) -> tuple:
-    """Say two things about each line.
+    """Return two things for each line.
 
     - Whether it starts in code: not inside a string or a block comment.
-    - Whether its code ends with a semicolon. A comment after the semicolon doesn't count.
+    - Its code: the line with every comment and the contents of every string
+      replaced by spaces. A bracket or a semicolon in the code is a real one.
     """
-    starts_in_code, ends_statement = [], []
+    starts_in_code, code = [], []
     inside = None  # None in code, else the mark that ends the string or comment
     for line in lines:
         starts_in_code.append(inside is None)
-        last_code_char = ""
+        kept = []
         position = 0
         while position < len(line):
             char, pair = line[position], line[position : position + 2]
@@ -140,29 +150,35 @@ def scan(lines: list) -> tuple:
                     break
                 if pair == "/*":
                     inside, position = "*/", position + 2
+                    kept.append("  ")
                     continue
                 dollar_quote = DOLLAR_QUOTE.match(line, position)
                 if dollar_quote:
                     inside, position = dollar_quote.group(), dollar_quote.end()
-                    last_code_char = "$"
+                    kept.append(dollar_quote.group())
                     continue
                 if char in "'\"`":
                     inside = char
-                if not char.isspace():
-                    last_code_char = char
+                kept.append(char)
             elif len(inside) > 1:  # a block comment or a dollar-quoted string
                 if line.startswith(inside, position):
+                    kept.append("  " if inside == "*/" else inside)
                     position += len(inside)
                     inside = None
                     continue
+                kept.append(" ")
             elif char == "\\":
+                kept.append(" " * len(pair))
                 position += 2
                 continue
             elif char == inside:
                 inside = None
+                kept.append(char)
+            else:
+                kept.append(" ")
             position += 1
-        ends_statement.append(inside is None and last_code_char == ";")
-    return starts_in_code, ends_statement
+        code.append("".join(kept).ljust(len(line)))
+    return starts_in_code, code
 
 
 def indent_of(line: str) -> int:
@@ -227,16 +243,69 @@ def join_first_item(lines: list, keyword: "re.Pattern", only_names: bool) -> Non
         number += 1
 
 
+def statement_kinds(in_code: list, code: list) -> list:
+    """Return, for each line, the first word of the statement that the line belongs to."""
+    kinds = []
+    kind = None
+    for starts, text in zip(in_code, code):
+        if kind is None and starts:
+            word = FIRST_WORD.match(text)
+            if word:
+                kind = word.group(1).upper()
+        kinds.append(kind)
+        if text.rstrip().endswith(";"):
+            kind = None
+    return kinds
+
+
+def close_brackets_inline(lines: list) -> None:
+    """In a query, move a closing bracket that starts a line to the end of the line before it.
+
+    What follows the bracket on its line moves with it, as in `) AS total,`.
+    If that text opens a new bracket, as in `), second AS (`, it stays on its line.
+    The bracket stays where it is if the line before it ends with a comment,
+    because the comment would swallow the bracket.
+    """
+    in_code, code = scan(lines)
+    kinds = statement_kinds(in_code, code)
+    number = 1
+    while number < len(lines):
+        closing = CLOSING_BRACKETS.match(code[number]) if code[number].lstrip().startswith(")") else None
+        before = number - 1
+        movable = (
+            closing
+            and in_code[number]
+            and kinds[number] in QUERIES
+            and code[before].strip()
+            and len(code[before].rstrip()) == len(lines[before].rstrip())
+        )
+        if not movable:
+            number += 1
+            continue
+        rest = code[number][closing.end() :]
+        if rest.count("(") > rest.count(")"):
+            moved = closing.group().strip()
+            lines[before] = lines[before].rstrip() + moved
+            lines[number] = " " * indent_of(lines[number]) + lines[number][closing.end() :].lstrip()
+            in_code, code = scan(lines)
+            number += 1
+        else:
+            lines[before] = lines[before].rstrip() + lines[number].strip()
+            del lines[number]
+            in_code, code = scan(lines)
+            kinds = statement_kinds(in_code, code)
+
+
 def separate_statements(lines: list) -> None:
     """Add an empty line after a semicolon that ends a statement.
 
     The next statement must start at the left margin. This leaves the
     statements inside the body of a procedure together.
     """
-    _, ends_statement = scan(lines)
+    _, code = scan(lines)
     for number in range(len(lines) - 2, -1, -1):
         following = lines[number + 1]
-        if ends_statement[number] and following.strip() and indent_of(following) == 0:
+        if code[number].rstrip().endswith(";") and following.strip() and indent_of(following) == 0:
             lines.insert(number + 1, "")
 
 
@@ -245,6 +314,7 @@ def make_compact(sql: str) -> str:
     indent_where_by_two(lines)
     join_first_item(lines, WITH, only_names=True)
     join_first_item(lines, SELECT, only_names=False)
+    close_brackets_inline(lines)
     separate_statements(lines)
     return "\n".join(lines)
 
@@ -257,7 +327,7 @@ def main() -> None:
     if not (fixes_stdin or command == "lint") or has_project_config(args):
         os.execv(sqlfluff, [sqlfluff] + args)
     if command == "lint":
-        os.execv(sqlfluff, [sqlfluff] + without_indentation_rule(args))
+        os.execv(sqlfluff, [sqlfluff] + without_layout_rules(args))
 
     result = subprocess.run([sqlfluff] + args, stdin=sys.stdin.buffer, capture_output=True)
     # surrogateescape passes bytes that are not UTF-8 through unchanged.
