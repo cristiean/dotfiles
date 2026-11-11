@@ -1,6 +1,5 @@
-# Dev and work tools, installed only when needed. Comment out what this Mac
-# doesn't need, then run:
-#   brew bundle --file=~/.config/Brewfile.develop
+# Dev and work tools. setup.sh lists them unchecked: check the ones that this
+# Mac needs.
 
 # Containers and Kubernetes
 cask "orbstack"            # Docker and Linux VMs (replaces Docker Desktop)
@@ -12,7 +11,6 @@ brew "kind"                # local clusters in Docker
 brew "argocd"
 brew "crane"               # inspect container images and registries
 cask "freelens"            # Kubernetes GUI
-cask "openlens"            # Kubernetes GUI
 
 # Cloud and VPN
 brew "awscli"
@@ -21,6 +19,7 @@ brew "wireguard-tools"
 
 # Databases
 cask "dbeaver-community"
+brew "sqlfluff"            # SQL linter and formatter; VS Code's SQLFluff extension runs it
 
 # AI
 cask "claude-code"

@@ -1,4 +1,4 @@
-# Installed on every Mac by setup.sh. Dev/work tools: Brewfile.develop
+# Apps and CLIs that setup.sh lists checked. Dev and work tools: Brewfile.develop
 
 brew "blueutil"
 brew "coreutils"

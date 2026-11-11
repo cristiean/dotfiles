@@ -8,6 +8,7 @@ zsh/.zcompdump
 
 # Machine-specific
 zsh/.zshrc.local
+Brewfile.local
 
 # Test runs of a skill (see "Agent skills" in the README)
 skills/*-workspace/

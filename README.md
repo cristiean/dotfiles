@@ -1,134 +1,155 @@
 # dotfiles
 
-My macOS setup: shell, git, terminal, apps and system settings. It lives in `~/.config`, and a new Mac is set up from it with one script.
+My macOS setup: shell, git, terminal, apps and system settings. It lives in `~/.config`, and one script sets up a new Mac from it.
 
-## 1. Run the setup script
+## Set up a new Mac
 
-On a new Mac, open Terminal and run this. No GitHub login is needed:
+### 1. Run the setup script
+
+On the new Mac, open Terminal and run this command. It needs no GitHub login:
 
 ```sh
 zsh -c "$(curl -fsSL https://raw.githubusercontent.com/cristiean/dotfiles/master/setup.sh)"
 ```
 
-It's safe to run again; every step checks before it acts. It:
+The script does the following:
 
-- Installs Homebrew, with the Xcode Command Line Tools (git)
-- Clones this repo to `~/.config` and writes `~/.zshenv`, so zsh loads its config from `~/.config/zsh`
-- Makes commits to this repo use your personal name and email, even on a work Mac
-- Installs every app and CLI in the `Brewfile`
-- Points iTerm2 at `~/.config/iterm2` for its settings
-- Links the [agent skills](#agent-skills) in `~/.config/skills` into Claude Code and Codex
-- Applies the macOS settings listed under [What `setup.sh` sets](#what-setupsh-sets)
+- Installs Homebrew and, with it, the Xcode Command Line Tools, which provide git.
+- Clones the dotfiles to `~/.config` and writes `~/.zshenv`, so that zsh loads its config from `~/.config/zsh`.
+- Makes commits to the dotfiles use your personal name and email, even on a work Mac.
+- Shows a list of apps and CLIs, and installs the entries that you leave checked.
+- Points iTerm2 at `~/.config/iterm2` for its settings.
+- Builds BluetoothBar from `menubar/` and starts it. Allow Bluetooth when macOS asks.
+- Links the [agent skills](#agent-skills) in `~/.config/skills` into Claude Code and Codex.
+- Applies the macOS settings listed under [What `setup.sh` sets](#what-setupsh-sets).
 
-Then **log out and back in**, and open iTerm2.
+In the list of apps and CLIs, the entries of `Brewfile` start checked. The entries of `Brewfile.develop` start unchecked: they are dev and work tools, such as Kubernetes, AWS, OrbStack, DBeaver and Claude Code. Move with the arrow keys, press Space to check or uncheck an entry, and press Enter to install the checked entries. The list shows the other keys at the top.
 
-Dev and work tools (Kubernetes, AWS, OrbStack, DBeaver, Claude Code) are in `Brewfile.develop`. Comment out what this Mac doesn't need, then run:
+The script saves the choice in `~/.config/Brewfile.local`, which git ignores, and the next run starts from that choice. To change the choice later, run `~/.config/setup.sh` again.
+
+The script is safe to run again, because every step checks before it acts.
+
+When the script finishes, log out and log back in. Then open iTerm2.
+
+### 2. Log in to git
+
+Git logs in to a service with an SSH key, and each Mac has one key for each service. The `ssh-key` command creates the key and copies its public key to the clipboard. For GitHub and for any GitLab, it also prints the exact page to paste the key into and a command to test the key.
+
+When `ssh-key` asks for a passphrase, set one. The Keychain remembers it. You can paste the public key from any device, because a public key isn't secret.
+
+[Which key does what](#which-key-does-what) explains what each kind of key can reach.
+
+#### On a personal Mac
+
+Use one key for your whole GitHub account. Every repo then works, the dotfiles included.
+
+Create the key and paste it into the SSH keys page of your GitHub account:
 
 ```sh
-brew bundle --file=~/.config/Brewfile.develop
+ssh-key github.com
 ```
 
-## 2. Log in to git
-
-Git logs in with SSH keys, one per Mac and service. The `ssh-key` command creates one, copies its public key to the clipboard and prints the page to paste it into. When it asks for a passphrase, set one; the Keychain remembers it. Pasting can be done from any device, because the public key isn't secret.
-
-**Personal Mac.** One key for your whole GitHub account, so every repo works, these dotfiles included:
+Then make the dotfiles push with that key:
 
 ```sh
-ssh-key github.com                     # paste the key into your GitHub account's SSH keys page
 git -C ~/.config remote set-url --push origin git@github.com:cristiean/dotfiles.git
 ```
 
-The second line makes the dotfiles push with that key. Other repos just need SSH clone URLs (`git@github.com:owner/repo.git`).
+Other repos need only an SSH clone URL, such as `git@github.com:owner/repo.git`.
 
-**Work Mac.** Your personal GitHub account stays off it:
+#### On a work Mac
+
+Keep your personal GitHub account off a work Mac. Create a key for the company's git host, `gitlab.company.com` in this example, and paste it into your work account there:
 
 ```sh
-ssh-key gitlab.company.com             # the company's git host, with your work account
-~/.config/setup.sh --push-access       # optional: lets this Mac push the dotfiles, and nothing else
+ssh-key gitlab.company.com
 ```
 
-For a company on GitHub instead, run `ssh-key github.com` and paste the key into your *work* GitHub account. `--push-access` asks you to paste its key into this repo's Deploy keys page and tick **Allow write access**.
+If the company uses GitHub, run `ssh-key github.com` and paste the key into your *work* GitHub account.
 
-`ssh-key` prints the exact page to paste each key into, for GitHub and for any GitLab, and a command to test the key.
+To let the work Mac push the dotfiles, and nothing else, run:
 
-On a work Mac, also set your work email for work repos. This repo keeps your personal one either way:
+```sh
+~/.config/setup.sh --push-access
+```
+
+The command asks you to paste a key into the Deploy keys page of the dotfiles repo and to select **Allow write access**.
+
+Then set your work email for work repos. The dotfiles keep your personal email either way:
 
 ```sh
 git config --file ~/.gitconfig user.email "you@company.com"
 ```
 
-### Which key does what
+#### Two accounts on one service
 
-- **Account key** (`ssh-key`): lets git act as you on that service, with access to every repo your account can reach.
-- **Deploy key** (`--push-access`): attached to this one repo instead of an account, so it can push here and nothing else. That's why a work Mac can push dotfiles without your personal GitHub account being logged in on it.
-- **GPG / signing key**: proves who wrote a commit (GitHub shows it as *Verified*). It grants no access, and this setup doesn't use one.
-
-When you stop using a Mac, delete its keys on those pages.
-
-Two accounts on the same service on one Mac, e.g. personal and work GitHub: give the second one its own name, and use that name in its clone URLs:
+One Mac can use two accounts on the same service, for example a personal and a work GitHub account. Give the second account its own name, and use that name in its clone URLs:
 
 ```sh
 ssh-key github.com github-work
 git clone git@github-work:company/repo.git
 ```
 
-## 3. App permissions and licenses
+### 3. Set up the apps
 
-Open each app once and grant what it asks for:
+Open each app once and do what this list says:
 
-- **LinearMouse**: Accessibility permission
-- **Rectangle**: Accessibility permission. Turn off macOS's own window tiling. Turn off *Animate footprint*, turn on *Haptic feedback*.
-- **Karabiner-Elements**: permissions (its config is already in `~/.config/karabiner`)
-- **Stats**: import settings from the file `~/.config/Stats.plist`
-- **Rocket**: permissions, enter the license. *Start at Login*, *Fuzzy search*, *Double key trigger*, *Size: Large*.
-- **Vivid**: permissions, enter the license
-- **VS Code**: sign in to Settings Sync with GitHub and let it pull your settings
+- LinearMouse: grant the Accessibility permission.
+- Rectangle: grant the Accessibility permission, and turn off the window tiling of macOS itself. In Rectangle, turn off **Animate footprint** and turn on **Haptic feedback**.
+- Karabiner-Elements: grant the permissions that it asks for. Its config is already in `~/.config/karabiner`.
+- Stats: import the settings from the file `~/.config/Stats.plist`.
+- Rocket: grant the permissions that it asks for and enter the license. Turn on **Start at Login**, **Fuzzy search** and **Double key trigger**, and set **Size** to **Large**.
+- Vivid: grant the permissions that it asks for and enter the license.
+- VS Code: sign in to Settings Sync with GitHub and let it pull your settings. Its SQL formatter runs the `sqlfluff` command, so check `sqlfluff` in the list of apps on a Mac where you format SQL.
 
-## 4. System Settings (manual)
+### 4. Change System Settings by hand
 
 The script can't set these:
 
-- **General → AirDrop & Handoff**: allow Handoff
-- **Desktop & Dock**: Dock size ⅓, magnification ½
-- **Control Center**: hide Spotlight from the menu bar
-- **Displays**: *More Space*; Night Shift from sunset to sunrise
-- **Keyboard → Text Input**: add your native language
-- **Trackpad**: tracking speed 6/10, click *Light*
-- **Internet Accounts**: add personal and work Mail and Calendar accounts
-- **Wallet & Apple Pay**: add cards
-- **Messages**: turn on *Messages in iCloud*
-- **Finder**: set up the Favourites sidebar
-
-## What `setup.sh` sets
-
-You don't need to do these by hand:
-
-- **Dock**: auto-hide, *Scale effect*, minimise into the app icon
-- **Mission Control**: don't rearrange Spaces automatically
-- **Hot corner**: bottom right starts the screensaver
-- **Finder**: path bar and status bar
-- **Appearance**: scroll bars only while scrolling
-- **Keyboard**: fastest key repeat, shortest delay before repeat
-- **Typing**: no autocorrect, auto-capitalisation, double-space full stop or smart quotes and dashes
-- **Menu bar**: tighter icon spacing, so fewer icons hide under the notch
-
-## Editing a command
-
-Like in a macOS text field (set up in `zsh/.zshrc` and the iTerm2 profile):
-
-| Keys | Does |
+| Where | What to set |
 |---|---|
-| Cmd+←/→, Opt+←/→ | jump to line start/end, word back/forward |
-| Cmd+Delete, Opt+Delete | delete the line, the word before the cursor |
-| Shift + any of those arrows | select; the selection is copied to the clipboard |
-| type / paste / Delete / Cmd+X | replace / replace / remove / cut the selection |
+| General > AirDrop & Handoff | Allow Handoff |
+| Desktop & Dock | Dock size ⅓, magnification ½ |
+| Control Center | Hide Spotlight from the menu bar |
+| Displays | **More Space**, and Night Shift from sunset to sunrise |
+| Keyboard > Text Input | Add your native language |
+| Trackpad | Tracking speed 6/10, click **Light** |
+| Internet Accounts | Add the personal and work Mail and Calendar accounts |
+| Wallet & Apple Pay | Add cards |
+| Messages | Turn on **Messages in iCloud** |
+| Finder | Set up the Favourites sidebar |
 
-Terminal.app keeps Cmd keys for itself, so there use Ctrl+A, Ctrl+E and Ctrl+U for line start, line end and delete line. The Option and Shift keys work the same.
+[What `setup.sh` sets](#what-setupsh-sets) lists the settings that the script applies for you.
+
+## Keep the dotfiles up to date
+
+On a Mac that is already set up, save its changes to the dotfiles in three steps:
+
+1. List the apps that are installed on this Mac and missing from both Brewfiles. The command only lists them and removes nothing:
+
+   ```sh
+   cd ~/.config
+   cat Brewfile Brewfile.develop | brew bundle cleanup --file=-
+   ```
+
+2. Add the apps that you want to `Brewfile`, whose entries start checked in the list of apps, or to `Brewfile.develop`, whose entries start unchecked.
+
+3. Review the changes. Then commit and push them:
+
+   ```sh
+   git diff
+   git add -u && git commit -m "update" && git push
+   ```
+
+`git add -u` stages only the files that git already tracks. Apps keep caches and logins in `~/.config` too. Before you add a new file with `git add <path>`, check that it holds config, and not state or secrets.
+
+On the other Macs, run `~/.config/setup.sh` again. It pulls the changes and shows the list of apps, where a new entry of `Brewfile` starts checked. The pull keeps the uncommitted changes on that Mac. If a file changed both on that Mac and in the dotfiles, the script names the file and skips the pull.
+
+Shell config for one Mac only, such as work aliases, goes in `~/.config/zsh/.zshrc.local`, which git ignores.
 
 ## Agent skills
 
-A skill is a folder of instructions that a coding agent loads when a task calls for it. Each folder in `skills/` is one skill, and `setup.sh` links it into three places, so every agent reads the same copy:
+A skill is a folder of instructions that a coding agent loads when a task calls for it. Each folder in `skills/` is one skill. `setup.sh` links each skill into three places, so that every agent reads the same copy:
 
 | Agent | Linked into | Call it by name with |
 |---|---|---|
@@ -136,69 +157,93 @@ A skill is a folder of instructions that a coding agent loads when a task calls 
 | Claude Code, personal account (`klaude`) | `~/.claude-personal/skills/` | `/technical-writing` |
 | Codex | `~/.agents/skills/` | `$technical-writing` |
 
-The agents also pick a skill up by themselves when a task matches its description.
+An agent also loads a skill by itself when a task matches the description of the skill.
 
-`skills/technical-writing/` makes an agent write and edit documentation, messages and error text so they read clearly on the first pass. `SKILL.md` holds the rules, `references/` the detail and `SOURCES.md` where each rule comes from.
+The skill in `skills/technical-writing/` makes an agent write and edit documentation, messages and error text so that they read clearly on the first pass. `SKILL.md` holds the rules, `references/` holds the detail and `SOURCES.md` records where each rule comes from.
 
-### Install
+### Install the skills
 
-`setup.sh` installs the skills as part of setting up a Mac. To install or refresh only the skills:
+`setup.sh` installs the skills when it sets up a Mac. To install or refresh only the skills, run:
 
 ```sh
 ~/.config/setup.sh --skills
 ```
 
-It's safe to run again. Check the links, then start a new session in the agent; a session that's already open doesn't see a new skill:
+The command is safe to run again. Check the links:
 
 ```sh
 ls -l ~/.claude/skills ~/.claude-personal/skills ~/.agents/skills
 ```
 
-In Claude Code, type `/` and look for `technical-writing`. In Codex, type `$` or run `/skills`.
+Then start a new session in the agent, because a session that is already open doesn't see a new skill. In Claude Code, type `/` and look for `technical-writing`. In Codex, type `$` or run `/skills`.
 
-Other agents:
+Other agents need a different install:
 
-- **Claude desktop or web chat, Cowork and cloud sessions** don't read these folders. Upload the skill folder as a zip file in the app's skills settings, and upload it again after each change.
-- **Any other agent that supports skills**: link `~/.config/skills/technical-writing` into that agent's personal skills folder.
-- **An agent without skills**: tell it to read `~/.config/skills/technical-writing/SKILL.md` before it writes.
+- Claude desktop or web chat, Cowork and cloud sessions don't read these folders. Upload the skill folder as a zip file in the skills settings of the app, and upload it again after each change.
+- For any other agent that supports skills, link `~/.config/skills/technical-writing` into the personal skills folder of that agent.
+- For an agent without skills, tell the agent to read `~/.config/skills/technical-writing/SKILL.md` before it writes.
 
 ### Change or add a skill
 
-To change a skill, edit its files; the links mean every agent sees the change in its next session. To add one, create `skills/<name>/SKILL.md` and run `~/.config/setup.sh --skills`.
+To change a skill, edit its files. Because each agent reads the skill through a link, every agent sees the change in its next session. To add a skill, create `skills/<name>/SKILL.md` and run `~/.config/setup.sh --skills`.
 
-Test prompts for a skill live in its `evals/` folder. The outputs of a test run go to `skills/<name>-workspace/`, which git ignores.
+The test prompts for a skill are in its `evals/` folder. A test run writes its outputs to `skills/<name>-workspace/`, which git ignores.
 
-## Keeping the dotfiles up to date
+## Reference
 
-On a Mac that's already set up:
+### What `setup.sh` sets
 
-```sh
-cd ~/.config
-# Apps installed here but missing from both Brewfiles (lists only, removes nothing)
-cat Brewfile Brewfile.develop | brew bundle cleanup --file=-
-# Add the ones you want to Brewfile (every Mac) or Brewfile.develop (as needed), then:
-git diff
-git add -u && git commit -m "update" && git push
-```
+The setup script applies these macOS settings, so you don't need to set them by hand:
 
-`git add -u` only stages files that are already tracked. Apps keep caches and logins in `~/.config` too, so add a new file with `git add <path>` only once you've checked it's config, not state or secrets.
+| Area | Setting |
+|---|---|
+| Dock | Auto-hide, **Scale effect**, minimise into the app icon |
+| Mission Control | Spaces keep a fixed order |
+| Hot corner | Bottom right starts the screensaver |
+| Finder | Path bar and status bar |
+| Appearance | Scroll bars only while scrolling |
+| Keyboard | Fastest key repeat, shortest delay before repeat |
+| Typing | No autocorrect, auto-capitalisation, double-space full stop, smart quotes or smart dashes |
+| Menu bar | Tighter icon spacing, so fewer icons hide under the notch |
 
-On the other Macs, run `~/.config/setup.sh` again to pull the changes and install anything new.
+### Which key does what
 
-Shell config for one Mac only, like work aliases, goes in `~/.config/zsh/.zshrc.local`, which git ignores.
+- An account key, which `ssh-key` creates, lets git act as you on that service. It has access to every repo that your account can reach.
+- A deploy key, which `setup.sh --push-access` creates, is attached to the dotfiles repo and not to an account. It can push to the dotfiles and to nothing else. That is why a work Mac can push the dotfiles without your personal GitHub account being logged in on it.
+- A GPG key, or signing key, proves who wrote a commit. GitHub shows such a commit as **Verified**. A signing key grants no access, and this setup doesn't use one.
 
-## What's where
+When you stop using a Mac, delete its keys on the pages where you pasted them.
+
+### Keys for editing a command
+
+The command line takes the same editing keys as a macOS text field. `zsh/.zshrc` and the iTerm2 profile set them up.
+
+| Keys | What they do |
+|---|---|
+| Cmd+← and Cmd+→ | Jump to the start or the end of the line |
+| Option+← and Option+→ | Jump one word back or forward |
+| Cmd+Delete | Delete the line |
+| Option+Delete | Delete the word before the cursor |
+| Shift with any of the arrow keys above | Select. The selection is copied to the clipboard. |
+| Any character, or a paste | Replace the selection |
+| Delete | Remove the selection |
+| Cmd+X | Cut the selection |
+
+Terminal.app keeps the Cmd keys for itself. In Terminal.app, use Ctrl+A for the start of the line, Ctrl+E for the end of the line and Ctrl+U to delete the line. The Option and Shift keys work the same.
+
+### What's where
 
 | Path | What it is |
 |---|---|
-| `setup.sh` | sets up a Mac (see above) |
-| `bin/ssh-key` | logs a Mac in to a git host with an SSH key |
-| `menubar/` | BluetoothBar: menu bar icons for the AirPods and keyboard. Right-click toggles: AirPods connect/disconnect, keyboard pair/unpair; left-click shows a menu (logic in `zsh/bluetooth.zsh`) |
+| `setup.sh` | Sets up a Mac. See [Set up a new Mac](#set-up-a-new-mac). |
+| `Brewfile`, `Brewfile.develop` | Apps and CLIs for the list in `setup.sh`. The entries of `Brewfile` start checked, and the entries of `Brewfile.develop` start unchecked. |
+| `bin/ssh-key` | Logs a Mac in to a git host with an SSH key |
 | `bin/imgls` | iTerm2's `imgls` with 20x10 thumbnails, names centred on images, and the right highlighting for env files |
-| `Brewfile`, `Brewfile.develop` | apps and CLIs: every Mac, and as needed |
-| `zsh/` | shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo` (open the repo page at this branch and folder) |
-| `git/config`, `git/ignore` | global git settings and ignore rules |
-| `skills/` | [agent skills](#agent-skills) for Claude Code and Codex |
-| `iterm2/` | iTerm2 settings (profile *calm*); shell integration loads from the app itself |
-| `karabiner/`, `linearmouse/`, `Stats.plist` | keyboard, mouse and menu bar app settings |
-| `useful-commands` | one-off commands worth remembering |
+| `zsh/` | Shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo`, which opens the repo page at this branch and folder. |
+| `git/config`, `git/ignore` | Global git settings and ignore rules |
+| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: the SQL dialect to use when a project sets none |
+| `iterm2/` | iTerm2 settings, with the profile `calm`. Shell integration loads from the app itself. |
+| `karabiner/`, `linearmouse/`, `Stats.plist` | Keyboard, mouse and menu bar app settings |
+| `menubar/` | BluetoothBar: menu bar icons for the AirPods and the keyboard. A right-click toggles the device: it connects or disconnects the AirPods, and pairs or unpairs the keyboard. A left-click shows a menu. The logic is in `zsh/bluetooth.zsh`. |
+| `skills/` | [Agent skills](#agent-skills) for Claude Code and Codex |
+| `useful-commands` | One-off commands worth remembering |
