@@ -27,10 +27,16 @@ indented_ctes = True
 # The first condition follows WHERE on the same line. A line that starts with
 # AND or OR is indented below it.
 implicit_indents = require
+# SQLFluff leaves the indentation inside ALTER TABLE as you wrote it. Without
+# this, it moves the ADD COLUMN lines back to the left margin.
+skip_indentation_in = script_content, alter_table_statement
 
 # Upper case for keywords (SELECT) and for NULL, TRUE and FALSE.
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
+# SQLFluff reads the ClickHouse type Tuple as a keyword. Type names are
+# case-sensitive in ClickHouse, so Tuple keeps its case.
+ignore_words = tuple
 
 [sqlfluff:rules:capitalisation.literals]
 capitalisation_policy = upper
@@ -48,6 +54,16 @@ multiline_newline = True
 [sqlfluff:layout:type:function_contents]
 spacing_before = touch:inline
 spacing_within = touch:inline
+
+# The data types of a column list line up in one column:
+#     id        UInt32,
+#     long_name Nullable(String),
+# The setting applies inside one pair of brackets. The types inside a type,
+# such as String in Nullable(String), stay where they are.
+[sqlfluff:layout:type:data_type]
+spacing_before = align
+align_within = bracketed
+align_scope = bracketed_arguments
 
 # Each clause starts a line: SELECT, FROM, JOIN, WHERE, GROUP BY, HAVING,
 # ORDER BY and LIMIT. The exception is a subquery inside an expression, such as
