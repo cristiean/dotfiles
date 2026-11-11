@@ -2,13 +2,15 @@
 # sql-format: format SQL with SQLFluff. It reads the SQL from standard input
 # and prints the result.
 #
-#   pbpaste | sql-format
+#   pbpaste | sql-format                        dialect from SQLFluff's config
+#   pbpaste | sql-format postgres               parse the SQL as PostgreSQL
+#   pbpaste | sql-format clickhouse postgres    use the first dialect that can
+#                                               parse the SQL
 #
 # DBeaver's SQL formatter runs this script (dbeaver/org.jkiss.dbeaver.core.prefs).
 # DBeaver replaces the SQL in the editor with everything that the command
 # prints, error messages included. So this script prints only SQL: if SQLFluff
-# cannot format the input, for example because it cannot parse it, the script
-# prints the input unchanged.
+# cannot parse the input, the script prints the input unchanged.
 #
 # SQLFluff takes its settings from ~/.config/sqlfluff/.sqlfluff, and from the
 # config of the project when you run the script inside one.
@@ -16,11 +18,29 @@
 # DBeaver starts without Homebrew on its PATH.
 PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 
+# The rules that change layout and case. They leave the meaning of the SQL
+# alone. VS Code has the same list in its setting sqlfluff.format.arguments.
+rules=capitalisation,layout,ambiguous.union,convention.not_equal,convention.coalesce,convention.select_trailing_comma,convention.is_null,jinja.padding,structure.distinct,convention.terminator
+
 # The x keeps the newlines at the end of the input, which $(...) removes.
 sql=$(cat; printf x)
 sql=${sql%x}
 
-formatted=$(printf '%s' "$sql" | sqlfluff format - 2>/dev/null)
+errors=$(mktemp)
+trap 'rm -f "$errors"' EXIT
+
+# With no dialect named, try once with the dialect from SQLFluff's config.
+[ $# -gt 0 ] || set -- ''
+
+formatted=
+for dialect; do
+    formatted=$(printf '%s' "$sql" | sqlfluff fix --rules "$rules" ${dialect:+--dialect "$dialect"} - 2>"$errors")
+    if [ -n "$formatted" ] && ! grep -q 'parsing errors found' "$errors"; then
+        break
+    fi
+    formatted=
+done
+
 if [ -z "$formatted" ]; then
     printf '%s' "$sql"
     exit

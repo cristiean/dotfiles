@@ -262,8 +262,8 @@ To change a key, open **Settings > User Interface > Keys** in DBeaver. DBeaver s
 | `bin/imgls` | iTerm2's `imgls` with 20x10 thumbnails, names centred on images, and the right highlighting for env files |
 | `zsh/` | Shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo`, which opens the repo page at this branch and folder. |
 | `git/config`, `git/ignore` | Global git settings and ignore rules |
-| `bin/sql-format` | Formats the SQL on standard input with SQLFluff. The SQL formatter of DBeaver runs it. |
-| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: the SQL dialect to use when a project sets none, and upper case for keywords, function names, literals and data types |
+| `bin/sql-format` | Formats the SQL on standard input with SQLFluff. The SQL formatter of DBeaver runs it. To parse the SQL as another dialect, name the dialect: `pbpaste \| sql-format postgres`. |
+| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: ClickHouse as the dialect when a project sets none, upper case for keywords, and a compact layout. A list of columns stays on one line while it fits, and each clause starts a line. |
 | `iterm2/` | iTerm2 settings, with the profile `calm`. Shell integration loads from the app itself. |
 | `dbeaver/` | DBeaver preferences, such as the SQL formatter and the [keys](#keys-in-dbeaver). `setup.sh` links the settings folder of DBeaver to this folder. Git tracks four preference files and ignores the files that hold window state. |
 | `karabiner/`, `linearmouse/`, `Stats.plist` | Keyboard, mouse and menu bar app settings |

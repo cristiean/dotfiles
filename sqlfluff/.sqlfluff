@@ -1,22 +1,93 @@
 # SQLFluff settings for every project on this Mac. SQLFluff reads
 # ~/.config/sqlfluff/.sqlfluff first and a project's own config after it, so a
 # project's settings override the ones here.
+#
+# The layout settings give compact queries. A list of columns stays on one line
+# while it fits, each clause starts a line and a short subquery stays inline.
 
 [sqlfluff]
 # The dialect for SQL in a folder that sets none. SQLFluff cannot detect the
 # dialect, and stops with an error when none is set.
-dialect = postgres
+dialect = clickhouse
 
-# Upper case for keywords (SELECT), function names (COUNT), literals (NULL,
-# TRUE) and data types (DATE). Names of tables and columns keep their case.
+# The longest line that SQLFluff accepts. It breaks a longer line.
+max_line_length = 120
+
+# Rules that are off:
+# - capitalisation.identifiers, capitalisation.functions, capitalisation.types:
+#   names of columns, functions and data types keep their case. ClickHouse
+#   names are case-sensitive, so a query with a changed name fails.
+# - layout.select_targets puts every column of a SELECT on its own line.
+# - layout.cte_newline adds a blank line after every CTE.
+exclude_rules = capitalisation.identifiers, capitalisation.functions, capitalisation.types, layout.select_targets, layout.cte_newline
+
+[sqlfluff:indentation]
+# WITH stands on its own line, and each CTE is indented below it.
+indented_ctes = True
+# The first condition follows WHERE on the same line. A line that starts with
+# AND or OR is indented below it.
+implicit_indents = require
+
+# Upper case for keywords (SELECT) and for NULL, TRUE and FALSE.
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
-
-[sqlfluff:rules:capitalisation.functions]
-extended_capitalisation_policy = upper
 
 [sqlfluff:rules:capitalisation.literals]
 capitalisation_policy = upper
 
-[sqlfluff:rules:capitalisation.types]
-extended_capitalisation_policy = upper
+# A comment may be longer than max_line_length.
+[sqlfluff:rules:layout.long_lines]
+ignore_comment_lines = True
+
+# The semicolon of a statement that spans lines goes on a line of its own.
+[sqlfluff:rules:convention.terminator]
+multiline_newline = True
+
+# No space between the two brackets of a ClickHouse aggregate function that
+# takes parameters, such as quantile(0.9)(x).
+[sqlfluff:layout:type:function_contents]
+spacing_before = touch:inline
+spacing_within = touch:inline
+
+# Each clause starts a line: SELECT, FROM, JOIN, WHERE, GROUP BY, HAVING,
+# ORDER BY and LIMIT. The exception is a subquery inside an expression, such as
+# x IN (SELECT ...), which stays on one line while it fits.
+[sqlfluff:layout:type:select_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression
+
+[sqlfluff:layout:type:from_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression
+
+[sqlfluff:layout:type:join_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression
+
+[sqlfluff:layout:type:where_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression, pipe_operator_clause
+
+[sqlfluff:layout:type:groupby_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression
+
+[sqlfluff:layout:type:having_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression
+
+[sqlfluff:layout:type:orderby_clause]
+line_position = leading
+keyword_line_position = leading
+keyword_line_position_exclusions = expression, window_specification, aggregate_order_by, withingroup_clause, pipe_operator_clause
+
+[sqlfluff:layout:type:limit_clause]
+line_position = alone
+keyword_line_position = leading
+keyword_line_position_exclusions = expression
