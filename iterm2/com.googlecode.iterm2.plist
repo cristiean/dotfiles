@@ -1064,13 +1064,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.78039216995239258</real>
+				<real>0.7803921568627451</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.94509804248809814</real>
+				<real>0.94509803921568625</real>
 				<key>Red Component</key>
-				<real>0.9843137264251709</real>
+				<real>0.98431372549019602</real>
 			</dict>
 			<key>Background Image Location</key>
 			<string></string>
@@ -1307,13 +1307,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.78039216995239258</real>
+				<real>0.7803921568627451</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.94509804248809814</real>
+				<real>0.94509803921568625</real>
 				<key>Red Component</key>
-				<real>0.9843137264251709</real>
+				<real>0.98431372549019602</real>
 			</dict>
 			<key>Cursor Type</key>
 			<integer>2</integer>
@@ -1380,6 +1380,8 @@
 			</dict>
 			<key>Guid</key>
 			<string>A3A68D0B-7841-47C3-9752-A5F2C6ABBD5F</string>
+			<key>HDR Cursor (Light)</key>
+			<true/>
 			<key>Has Hotkey</key>
 			<false/>
 			<key>Hide After Opening</key>
@@ -2056,7 +2058,7 @@
 			<key>Minimum Contrast (Dark)</key>
 			<integer>0</integer>
 			<key>Minimum Contrast (Light)</key>
-			<integer>0</integer>
+			<real>0.0</real>
 			<key>Mouse Reporting</key>
 			<false/>
 			<key>Name</key>
@@ -2488,7 +2490,7 @@
 					</dict>
 					<dict>
 						<key>class</key>
-						<string>iTermStatusBarGitComponent</string>
+						<string>iTermStatusBarSwiftyStringComponent</string>
 						<key>configuration</key>
 						<dict>
 							<key>knobs</key>
@@ -2497,8 +2499,8 @@
 								<integer>1</integer>
 								<key>base: priority</key>
 								<integer>5</integer>
-								<key>iTermStatusBarGitComponentPollingIntervalKey</key>
-								<real>2</real>
+								<key>expression</key>
+								<string>\(user.git)</string>
 								<key>maxwidth</key>
 								<real>1.7976931348623157e+308</real>
 								<key>minwidth</key>
@@ -2625,6 +2627,8 @@
 			<false/>
 			<key>Use Tab Color (Light)</key>
 			<false/>
+			<key>Use Theme Mark Colors</key>
+			<false/>
 			<key>Use Underline Color</key>
 			<false/>
 			<key>Use Underline Color (Dark)</key>
@@ -2685,7 +2689,7 @@
 		</dict>
 	</dict>
 	<key>PreserveWindowSizeWhenTabBarVisibilityChanges</key>
-	<false/>
+	<true/>
 	<key>Print In Black And White</key>
 	<true/>
 	<key>PromptOnQuit</key>
@@ -2698,6 +2702,8 @@
 	<false/>
 	<key>Selection Respects Soft Boundaries</key>
 	<true/>
+	<key>ShowMenuBarItem</key>
+	<false/>
 	<key>SmartPlacement</key>
 	<false/>
 	<key>SoundForEsc</key>
