@@ -174,7 +174,7 @@ Write the callout as an instruction, then the reason: "**Caution:** Back up the 
 - Use a diagram when it shows a structure or a flow that prose would take a paragraph to describe. Refer to it in the text and say what it shows.
 - Give every image alt text that states what the image tells the reader.
 - Do not use a screenshot of text, such as a terminal or an error dialog. Paste the text, so that the reader can search it and copy it.
-- Prefer a vector or text-based diagram that lives in the repository and can be updated in a diff.
+- Prefer a vector or text-based diagram that lives in the repository and can be updated in a diff. For a system or a data flow, draw it in Mermaid in the house style: see [Diagrams](diagrams.md).
 
 ## Writing for readers everywhere
 

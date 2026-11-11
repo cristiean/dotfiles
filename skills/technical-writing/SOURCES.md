@@ -30,6 +30,7 @@ These parts come from no listed source. They were written for the owner's work:
 - The skeletons for a README, runbook, reference entry, design doc, and incident report.
 - Log lines, alerts, and command-line output in `references/interface-text.md`, which extend the Human Interface Guidelines from apps to pipelines and tools.
 - Review comments, PR descriptions, commit messages, and status updates in `references/messages.md`.
+- `references/diagrams.md` and `scripts/render_mermaid.py`, added on 2026-11-11. The style is the one in an architecture document that the owner wrote for a work project: a Mermaid flowchart with groups by owner, cylinders for stores, `<code>` for literals, dotted arrows for conditional flows, and a table of parts and notes under the diagram. The table "Labels that Mermaid misreads" records what the script showed on Mermaid 11.4.1. It is not taken from Mermaid's documentation.
 
 ## How conflicts were settled
 
@@ -52,3 +53,4 @@ These parts come from no listed source. They were written for the owner's work:
 - Keep `SKILL.md` short. It loads whenever the skill triggers. The reference files load only when needed.
 - Test a change on the cases in `evals/` before you keep it, and judge the output on kept facts first, then on clarity.
 - When a source publishes a new edition, read its change log and update the row above.
+- When GitLab or GitHub moves to a new major version of Mermaid, run `scripts/render_mermaid.py` with `MERMAID_VERSION` set to it, and update "Labels that Mermaid misreads" in `references/diagrams.md`. No case in `evals/` covers diagrams yet.

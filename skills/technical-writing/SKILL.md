@@ -6,11 +6,13 @@ description: >-
   tutorials, reference pages, design docs, ADRs, incident reports), messages
   (questions, bug reports, replies, review comments, PR descriptions, commit
   messages, email, chat), and interface text (error messages, CLI output, log
-  lines, alerts). Use this skill whenever you write or revise prose that people
-  will read in a technical or work setting, and whenever the user asks to
-  document something or to tighten, simplify, clean up, shorten, de-fluff, or
-  "humanize" a text, even if they never say "technical writing". Not for
-  fiction, marketing copy, or legal wording.
+  lines, alerts). Also covers the diagrams in those documents: architecture and
+  data-flow diagrams, drawn in Mermaid in a house style. Use this skill
+  whenever you write or revise prose that people will read in a technical or
+  work setting, whenever the user asks to document something or to tighten,
+  simplify, clean up, shorten, de-fluff, or "humanize" a text, and whenever the
+  user asks for a diagram of a system, even if they never say "technical
+  writing". Not for fiction, marketing copy, or legal wording.
 ---
 
 # Technical writing
@@ -45,6 +47,7 @@ The order settles most conflicts:
    - A document: `references/document-types.md`
    - A question, bug report, reply, review comment, PR description, commit message, email, or chat message: `references/messages.md`
    - An error message, CLI output, log line, alert, or label: `references/interface-text.md`
+   - A diagram of a system or a data flow, alone or inside a document: `references/diagrams.md`
 4. **Draft with the point first.** Then add only what supports it.
 5. **Revise the sentences** with the rules below. `references/sentences.md` has before-and-after examples and word lists. Read it for any edit longer than a paragraph.
 6. **Apply the conventions.** `references/conventions.md` covers formatting, code, numbers, dates, lists, links, and word usage. Read it when you produce a document or when a formatting question comes up.
@@ -67,7 +70,7 @@ The steps scale down. For a two-line reply, the whole process is: answer first, 
 
 - **Give each document, and each section, one job.** A tutorial teaches. A how-to guide gets one task done. Reference describes. An explanation gives reasons. Text that tries two of these at once serves neither reader well. A short README can hold several kinds, one per section. Split it into separate documents when a section outgrows the page or serves a different reader.
 - **One topic per paragraph.** Open with the sentence that names the topic. A reader who reads only first sentences should get the outline.
-- **Let the content choose the shape.** A sequence becomes numbered steps. Parallel items become a bulleted list. Items with several attributes become a table. Reasoning stays in paragraphs, because bullets drop the "because" that connects one point to the next. Short text needs no headings.
+- **Let the content choose the shape.** A sequence becomes numbered steps. Parallel items become a bulleted list. Items with several attributes become a table. Parts and the flows between them become a diagram. Reasoning stays in paragraphs, because bullets drop the "because" that connects one point to the next. Short text needs no headings.
 - **Write steps the reader can follow without looking back.** One action per step, in the imperative. Condition before instruction: "If the job is still running, wait for it to finish." Place before action: "In `dags/config.yaml`, set `retries` to `3`." Warning before the step it protects. Say what the reader sees when the step worked.
 - **Order things as the reader needs them.** Prerequisites before steps. The general before the specific. Events in the order they happened.
 
@@ -133,5 +136,6 @@ These habits make text read as padded or machine-written. A person can choose an
 | `references/conventions.md` | You produce a document or have a formatting or usage question: code and placeholders, steps, lists, tables, links, numbers, units, dates, abbreviations, and a usage list |
 | `references/messages.md` | You write to a person: questions, bug reports, answers, review comments, PR descriptions, commit messages, email, and chat |
 | `references/interface-text.md` | You write text a program shows: error messages, CLI output, log lines, alerts, labels, and option descriptions |
+| `references/diagrams.md` | You draw or edit a diagram: the Mermaid house style, the table and notes that go with a diagram, the labels Mermaid misreads, and how to check the render with `scripts/render_mermaid.py` |
 
 `SOURCES.md` records where each part of this skill comes from. It is for whoever maintains the skill. You do not need it to write.
