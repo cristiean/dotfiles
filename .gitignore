@@ -31,3 +31,6 @@ dbeaver/*
 !dbeaver/org.eclipse.ui.workbench.prefs
 !dbeaver/org.eclipse.e4.ui.css.swt.theme.prefs
 !dbeaver/org.jkiss.dbeaver.ui.editors.erd.prefs
+
+# Python bytecode
+__pycache__/
