@@ -101,7 +101,7 @@ Open each app once and do what this list says:
 - Stats: import the settings from the file `~/.config/Stats.plist`.
 - Rocket: grant the permissions that it asks for and enter the license. Turn on **Start at Login**, **Fuzzy search** and **Double key trigger**, and set **Size** to **Large**.
 - Vivid: grant the permissions that it asks for and enter the license.
-- VS Code: sign in to Settings Sync with GitHub and let it pull your settings.
+- VS Code: sign in to Settings Sync with GitHub and let it pull your settings. The setting `sqlfluff.executablePath` points to `~/.config/bin/sqlfluff-compact`.
 - DBeaver: add your connections. The dotfiles hold the preferences of DBeaver and not its connections or passwords, because the repo is public.
 
 VS Code and DBeaver format SQL with the `sqlfluff` command, so check `sqlfluff` in the list of apps on a Mac where you format SQL.
@@ -263,7 +263,8 @@ To change a key, open **Settings > User Interface > Keys** in DBeaver. DBeaver s
 | `zsh/` | Shell config. `.zshrc` holds aliases, completion, plugins, `klaude`, `airpods` and `repo`, which opens the repo page at this branch and folder. |
 | `git/config`, `git/ignore` | Global git settings and ignore rules |
 | `bin/sql-format` | Formats the SQL on standard input with SQLFluff. The SQL formatter of DBeaver runs it. To parse the SQL as another dialect, name the dialect: `pbpaste \| sql-format postgres`. |
-| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: ClickHouse as the dialect when a project sets none, upper case for keywords, and a compact layout. A list of columns stays on one line while it fits, and each clause starts a line. |
+| `bin/sqlfluff-compact` | Runs `sqlfluff`, then indents `AND` and `OR` by 2 under `WHERE`, which SQLFluff cannot do. VS Code runs it in place of `sqlfluff`, and `bin/sql-format` runs it for DBeaver. In a project with its own SQLFluff config, it changes nothing. |
+| `sqlfluff/.sqlfluff` | SQLFluff settings for every project: ClickHouse as the dialect when a project sets none, upper case for keywords, and a compact layout. A list of columns stays on one line while it fits in 160 characters, each clause starts a line, and the data types of a column list line up. |
 | `iterm2/` | iTerm2 settings, with the profile `calm`. Shell integration loads from the app itself. |
 | `dbeaver/` | DBeaver preferences, such as the SQL formatter and the [keys](#keys-in-dbeaver). `setup.sh` links the settings folder of DBeaver to this folder. Git tracks four preference files and ignores the files that hold window state. |
 | `karabiner/`, `linearmouse/`, `Stats.plist` | Keyboard, mouse and menu bar app settings |

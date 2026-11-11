@@ -20,7 +20,10 @@ PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 
 # The rules that change layout and case. They leave the meaning of the SQL
 # alone. VS Code has the same list in its setting sqlfluff.format.arguments.
-rules=capitalisation,layout,ambiguous.union,convention.not_equal,convention.coalesce,convention.select_trailing_comma,convention.is_null,jinja.padding,structure.distinct,convention.terminator
+rules=capitalisation,layout,ambiguous.union,convention.not_equal,convention.coalesce,convention.select_trailing_comma,convention.is_null,jinja.padding,structure.distinct
+
+# sqlfluff-compact runs sqlfluff, then indents AND and OR by 2 under WHERE.
+sqlfluff=$(dirname "$0")/sqlfluff-compact
 
 # The x keeps the newlines at the end of the input, which $(...) removes.
 sql=$(cat; printf x)
@@ -34,7 +37,7 @@ trap 'rm -f "$errors"' EXIT
 
 formatted=
 for dialect; do
-    formatted=$(printf '%s' "$sql" | sqlfluff fix --rules "$rules" ${dialect:+--dialect "$dialect"} - 2>"$errors")
+    formatted=$(printf '%s' "$sql" | "$sqlfluff" fix --rules "$rules" ${dialect:+--dialect "$dialect"} - 2>"$errors")
     if [ -n "$formatted" ] && ! grep -q 'parsing errors found' "$errors"; then
         break
     fi

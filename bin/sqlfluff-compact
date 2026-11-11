@@ -1,0 +1,172 @@
+#!/usr/bin/env python3
+"""sqlfluff-compact: SQLFluff, with AND and OR indented by 2 under WHERE.
+
+SQLFluff indents the lines that continue a WHERE clause by 4:
+
+    WHERE a = 1
+        AND b = 2
+
+This script runs SQLFluff and then moves those lines 2 to the left, so that
+AND ends under the E of WHERE:
+
+    WHERE a = 1
+      AND b = 2
+
+It takes the same arguments as sqlfluff:
+
+- `fix ... -` formats the SQL on standard input, then moves the lines.
+- `lint ... -` moves the lines back first, so that SQLFluff does not report them.
+- Every other command goes to sqlfluff unchanged.
+
+In a project that has its own SQLFluff config, every command goes to sqlfluff
+unchanged, so that the project's style applies and its checks still pass.
+
+VS Code runs this script through its setting sqlfluff.executablePath.
+bin/sql-format runs it for DBeaver.
+"""
+
+import os
+import re
+import subprocess
+import sys
+
+WHERE = re.compile(r"WHERE\b", re.IGNORECASE)
+
+# The files in which a project can keep its SQLFluff config, and the text that
+# shows the file has one. None: the file is only for SQLFluff.
+PROJECT_CONFIGS = {
+    ".sqlfluff": None,
+    "pyproject.toml": "[tool.sqlfluff",
+    "setup.cfg": "[sqlfluff",
+    "tox.ini": "[sqlfluff",
+    "pep8.ini": "[sqlfluff",
+}
+
+
+def find_sqlfluff() -> str:
+    """Return the path of the real sqlfluff, not of this script."""
+    this_script = os.path.realpath(__file__)
+    folders = os.environ.get("PATH", "").split(os.pathsep) + ["/opt/homebrew/bin", "/usr/local/bin"]
+    for folder in folders:
+        candidate = os.path.join(folder, "sqlfluff")
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK) and os.path.realpath(candidate) != this_script:
+            return candidate
+    sys.exit("sqlfluff-compact: sqlfluff is not installed. Install it with: brew install sqlfluff")
+
+
+def has_project_config(args: list) -> bool:
+    """Say whether the folder of the SQL file, or a folder above it, has a SQLFluff config.
+
+    The search stops at the home folder, where SQLFluff keeps the user's own config.
+    """
+    folder = os.getcwd()
+    if "--stdin-filename" in args[:-1]:
+        name = args[args.index("--stdin-filename") + 1]
+        folder = os.path.dirname(os.path.abspath(name))
+    home = os.path.expanduser("~")
+    while folder != home:
+        for name, marker in PROJECT_CONFIGS.items():
+            path = os.path.join(folder, name)
+            if not os.path.isfile(path):
+                continue
+            if marker is None:
+                return True
+            with open(path, encoding="utf-8", errors="replace") as config:
+                if marker in config.read():
+                    return True
+        parent = os.path.dirname(folder)
+        if parent == folder:
+            break
+        folder = parent
+    return False
+
+
+def starts_in_code(lines: list) -> list:
+    """For each line, say whether it starts in code: not inside a string or a block comment."""
+    flags = []
+    inside = None  # None in code, else the mark that ends the string or comment
+    for line in lines:
+        flags.append(inside is None)
+        position = 0
+        while position < len(line):
+            char, pair = line[position], line[position : position + 2]
+            if inside is None:
+                if pair == "--":
+                    break
+                if pair == "/*":
+                    inside, position = "*/", position + 2
+                    continue
+                if char in "'\"`":
+                    inside = char
+            elif inside == "*/":
+                if pair == "*/":
+                    inside, position = None, position + 2
+                    continue
+            elif char == "\\":
+                position += 2
+                continue
+            elif char == inside:
+                inside = None
+            position += 1
+    return flags
+
+
+def indent_of(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def move_where_lines(sql: str, compact: bool) -> str:
+    """Move the lines that continue each WHERE clause.
+
+    compact=True moves them 2 to the left, if SQLFluff indented them by 4 or more.
+    compact=False moves them 2 to the right, if they are indented by 2.
+    A line that starts inside a string or a block comment never moves.
+    """
+    lines = sql.split("\n")
+    in_code = starts_in_code(lines)
+    for number, line in enumerate(lines):
+        if not in_code[number] or not WHERE.match(line.lstrip(" ")):
+            continue
+        base = indent_of(line)
+        # The clause continues on the lines below that are indented more than WHERE.
+        continuation = []
+        for below in range(number + 1, len(lines)):
+            if not in_code[below] or not lines[below].strip():
+                continue
+            if indent_of(lines[below]) <= base:
+                break
+            continuation.append(below)
+        if not continuation:
+            continue
+        nearest = min(indent_of(lines[below]) for below in continuation)
+        if compact and nearest >= base + 4:
+            for below in continuation:
+                lines[below] = lines[below][2:]
+        elif not compact and nearest == base + 2:
+            for below in continuation:
+                lines[below] = "  " + lines[below]
+    return "\n".join(lines)
+
+
+def main() -> None:
+    args = sys.argv[1:]
+    sqlfluff = find_sqlfluff()
+    reads_stdin = len(args) > 1 and args[0] in ("fix", "lint") and args[-1] == "-"
+    if not reads_stdin or has_project_config(args):
+        os.execv(sqlfluff, [sqlfluff] + args)
+
+    # surrogateescape passes bytes that are not UTF-8 through unchanged.
+    sql = sys.stdin.buffer.read().decode("utf-8", "surrogateescape")
+    if args[0] == "lint":
+        sql = move_where_lines(sql, compact=False)
+    result = subprocess.run([sqlfluff] + args, input=sql.encode("utf-8", "surrogateescape"), capture_output=True)
+    output = result.stdout.decode("utf-8", "surrogateescape")
+    if args[0] == "fix":
+        output = move_where_lines(output, compact=True)
+    sys.stdout.buffer.write(output.encode("utf-8", "surrogateescape"))
+    sys.stderr.buffer.write(result.stderr)
+    sys.exit(result.returncode)
+
+
+if __name__ == "__main__":
+    main()

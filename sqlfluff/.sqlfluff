@@ -11,7 +11,7 @@
 dialect = clickhouse
 
 # The longest line that SQLFluff accepts. It breaks a longer line.
-max_line_length = 120
+max_line_length = 160
 
 # Rules that are off:
 # - capitalisation.identifiers, capitalisation.functions, capitalisation.types:
@@ -44,10 +44,6 @@ capitalisation_policy = upper
 # A comment may be longer than max_line_length.
 [sqlfluff:rules:layout.long_lines]
 ignore_comment_lines = True
-
-# The semicolon of a statement that spans lines goes on a line of its own.
-[sqlfluff:rules:convention.terminator]
-multiline_newline = True
 
 # No space between the two brackets of a ClickHouse aggregate function that
 # takes parameters, such as quantile(0.9)(x).
